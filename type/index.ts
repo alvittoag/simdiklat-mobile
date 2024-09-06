@@ -374,3 +374,54 @@ export interface IKuisPenyelenggara {
   };
   menu: MenuPenyelenggara[];
 }
+
+export interface IKuisonerPenyelenggarList {
+  id: number;
+  angkatan_id: number;
+  pengajar_id: number;
+  materi_id: number;
+  tanggal: Date;
+  jenis_materi: string;
+  jp: number;
+  keterangan: string;
+  kirim_email: number;
+  konfirmasi_hadir: string;
+  tgl_konfirmasi: Date;
+  created_at: string;
+  updated_at: string;
+  user: {
+    id: number;
+    eselon_id: string;
+    uke_induk_id: number;
+    uke_id: string;
+    jabatan_id: string;
+    pangkat_id: number;
+    golongan_id: string;
+    photo_id: string;
+    nip: string;
+    nrk: string;
+    full_name: string;
+  };
+  jadwal_diklat: {
+    id: number;
+    diklat_id: number;
+    lokasi_diklat_id: number;
+    ruang_id: number;
+    name: string;
+    jadwal_mulai: Date;
+    jadwal_selesai: Date;
+    registrasi_mulai: Date;
+    registrasi_selesai: Date;
+    status_registrasi: string;
+    created_at: Date;
+    updated_at: Date;
+  };
+  mata_diklat: {
+    id: number;
+    name: string;
+    deskripsi: string;
+    created_at: Date;
+    updated_at: Date;
+  };
+  status: string;
+}

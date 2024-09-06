@@ -170,8 +170,8 @@ export default function KuisionerPengajar() {
               <Button
                 onPress={() =>
                   router.push({
-                    pathname: "/kuisoner-pengajar.detail",
-                    params: { id: item.id },
+                    pathname: "/kuisoner-pengajar.list",
+                    params: { data: JSON.stringify(item) },
                   })
                 }
                 mode="contained"
@@ -183,7 +183,7 @@ export default function KuisionerPengajar() {
                   paddingVertical: moderateScale(7),
                 }}
               >
-                Input Kuisoner
+                Daftar Evaluasi Pengajar
               </Button>
             </View>
           )}

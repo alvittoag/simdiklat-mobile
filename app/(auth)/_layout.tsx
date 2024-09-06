@@ -282,7 +282,7 @@ const DrawerLayout: React.FC = () => {
                         r.title !== "Detail Podcast Perangkat Daerah" ? (
                           <AppHeader title={r.title ?? r.name} />
                         ) : null,
-                      headerShown: r.title !== "Detail Kotak Masuk",
+                      headerShown: r.title !== "Form List Kuisoner Pengajar",
                     }}
                   />
                 ))

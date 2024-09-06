@@ -233,8 +233,12 @@ export const routers = [
         path: "/kuisioner-pengajar",
         other_routes: [
           {
-            title: "Form Kuisoner",
+            title: "Form Kuisoner Pengajar",
             path: "/kuisoner-pengajar.detail",
+          },
+          {
+            title: "Form List Kuisoner Pengajar",
+            path: "/kuisoner-pengajar.list",
           },
         ],
       },

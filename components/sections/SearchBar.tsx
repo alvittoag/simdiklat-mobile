@@ -8,10 +8,12 @@ export default function SearchBar({
   search,
   handleSearchChange,
   showDialog,
+  showFilter,
 }: {
   search: string;
   showDialog: () => void;
   handleSearchChange: (text: string) => void;
+  showFilter?: boolean;
 }) {
   return (
     <View
@@ -43,9 +45,11 @@ export default function SearchBar({
         }}
       />
 
-      <TouchableOpacity onPress={showDialog}>
-        <Ionicons name="filter" size={30} />
-      </TouchableOpacity>
+      {showFilter && (
+        <TouchableOpacity onPress={showDialog}>
+          <Ionicons name="filter" size={30} />
+        </TouchableOpacity>
+      )}
     </View>
   );
 }
