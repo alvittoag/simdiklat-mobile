@@ -41,8 +41,6 @@ export default function LupaPassword() {
     setLoading(true);
     const token = Math.ceil(Math.random() * 99999).toString();
 
-    console.log(token);
-
     const templateParams = {
       email: email,
       message: token,
@@ -51,7 +49,10 @@ export default function LupaPassword() {
     };
 
     try {
-      await auth.forget_password_token({ email, token });
+      await auth.forget_password_token({
+        email: "pusdatinbpsdmjakarta@gmail.com",
+        token,
+      });
 
       const response = await fetch(process.env.EXPO_PUBLIC_API_EMAIL!, {
         method: "POST",
@@ -67,15 +68,6 @@ export default function LupaPassword() {
         }),
       });
 
-      if (!response.ok) {
-        return Dialog.show({
-          type: ALERT_TYPE.DANGER,
-          title: "Gagal Kirim Email",
-          textBody: "Terjadi Kesalahan Saat Mengirim Email",
-          button: "Tutup",
-        });
-      }
-
       setActive(1);
       setDoneProgress([...doneProgress, active]);
     } catch (err: unknown) {
@@ -89,7 +81,15 @@ export default function LupaPassword() {
           button: "Tutup",
         });
       }
-      console.log(error.response);
+
+      Dialog.show({
+        type: ALERT_TYPE.DANGER,
+        title: "Gagal Kirim Email",
+        textBody: "Terjadi Kesalahan Saat Mengirim Email",
+        button: "Tutup",
+      });
+
+      console.log(error);
     } finally {
       setLoading(false);
     }
@@ -98,7 +98,10 @@ export default function LupaPassword() {
   const handleVerifyEmail = async () => {
     setLoading(true);
     try {
-      await auth.forget_password_verify({ email, token: tokenVal });
+      await auth.forget_password_verify({
+        email: "pusdatinbpsdmjakarta@gmail.com",
+        token: tokenVal,
+      });
 
       setActive(2);
       setDoneProgress([...doneProgress, active]);

@@ -1,6 +1,5 @@
 import Loading from "@/components/elements/Loading";
 import useSession from "@/hooks/useSession";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Redirect, Stack } from "expo-router";
 import React from "react";
 
@@ -22,6 +21,9 @@ export default function PublicLayout() {
         name="pengumuman"
         options={{ animation: "slide_from_bottom" }}
       />
+
+      <Stack.Screen name="pengumuman-detail" />
+
       <Stack.Screen
         name="unduh-panduan"
         options={{ animation: "slide_from_bottom" }}

@@ -14,6 +14,7 @@ import { FlashList } from "@shopify/flash-list";
 import Pagination from "@/components/sections/pagination";
 import { parseDateLong } from "@/lib/parseDate";
 import AppHeader from "@/components/AppHeader";
+import { router } from "expo-router";
 
 export default function Pengumuman() {
   const [page, setPage] = React.useState(1);
@@ -163,6 +164,12 @@ export default function Pengumuman() {
 
             <View style={{ gap: moderateScale(8) }}>
               <ButtonOpacity
+                onPress={() =>
+                  router.push({
+                    pathname: "/pengumuman-detail",
+                    params: { id: item.id },
+                  })
+                }
                 icon={assets.folder_plus}
                 bgcolor={Colors.button_secondary}
                 textcolor="black"
@@ -171,28 +178,6 @@ export default function Pengumuman() {
                 textweight="600"
               >
                 Tampilkan
-              </ButtonOpacity>
-
-              <ButtonOpacity
-                icon={assets.cetak}
-                bgcolor={Colors.button_primary}
-                textcolor="white"
-                textsize={15}
-                vertical={18}
-                textweight="600"
-              >
-                Cetak Kartu Peserta
-              </ButtonOpacity>
-
-              <ButtonOpacity
-                icon={assets.download}
-                bgcolor={Colors.button_primary}
-                textcolor="white"
-                textsize={15}
-                vertical={18}
-                textweight="600"
-              >
-                Download Lampiran
               </ButtonOpacity>
             </View>
           </View>

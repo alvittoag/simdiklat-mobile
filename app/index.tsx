@@ -40,6 +40,7 @@ export default function index() {
             textAlign: "center",
             color: Colors.text_tertiary,
             fontWeight: "600",
+            marginTop: moderateScale(20),
           }}
         >
           Selamat Datang di Sistem Informasi Kediklatan (SIMDIKLAT) Mobile
