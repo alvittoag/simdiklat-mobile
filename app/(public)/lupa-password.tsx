@@ -137,7 +137,7 @@ export default function LupaPassword() {
 
     try {
       await auth.forget_password_reset({
-        email,
+        email: "pusdatinbpsdmjakarta@gmail.com",
         token: tokenVal,
         password: password.pass,
       });
