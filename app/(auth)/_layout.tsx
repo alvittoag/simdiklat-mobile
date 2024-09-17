@@ -149,7 +149,7 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = React.memo(
             SectionSeparatorComponent={renderSectionSeparator}
             ListFooterComponent={() => (
               <>
-                <View style={{ marginTop: 0, marginBottom: 25 }}>
+                <View style={{ marginTop: 0, marginBottom: 10 }}>
                   <Text style={styles.routeTitle}>SETTING</Text>
                   <View style={{ paddingHorizontal: moderateScale(8) }}>
                     <TouchableOpacity

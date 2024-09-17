@@ -1,13 +1,48 @@
-import { View, Text, Platform } from "react-native";
+import { View, Text, Platform, FlatList } from "react-native";
 import React from "react";
 import ContainerBackground from "@/components/container/ContainerBackground";
-import AppHeaderNav from "@/components/AppHeaderNav";
-import DataKompetensi from "@/components/sections/biodata-kompetensi/DataKompetensi";
+
 import { moderateScale } from "react-native-size-matters";
 import { Colors } from "@/constants/Colors";
 import { Button } from "react-native-paper";
+import { useQuery } from "@apollo/client";
+import { IJule, IProfilePeserta } from "@/type";
+import { getProfilePeserta } from "@/services/query/getProfilePeserta";
+import Loading from "@/components/elements/Loading";
+import Error from "@/components/elements/Error";
+import { useQuery as useQ } from "@tanstack/react-query";
+import { axiosService } from "@/services/axiosService";
+import { FlashList } from "@shopify/flash-list";
+import { parseDateLong } from "@/lib/parseDate";
+
+type response = {
+  status: "success" | "error";
+  message: string;
+  data: IJule[];
+};
 
 export default function UpdateJpSiJule() {
+  const { data, loading, error } = useQuery<{
+    profilPesertaDiklat: IProfilePeserta;
+  }>(getProfilePeserta);
+
+  const {
+    data: dataJule,
+    isPending,
+    error: errorJule,
+  } = useQ({
+    queryKey: ["jule"],
+    queryFn: async () => {
+      const res = await axiosService.get<response>("/api/jp-sijule/get");
+      return res.data;
+    },
+  });
+
+  if (loading || isPending) return <Loading />;
+
+  if (error || errorJule) return <Error />;
+
+  console.log(dataJule.data);
   return (
     <ContainerBackground>
       <View
@@ -17,114 +52,73 @@ export default function UpdateJpSiJule() {
           gap: moderateScale(20),
         }}
       >
-        <View
-          style={{
-            backgroundColor: "white",
-            elevation: 3,
-            paddingVertical: 20,
-            borderRadius: 10,
-            gap: moderateScale(5),
-            borderWidth: Platform.OS === "ios" ? 1 : 0,
-            borderColor: Colors.border_primary,
-          }}
-        >
-          <Text
-            style={{ textAlign: "center", fontSize: 19, fontWeight: "bold" }}
-          >
-            Data Sijule
-          </Text>
-          <Text style={{ textAlign: "center", fontSize: 17 }}>
-            Riyan Adi Lesmana (185494)
-          </Text>
-        </View>
-
-        <View
-          style={{
-            gap: moderateScale(20),
-          }}
-        >
-          <View
-            style={{
-              backgroundColor: "white",
-              elevation: 3,
-              padding: 20,
-              borderRadius: 5,
-              gap: 20,
-              flexDirection: "row",
-              justifyContent: "space-between",
-              alignItems: "center",
-              borderWidth: Platform.OS === "ios" ? 1 : 0,
-              borderColor: Colors.border_primary,
-            }}
-          >
-            <View>
-              <Text style={{ fontSize: 17, fontWeight: "bold" }}>
-                Leadership
-              </Text>
-              <Text style={{ fontSize: 15, fontWeight: "bold" }}>JP : 1</Text>
-            </View>
-
-            <Text style={{ fontSize: 15, fontWeight: 500 }}>2023-01-17</Text>
-          </View>
-
-          <View
-            style={{
-              backgroundColor: "white",
-              elevation: 3,
-              padding: 20,
-              borderRadius: 5,
-              gap: 20,
-              flexDirection: "row",
-              justifyContent: "space-between",
-              alignItems: "center",
-              borderWidth: Platform.OS === "ios" ? 1 : 0,
-              borderColor: Colors.border_primary,
-            }}
-          >
-            <View>
-              <Text style={{ fontSize: 17, fontWeight: "bold" }}>
-                Creative Thingking
-              </Text>
-              <Text style={{ fontSize: 15, fontWeight: "bold" }}>JP : 1</Text>
-            </View>
-
-            <Text style={{ fontSize: 15, fontWeight: 500 }}>2023-01-17</Text>
-          </View>
-
-          <View
-            style={{
-              flexDirection: "row",
-              justifyContent: "space-between",
-              gap: 20,
-            }}
-          >
-            <Button
-              icon={"arrow-left"}
-              mode="contained"
-              textColor="white"
+        <FlatList
+          showsVerticalScrollIndicator={false}
+          data={dataJule.data}
+          keyExtractor={(item) => item.id_pelatihan.toString()}
+          renderItem={({ item }) => (
+            <View
               style={{
-                flex: 1,
-                paddingVertical: 6,
-                backgroundColor: Colors.button_primary,
+                marginBottom: 20,
+                backgroundColor: "white",
+                padding: 18,
+                borderRadius: 5,
+                borderWidth: 1,
+                borderColor: Colors.border_primary,
+                position: "relative",
               }}
             >
-              Kembali
-            </Button>
+              <View style={{ gap: 15 }}>
+                <Text style={{ fontSize: 16, fontWeight: 500 }}>
+                  {item.name}
+                </Text>
 
-            <Button
-              icon={"content-save-move-outline"}
-              mode="contained"
-              textColor="black"
+                <Text style={{ fontSize: 15, fontWeight: "bold" }}>
+                  JP : {item.jp ?? "-"}
+                </Text>
+              </View>
+
+              <Text
+                style={{
+                  fontSize: 14,
+                  fontWeight: 500,
+                  position: "absolute",
+                  bottom: 19,
+                  right: 20,
+                }}
+              >
+                {parseDateLong(item.selesai as any)}
+              </Text>
+            </View>
+          )}
+          ListHeaderComponent={() => (
+            <View
               style={{
-                flex: 1,
-                paddingVertical: 6,
-                backgroundColor: Colors.button_secondary,
+                backgroundColor: "white",
+                marginBottom: moderateScale(20),
+                paddingVertical: moderateScale(15),
+                borderRadius: 10,
+                gap: moderateScale(5),
+                borderWidth: 1,
+                borderColor: Colors.border_primary,
               }}
             >
-              Proses
-            </Button>
-          </View>
-        </View>
+              <Text
+                style={{
+                  textAlign: "center",
+                  fontSize: 19,
+                  fontWeight: "bold",
+                }}
+              >
+                Data Sijule
+              </Text>
+              <Text style={{ textAlign: "center", fontSize: 17 }}>
+                {data?.profilPesertaDiklat.full_name} (
+                {data?.profilPesertaDiklat.nrk})
+              </Text>
+            </View>
+          )}
+        />
       </View>
     </ContainerBackground>
   );

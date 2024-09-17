@@ -425,3 +425,258 @@ export interface IKuisonerPenyelenggarList {
   };
   status: string;
 }
+
+export interface IJP {
+  NAMA_DIKLAT: string;
+  NAMA_KATEGORI: string;
+  JP: number;
+}
+
+export interface IJule {
+  id_pelatihan: number;
+  name: string;
+  jp: number;
+  selesai: Date;
+}
+
+export interface IPodcast {
+  id: number;
+  angkatan_id: number;
+  title: string;
+  watch_id: string;
+  keterangan: string;
+  clicked: number;
+  created_at: Date;
+  updated_at: Date;
+  jadwal_diklat: {
+    id: 5080;
+    diklat_id: 967;
+    lokasi_diklat_id: 90;
+    ruang_id: 0;
+    name: "16";
+    minimal_peserta: 0;
+    maksimal_peserta: 30;
+    jadwal_mulai: "2023-08-14T00:00:00.000Z";
+    jadwal_selesai: "2023-08-16T00:00:00.000Z";
+    registrasi_mulai: "1970-01-01T07:00:00.000Z";
+    registrasi_selesai: "2023-07-10T00:00:00.000Z";
+    status_registrasi: "open";
+    keterangan: "<p>1. Pegawai Negeri Sipil;<br />2. Pendidikan minimal SLTA atau Sederajat;<br />3. Lulus Pendidikan dan Pelatihan Dasar Kebakaran Tingkat&nbsp;I;<br />4. Pangkat/golongan minimal Pengatur Muda (II/a);<br />5. Diusulkan oleh unit kerja dan tidak sedang mengikuti Diklat&nbsp;atau sejenisnya;<br />6. Tidak sedang menjalani Hukuman Disiplin PP Nomor 94&nbsp;Tahun 2021 Tentang Disiplin PNS;<br />7. Sehat jasmani dan rohani yang dinyatakan dengan Surat&nbsp;Keterangan Sehat dari Dokter.</p>";
+    petugas_id: 0;
+    manajer_id: 0;
+    mfd_id: 0;
+    created_at: "2023-12-27T11:12:17.000Z";
+    updated_at: "2023-12-27T11:42:32.000Z";
+    elearning_id: 0;
+    elearning_enable: 0;
+    jumlah_jam: 30;
+    tgl_sertifikat: "2023-12-27T00:00:00.000Z";
+    nama_ttd_sertifikat: "Dra. BUDIHASTUTI, M.Psi";
+    nip_ttd_sertifikat: "195903151985032005";
+    jabatan_ttd_sertifikat: "KEPALA BADAN PENGEMBANGAN SUMBER DAYA MANUSIA";
+    lokasi_diklat_sertifikat: "Jakarta";
+    penyelenggara_sertifikat: " ";
+    kerjasama_sertifikat: "Badan Pengembangan Sumber Daya Manusia";
+    sertifikat_signed: 0;
+    tte_status: "none";
+    nomor_sertifikat_podcast: null;
+    kompetensi_teknis_sertifikat: null;
+    mata_pelajaran_sertifikat: null;
+    template_sertifikat: null;
+    kabid_nrk_sertifikat: null;
+    simpegsync_status: "none";
+    simpegsync_at: "2023-12-27T04:12:12.000Z";
+    transkrip_status: "none";
+    template_transkrip: "teknis";
+    sp_status: "none";
+  };
+  thumbnail: string;
+  sertifikat: string;
+}
+
+export interface IUsers {
+  id: number;
+  eselon_id: string;
+  uke_induk_id: number;
+  uke_id: string;
+  jabatan_id: string;
+  pangkat_id: number;
+  golongan_id: string;
+  file_cv_id: number;
+  photo_id: string;
+  nip: string;
+  nrk: string;
+  full_name: string;
+  gelar_depan: string;
+  gelar_belakang: string;
+  tgl_lahir: Date;
+  pendidikan_sk: number;
+  tmt_eselon: Date;
+  tmt_pangkat: Date;
+  tmt_pns: Date;
+  tmt_cpns: Date;
+  tempat_lahir: string;
+  rumah_alamat: string;
+  rumah_kota: string;
+  rumah_propinsi: string;
+  rumah_kdpos: string;
+  rumah_telp: string;
+  ktp_rumah_alamat: string;
+  ktp_rumah_kota: string;
+  ktp_rumah_kdpos: string;
+  ktp_rumah_telp: string;
+  ktp_telp_mobile: string;
+  telp_mobile: string;
+  kantor_alamat: string;
+  kantor_kota: string;
+  kantor_propinsi: string;
+  kantor_kdpos: null;
+  kantor_telp: string;
+  kantor_fax: string;
+  status_pegawai: string;
+  agama: string;
+  gender: string;
+  ktp: string;
+  bank_account: string;
+  pemilik_rekening: string;
+  rekening: string;
+  npwp: string;
+  email: string;
+  change_password_after_login: number;
+  activation_code: null;
+  verification_code: null;
+  active: number;
+  verified: number;
+  filled: number;
+  created_at: Date;
+  updated_at: Date;
+  remember_token: string;
+  last_change_password: Date;
+  recover_password_q: string;
+  recover_password_a: string;
+  elearning_enable: number;
+  kantor_kec: string;
+  kantor_kel: string;
+  rumah_kec: string;
+  rumah_kel: string;
+  ktp_rumah_kec: string;
+  ktp_rumah_kel: string;
+  ktp_rumah_propinsi: string;
+  pendidikan_id: number;
+  jabatan_sk: string;
+  is_jabatan_sk: number;
+  password: string;
+  jabatan: Jabatan;
+  uke: Uke;
+  pendidikan: null;
+  pangkat: Pangkat;
+  eselon: Eselon;
+}
+
+export interface Eselon {
+  code: string;
+  name: string;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface Jabatan {
+  code: string;
+  name: string;
+  full_name: string;
+  urutan: number;
+  jenis: string;
+  jabatan_active: number;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface Pangkat {
+  code: number;
+  name: string;
+  name2: string;
+  full_name: string;
+  golongan: string;
+  ruang: string;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface Uke {
+  code: string;
+  uke_induk_id: null;
+  skpd_code: string;
+  skpd_code_old: null;
+  name: string;
+  full_name: string;
+  nama_dki: string;
+  is_active: number;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface ISimpeg {
+  THBL: string;
+  NRK: string;
+  NIP18: string;
+  "GELAR DEPAN": null;
+  NAMA: string;
+  "GELAR BELAKANG": string;
+  JENKEL: string;
+  "JENIS KELAMIN": string;
+  "KODE AGAMA": number;
+  AGAMA: string;
+  STAPEG: number;
+  "STATUS PEGAWAI": string;
+  JENPEG: number;
+  "JENIS PEGAWAI": string;
+  STAWIN: number;
+  "STATUS KAWIN": string;
+  "TEMPAT LAHIR": string;
+  "TANGGAL LAHIR": string;
+  UMUR: number;
+  ALAMAT: string;
+  KOWIL: string;
+  WILAYAH: string;
+  KOCAM: string;
+  KECAMATAN: string;
+  KOKEL: string;
+  KELURAHAN: string;
+  NOTELP: string;
+  NOHP: string;
+  "TMT PNS": string;
+  "TMT CPNS": string;
+  "NO.KTP": string;
+  NPWP: string;
+  "NO.REKENING": string;
+  JENDIK: number;
+  KODIK: string;
+  PENDIDIKAN: string;
+  "KODE UNIVER/SEKOLAH": string;
+  UNIVERSITAS: string;
+  "LOKASI UNIVERSITAS": string;
+  "KODE JURUSAN": string;
+  "NAMA JURUSAN": string;
+  "NO.IJAZAH": string;
+  "TGL.IJAZAH": string;
+  KOLOK: string;
+  "LOKASI KERJA": string;
+  KLOGAD: string;
+  "LOKASI GAJI": string;
+  "WILAYAH KERJA": string;
+  "KODE UKPD": string;
+  "NAMA UKPD": string;
+  SPMU: string;
+  "KODE SKPD": string;
+  "NAMA SKPD": string;
+  KOPANG: string;
+  PANGKAT: string;
+  GOL: string;
+  "TMT PANGKAT": string;
+  ESELON: string;
+  "NAMA ESELON": string;
+  "TMT ESELON": string;
+  KOJAB: string;
+  JABATAN: string;
+  KD: string;
+}

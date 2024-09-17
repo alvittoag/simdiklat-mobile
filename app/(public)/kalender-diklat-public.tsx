@@ -38,15 +38,13 @@ import parseLongText from "@/lib/parseLongText";
 import { useMutation } from "@tanstack/react-query";
 import { axiosService } from "@/services/axiosService";
 import { ALERT_TYPE, Dialog as DNote } from "react-native-alert-notification";
+import AppHeader from "@/components/AppHeader";
 
-export default function KalenderDiklat() {
-  const [search, setSearch] = React.useState("");
+export default function KalenderDiklatPublic() {
   const [yearFilter, setYearFilter] = React.useState("2024");
   const [terapkan, setTerapkan] = React.useState<{ year: string | null }>({
     year: null,
   });
-
-  const debouncedSearch = useDebounce(search, 1000);
 
   const [page, setPage] = React.useState(1);
   const [limit] = React.useState(10);
@@ -62,26 +60,14 @@ export default function KalenderDiklat() {
       tahun: Number(terapkan.year ?? 2024),
       page: page,
       limit: limit,
-      q: debouncedSearch,
     },
   });
 
   const totalPage = data ? Math.ceil(data?.kalenderDiklats.total / limit) : 1;
 
-  const handleSearchChange = React.useCallback((text: string) => {
-    setSearch(text);
-  }, []);
-
   const [visible, setVisible] = React.useState(false);
 
   const showDialog = () => setVisible(true);
-
-  const hideDialog = () => {
-    setTerapkan((prev) => ({ ...prev, year: yearFilter }));
-    setSearch("");
-    setPage(1);
-    setVisible(false);
-  };
 
   const ListFooter = React.useMemo(
     () => (
@@ -131,13 +117,7 @@ export default function KalenderDiklat() {
 
   return (
     <ContainerBackground>
-      <SearchBar
-        handleSearchChange={handleSearchChange}
-        showDialog={showDialog}
-        search={search}
-        showFilter
-      />
-
+      <AppHeader title="Kalender Diklat" />
       {loading ? (
         <Loading />
       ) : data?.kalenderDiklats.items.length === 0 ? (
@@ -224,7 +204,7 @@ export default function KalenderDiklat() {
                     onPress={() =>
                       router.navigate({
                         params: { id: item.id },
-                        pathname: `/kalender-diklat.detail`,
+                        pathname: `/kalender-diklat-public-detail`,
                       })
                     }
                     textColor="black"
@@ -237,23 +217,6 @@ export default function KalenderDiklat() {
                   >
                     Tampilkan
                   </Button>
-                  {item.approval === null &&
-                    item.status_registrasi === "open" && (
-                      <Button
-                        onPress={() => registerDiklat(item.id)}
-                        mode="contained"
-                        icon={"account"}
-                        textColor="white"
-                        style={{
-                          backgroundColor: Colors.button_primary,
-                          paddingVertical: 6,
-                          flex: 1,
-                          borderRadius: 7,
-                        }}
-                      >
-                        Daftar
-                      </Button>
-                    )}
                 </View>
               </View>
             </View>
@@ -261,49 +224,6 @@ export default function KalenderDiklat() {
           ListFooterComponent={ListFooter}
         />
       )}
-
-      <Portal>
-        <Dialog
-          visible={visible}
-          onDismiss={hideDialog}
-          style={{ backgroundColor: "white" }}
-        >
-          <Dialog.Title style={{ color: Colors.text_primary }}>
-            Filter Berdasarkan
-          </Dialog.Title>
-
-          <Dialog.Content>
-            <Dropdown
-              value={yearFilter}
-              onChange={({ value }) => setYearFilter(value)}
-              style={{
-                backgroundColor: "white",
-                borderWidth: 1,
-                borderRadius: 7,
-                borderColor: Colors.border_primary,
-                paddingVertical: 10,
-                paddingHorizontal: 15,
-                marginTop: 10,
-              }}
-              placeholder="Pilih Tahun"
-              labelField="label"
-              valueField="value"
-              data={dataYear}
-            />
-          </Dialog.Content>
-
-          <Dialog.Actions>
-            <Button
-              onPress={hideDialog}
-              mode="contained"
-              textColor="black"
-              style={{ backgroundColor: Colors.button_secondary, flexGrow: 1 }}
-            >
-              Terapkan
-            </Button>
-          </Dialog.Actions>
-        </Dialog>
-      </Portal>
     </ContainerBackground>
   );
 }

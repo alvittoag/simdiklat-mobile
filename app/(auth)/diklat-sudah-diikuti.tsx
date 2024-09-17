@@ -1,10 +1,4 @@
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  ScrollView,
-  RefreshControl,
-} from "react-native";
+import { View, Text, RefreshControl, Linking } from "react-native";
 import React from "react";
 import ContainerBackground from "@/components/container/ContainerBackground";
 import {
@@ -16,7 +10,6 @@ import {
 } from "react-native-paper";
 import { moderateScale } from "react-native-size-matters";
 import { Colors } from "@/constants/Colors";
-import { Ionicons } from "@expo/vector-icons";
 import ContainerCard from "@/components/container/ContainerCard";
 import { useQuery } from "@apollo/client";
 import { getDiklat } from "@/services/query/get-diklat";
@@ -53,6 +46,8 @@ export default function DiklatSudahDiikuti() {
       limit: limit,
       q: debouncedSearch,
       tipe: "history",
+      sortBy: "a.jadwal_mulai",
+      sortDirection: "DESC",
     },
   });
 
@@ -181,6 +176,11 @@ export default function DiklatSudahDiikuti() {
                   </Button>
 
                   <Button
+                    onPress={() =>
+                      Linking.openURL(
+                        `https://simdiklat-bpsdm.jakarta.go.id/sim-diklat/sertifikat/peserta-download-tte/${item.id}`
+                      )
+                    }
                     mode="contained"
                     icon={"download"}
                     textColor="white"

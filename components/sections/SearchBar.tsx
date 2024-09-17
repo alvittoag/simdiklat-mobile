@@ -11,7 +11,7 @@ export default function SearchBar({
   showFilter,
 }: {
   search: string;
-  showDialog: () => void;
+  showDialog?: () => void;
   handleSearchChange: (text: string) => void;
   showFilter?: boolean;
 }) {

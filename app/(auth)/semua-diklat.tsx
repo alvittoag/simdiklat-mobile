@@ -4,6 +4,7 @@ import {
   TouchableOpacity,
   ScrollView,
   RefreshControl,
+  Linking,
 } from "react-native";
 import React from "react";
 import ContainerBackground from "@/components/container/ContainerBackground";
@@ -48,6 +49,8 @@ export default function SemuaDiklat() {
       limit: limit,
       q: debouncedSearch,
       tipe: "",
+      sortBy: "a.jadwal_mulai",
+      sortDirection: "DESC",
     },
   });
 
@@ -176,6 +179,11 @@ export default function SemuaDiklat() {
                   </Button>
 
                   <Button
+                    onPress={() =>
+                      Linking.openURL(
+                        `https://simdiklat-bpsdm.jakarta.go.id/sim-diklat/sertifikat/peserta-download-tte/${item.id}`
+                      )
+                    }
                     mode="contained"
                     icon={"download"}
                     textColor="white"

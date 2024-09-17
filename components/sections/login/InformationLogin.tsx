@@ -41,6 +41,7 @@ export default function InformationLogin() {
       </TouchableOpacity>
 
       <TouchableOpacity
+        onPress={() => router.push("/kalender-diklat-public")}
         style={{
           borderWidth: 1,
           borderColor: "#9F9F9F",

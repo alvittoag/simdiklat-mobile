@@ -1,4 +1,4 @@
-import { View, Text } from "react-native";
+import { View, Text, Image, Linking } from "react-native";
 import React from "react";
 import ContainerBackground from "@/components/container/ContainerBackground";
 import AppHeader from "@/components/AppHeader";
@@ -7,126 +7,224 @@ import { moderateScale } from "react-native-size-matters";
 import { Colors } from "@/constants/Colors";
 import { Button } from "react-native-paper";
 import { router } from "expo-router";
+import useDebounce from "@/hooks/useDebounce";
+import Pagination from "@/components/sections/pagination";
+import { useQuery } from "@tanstack/react-query";
+import { axiosService } from "@/services/axiosService";
+import Error from "@/components/elements/Error";
+import { IPodcast } from "@/type";
+import { parseDateLong } from "@/lib/parseDate";
+import { FlashList } from "@shopify/flash-list";
+import Loading from "@/components/elements/Loading";
+import NotFoundSearch from "@/components/sections/NotFoundSearch";
+
+type response = {
+  status: string;
+  message: string;
+  data: {
+    data: IPodcast[];
+    meta: {
+      page: number;
+      limit: number;
+      total: number;
+      totalPages: number;
+    };
+  };
+};
 
 export default function PodcastPerangkatDaerahList() {
+  const [search, setSearch] = React.useState("");
+
+  const debouncedSearch = useDebounce(search, 1000);
+
+  const [page, setPage] = React.useState(1);
+  const [limit] = React.useState(10);
+
+  const { data, isPending, error } = useQuery<response>({
+    queryKey: ["podcastPerangkatDaerah", debouncedSearch, page, limit],
+    queryFn: async () => {
+      const res = await axiosService.get(
+        `/api/podcast?page=${page}&limit=${limit}&search=${debouncedSearch}`
+      );
+
+      return res.data;
+    },
+  });
+
+  const handleSearchChange = React.useCallback((text: string) => {
+    setSearch(text);
+  }, []);
+
+  const ListFooter = React.useMemo(
+    () => (
+      <Pagination
+        loading={isPending}
+        page={page}
+        setPage={setPage}
+        totalPage={data?.data.meta.totalPages || 1}
+      />
+    ),
+    [isPending, page, setPage, data?.data.meta.totalPages]
+  );
+
+  if (error) return <Error />;
+
   return (
     <ContainerBackground>
       <AppHeader title="Daftar Podcast Rabu Belajar" />
-      <SearchBar
-        handleSearchChange={() => {}}
-        search={""}
-        showDialog={() => {}}
-      />
 
-      <View
-        style={{
-          paddingVertical: moderateScale(20),
-          paddingHorizontal: moderateScale(15),
-        }}
-      >
-        <View
-          style={{
-            backgroundColor: "white",
-            padding: moderateScale(15),
-            borderWidth: 1,
-            borderColor: Colors.border_primary,
-            borderRadius: 7,
-            gap: moderateScale(15),
-          }}
-        >
-          <View style={{ gap: moderateScale(3) }}>
-            <Text style={{ color: Colors.text_secondary }}>Episode</Text>
+      <SearchBar handleSearchChange={handleSearchChange} search={search} />
 
-            <Text
+      {isPending ? (
+        <Loading />
+      ) : data.data.data.length === 0 ? (
+        <NotFoundSearch />
+      ) : (
+        <FlashList
+          estimatedItemSize={200}
+          showsVerticalScrollIndicator={false}
+          data={data?.data.data}
+          renderItem={({ item }) => (
+            <View
               style={{
-                fontWeight: "bold",
-                fontSize: 16,
-                color: Colors.text_primary,
-              }}
-            >
-              131
-            </Text>
-          </View>
-
-          <View style={{ gap: moderateScale(3) }}>
-            <Text style={{ color: Colors.text_secondary }}>Tema</Text>
-
-            <Text
-              style={{
-                fontWeight: "bold",
-                fontSize: 16,
-                color: Colors.text_primary,
-              }}
-            >
-              Mengenal Hiperbarik Oksigen Terapi dan Manfaatnya bagi kesehatan
-            </Text>
-          </View>
-
-          <View style={{ gap: moderateScale(3) }}>
-            <Text style={{ color: Colors.text_secondary }}>Jadwal</Text>
-
-            <Text
-              style={{
-                fontWeight: "bold",
-                fontSize: 16,
-                color: Colors.text_primary,
-              }}
-            >
-              28 Februari 2024 09.00 - 15.00
-            </Text>
-          </View>
-
-          <View style={{ gap: moderateScale(3) }}>
-            <Text style={{ color: Colors.text_secondary }}>Thumbnail</Text>
-
-            <Text
-              style={{
-                fontWeight: "bold",
-                fontSize: 16,
-                color: Colors.text_primary,
-              }}
-            >
-              -
-            </Text>
-          </View>
-
-          <View style={{ flexDirection: "row", gap: moderateScale(10) }}>
-            <Button
-              onPress={() =>
-                router.push({
-                  pathname: "/podcast-perangkat-daerah.detail",
-                  params: { id: 1 },
-                })
-              }
-              icon={"play"}
-              textColor="black"
-              mode="contained"
-              style={{
-                flex: 1,
-                backgroundColor: Colors.button_secondary,
+                marginHorizontal: moderateScale(15),
+                marginVertical: moderateScale(15),
+                backgroundColor: "white",
+                padding: moderateScale(15),
+                borderWidth: 1,
+                borderColor: Colors.border_primary,
                 borderRadius: 7,
-                paddingVertical: 6,
+                gap: moderateScale(15),
               }}
             >
-              Lihat
-            </Button>
+              <View style={{ gap: moderateScale(3) }}>
+                <Text style={{ color: Colors.text_secondary }}>Episode</Text>
 
-            <Button
-              icon={"download"}
-              mode="contained"
-              textColor="white"
-              style={{
-                flex: 1,
-                backgroundColor: Colors.button_primary,
-                borderRadius: 7,
-                paddingVertical: 6,
-              }}
-            >
-              Sertifikat
-            </Button>
-          </View>
-        </View>
-      </View>
+                <Text
+                  style={{
+                    fontWeight: "bold",
+                    fontSize: 16,
+                    color: Colors.text_primary,
+                  }}
+                >
+                  {item.jadwal_diklat.name}
+                </Text>
+              </View>
+
+              <View style={{ gap: moderateScale(3) }}>
+                <Text style={{ color: Colors.text_secondary }}>Tema</Text>
+
+                <Text
+                  style={{
+                    fontWeight: "bold",
+                    fontSize: 16,
+                    color: Colors.text_primary,
+                  }}
+                >
+                  {item.title}
+                </Text>
+              </View>
+
+              <View style={{ gap: moderateScale(3) }}>
+                <Text style={{ color: Colors.text_secondary }}>Jadwal</Text>
+
+                <Text
+                  style={{
+                    fontWeight: "bold",
+                    fontSize: 16,
+                    color: Colors.text_primary,
+                  }}
+                >
+                  {parseDateLong(item.jadwal_diklat.jadwal_mulai)}{" "}
+                  {parseDateString(item.jadwal_diklat.jadwal_mulai).waktu} -{" "}
+                  {parseDateString(item.jadwal_diklat.jadwal_selesai).waktu}
+                </Text>
+              </View>
+
+              <View style={{ gap: moderateScale(20) }}>
+                <Text style={{ color: Colors.text_secondary }}>Thumbnail</Text>
+
+                <Image
+                  source={{ uri: item.thumbnail }}
+                  style={{
+                    height: 180,
+                    width: "100%",
+                    borderRadius: 7,
+                    backgroundColor: Colors.border_primary,
+                    borderWidth: 0.5,
+                    borderColor: Colors.border_primary,
+                  }}
+                  resizeMode="cover"
+                />
+              </View>
+
+              <View style={{ flexDirection: "row", gap: moderateScale(10) }}>
+                <Button
+                  onPress={() =>
+                    router.navigate({
+                      pathname: "/podcast-perangkat-daerah.detail",
+                      params: { id: item.watch_id },
+                    })
+                  }
+                  icon={"play"}
+                  textColor="black"
+                  mode="contained"
+                  style={{
+                    flex: 1,
+                    backgroundColor: Colors.button_secondary,
+                    borderRadius: 7,
+                    paddingVertical: 6,
+                  }}
+                >
+                  Lihat
+                </Button>
+
+                {item.sertifikat && (
+                  <Button
+                    onPress={() => Linking.openURL(item.sertifikat)}
+                    icon={"download"}
+                    mode="contained"
+                    textColor="white"
+                    style={{
+                      flex: 1,
+                      backgroundColor: Colors.button_primary,
+                      borderRadius: 7,
+                      paddingVertical: 6,
+                    }}
+                  >
+                    Sertifikat
+                  </Button>
+                )}
+              </View>
+            </View>
+          )}
+          ListFooterComponent={ListFooter}
+        />
+      )}
     </ContainerBackground>
   );
+}
+
+function parseDateString(dateString: any) {
+  // Buat objek Date dari string input
+  const date = new Date(dateString);
+
+  // Format tanggal dalam bahasa Indonesia (DD MMMM YYYY)
+  const formattedDate = new Intl.DateTimeFormat("id-ID", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }).format(date);
+
+  // Format waktu dalam bahasa Indonesia (HH.MM)
+  const formattedTime = new Intl.DateTimeFormat("id-ID", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(date);
+
+  return {
+    tanggal: formattedDate,
+    waktu: formattedTime,
+  };
 }

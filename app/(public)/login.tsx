@@ -3,14 +3,14 @@ import FormLogin from "@/components/sections/login/FormLogin";
 import HeaderLogin from "@/components/sections/login/HeaderLogin";
 import InformationLogin from "@/components/sections/login/InformationLogin";
 import React from "react";
+import { View } from "react-native";
 
-import { SafeAreaView } from "react-native-safe-area-context";
 import { moderateScale } from "react-native-size-matters";
 
 export default function login() {
   return (
     <ContainerBackground>
-      <SafeAreaView
+      <View
         style={{
           flex: 1,
           alignItems: "center",
@@ -23,7 +23,7 @@ export default function login() {
         <FormLogin />
 
         <InformationLogin />
-      </SafeAreaView>
+      </View>
     </ContainerBackground>
   );
 }

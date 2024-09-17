@@ -244,31 +244,6 @@ export const routers = [
       },
     ],
   },
-  {
-    title: "ADMINISTRASI AKSI",
-    route: [
-      {
-        icon: assets.kuisioner,
-        title: "Action Learning",
-        name: "Aksi Learning",
-        path: "/aksi-learning",
-        other_routes: [
-          {
-            title: "Tahapan",
-            path: "/aksi-learning.tahapan",
-          },
-          {
-            title: "Aktivitas",
-            path: "/aksi-learning.aktivitas",
-          },
-          {
-            title: "Aktivitas Baru",
-            path: "/aksi-learning.create",
-          },
-        ],
-      },
-    ],
-  },
 ];
 
 export const homeRouters = [

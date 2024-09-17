@@ -19,10 +19,14 @@ import NotFoundSearch from "@/components/sections/NotFoundSearch";
 import { moderateScale } from "react-native-size-matters";
 import { parseDateLong } from "@/lib/parseDate";
 import { Feather } from "@expo/vector-icons";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import ContainerBackground from "@/components/container/ContainerBackground";
+import { useMutation } from "@tanstack/react-query";
+import { axiosService } from "@/services/axiosService";
+import { ALERT_TYPE, Dialog } from "react-native-alert-notification";
 
 export default function KotakKeluar() {
+  const isRefetch = useLocalSearchParams();
   const [search, setSearch] = React.useState("");
   const debouncedSearch = useDebounce(search, 1000);
   const [page, setPage] = React.useState(1);
@@ -57,6 +61,37 @@ export default function KotakKeluar() {
     ),
     [loading, page, setPage, totalPage]
   );
+
+  const { mutate, isPending } = useMutation({
+    mutationFn: async (id: number) => {
+      await axiosService.delete("/api/message/delete-message", {
+        data: {
+          id,
+        },
+      });
+    },
+    onSuccess: () => {
+      refetch();
+      closeMenu();
+    },
+    onError: (error) => {
+      console.log(error);
+      Dialog.show({
+        type: ALERT_TYPE.DANGER,
+        title: "Gagal Menghapus",
+        textBody: "Pesan Gagal Dihapus",
+        button: "Tutup",
+      });
+    },
+  });
+
+  const handleDelete = (id: number) => {
+    mutate(id);
+  };
+
+  React.useEffect(() => {
+    refetch();
+  }, [isRefetch]);
 
   if (error) return <Error />;
 
@@ -172,25 +207,17 @@ export default function KotakKeluar() {
                           },
                         });
                       }}
-                      title="Buka Pesan"
+                      title="Tampilkan"
                     />
 
                     <Menu.Item
+                      disabled={isPending}
                       titleStyle={{
                         fontWeight: "500",
                         color: Colors.text_primary,
                       }}
-                      onPress={() => {}}
-                      title="Pindahkan Ke Arsip"
-                    />
-
-                    <Menu.Item
-                      titleStyle={{
-                        fontWeight: "500",
-                        color: Colors.text_primary,
-                      }}
-                      onPress={() => {}}
-                      title="Hapus"
+                      onPress={() => handleDelete(item.id)}
+                      title={isPending ? "Menghapus..." : "Hapus"}
                     />
                   </Menu>
                 </View>

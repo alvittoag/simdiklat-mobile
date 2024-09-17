@@ -6,8 +6,17 @@ export const getDiklat = gql`
     $page: Int
     $limit: Int
     $tipe: String
+    $sortBy: String
+    $sortDirection: String
   ) {
-    pesertaDiklats(search: $q, page: $page, limit: $limit, listType: $tipe) {
+    pesertaDiklats(
+      search: $q
+      page: $page
+      limit: $limit
+      listType: $tipe
+      sortBy: $sortBy
+      sortDirection: $sortDirection
+    ) {
       items {
         id
         sertifikat_totaljam

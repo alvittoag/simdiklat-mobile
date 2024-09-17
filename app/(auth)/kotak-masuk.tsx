@@ -22,12 +22,14 @@ import Loading from "@/components/elements/Loading";
 import Error from "@/components/elements/Error";
 import useDebounce from "@/hooks/useDebounce";
 import Pagination from "@/components/sections/pagination";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import NotFoundSearch from "@/components/sections/NotFoundSearch";
 import { axiosService } from "@/services/axiosService";
 import { ALERT_TYPE, Dialog } from "react-native-alert-notification";
 
 export default function KotakMasuk() {
+  const isRefetch = useLocalSearchParams();
+
   const [search, setSearch] = React.useState("");
   const debouncedSearch = useDebounce(search, 1000);
   const [page, setPage] = React.useState(1);
@@ -53,7 +55,6 @@ export default function KotakMasuk() {
   };
 
   const deletePesan = async (id: number) => {
-    console.log(id);
     try {
       await axiosService.delete("/api/message/delete-message", {
         data: {
@@ -76,6 +77,10 @@ export default function KotakMasuk() {
   const closeMenu = () => {
     setVisibleMenuIndex(null);
   };
+
+  React.useEffect(() => {
+    refetch();
+  }, [isRefetch]);
 
   const ListFooter = React.useMemo(
     () => (
@@ -219,12 +224,12 @@ export default function KotakMasuk() {
                   </View>
 
                   <Menu
-                    visible={visibleMenuIndex === index}
+                    visible={visibleMenuIndex === item.id}
                     onDismiss={closeMenu}
                     anchorPosition="bottom"
                     contentStyle={{ backgroundColor: "white" }}
                     anchor={
-                      <TouchableOpacity onPress={() => openMenu(index)}>
+                      <TouchableOpacity onPress={() => openMenu(item.id)}>
                         <Feather name="more-vertical" size={25} />
                       </TouchableOpacity>
                     }
