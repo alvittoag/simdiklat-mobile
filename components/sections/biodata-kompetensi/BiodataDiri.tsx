@@ -28,9 +28,9 @@ interface BiodataInput {
 const biodataInputs: BiodataInput[] = [
   { id: "nrk", label: "NRK", editable: false },
   { id: "nip", label: "NIP", editable: false },
-  { id: "gelar_depan", label: "Gelar Depan", editable: true },
+  { id: "gelar_depan", label: "Gelar Depan", editable: false },
   { id: "full_name", label: "Nama Lengkap", editable: false },
-  { id: "gelar_belakang", label: "Gelar Belakang", editable: true },
+  { id: "gelar_belakang", label: "Gelar Belakang", editable: false },
   { id: "uke.name", label: "Unit Kerja", editable: false },
   { id: "jabatan.jenis", label: "Jenis Jabatan", editable: false },
   { id: "jabatan.name", label: "Jabatan", editable: false },
@@ -95,7 +95,7 @@ const BiodataDiri = ({ navigation }: { navigation: any }) => {
         Dialog.show({
           type: ALERT_TYPE.SUCCESS,
           title: "Berhasil",
-          textBody: "Berhasil Update Data",
+          textBody: "Biodata Diri Berhasil Disimpan",
           button: "Tutup",
         })
       )
@@ -104,7 +104,7 @@ const BiodataDiri = ({ navigation }: { navigation: any }) => {
         Dialog.show({
           type: ALERT_TYPE.DANGER,
           title: "Gagal",
-          textBody: "Gagal Update Data",
+          textBody: "Gagal Update Biodata Diri",
           button: "Tutup",
         });
       });

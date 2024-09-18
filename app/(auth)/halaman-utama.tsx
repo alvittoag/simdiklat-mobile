@@ -94,7 +94,7 @@ export default function HalamanUtama() {
                     textAlign: "center",
                     fontWeight: "bold",
                     fontSize: 17,
-                    color: Colors.text_red,
+                    color: Colors.button_primary,
                   }}
                 >
                   {data?.profilPesertaDiklat.jp}
@@ -130,7 +130,7 @@ export default function HalamanUtama() {
                     textAlign: "center",
                     fontWeight: "bold",
                     fontSize: 17,
-                    color: Colors.text_red,
+                    color: Colors.button_primary,
                   }}
                 >
                   {data?.profilPesertaDiklat.skor_ipasn} / 40

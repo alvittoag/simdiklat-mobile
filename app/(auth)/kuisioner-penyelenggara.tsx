@@ -195,6 +195,7 @@ export default function KuisionerPenyelenggara() {
                       name: item.jadwal_diklat.diklat.name,
                       jadwal_diklat: item.jadwal_diklat.id,
                       peserta_id: item.id,
+                      angkatan: item.jadwal_diklat.name,
                     },
                   })
                 }

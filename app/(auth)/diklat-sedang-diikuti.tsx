@@ -26,7 +26,6 @@ import NotFoundSearch from "@/components/sections/NotFoundSearch";
 import { parseDateLong } from "@/lib/parseDate";
 import { router } from "expo-router";
 import * as Print from "expo-print";
-import * as Sharing from "expo-sharing";
 import * as FileSystem from "expo-file-system";
 import * as IntentLauncher from "expo-intent-launcher";
 

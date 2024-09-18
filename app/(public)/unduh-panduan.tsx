@@ -1,4 +1,11 @@
-import { Text, Image, TouchableOpacity, Linking } from "react-native";
+import {
+  Text,
+  Image,
+  TouchableOpacity,
+  Linking,
+  Alert,
+  Platform,
+} from "react-native";
 import React from "react";
 import ContainerBackground from "@/components/container/ContainerBackground";
 import AppHeader from "@/components/AppHeader";
@@ -9,6 +16,10 @@ import { axiosService } from "@/services/axiosService";
 import Loading from "@/components/elements/Loading";
 import Error from "@/components/elements/Error";
 import { FlashList } from "@shopify/flash-list";
+import * as FileSystem from "expo-file-system";
+import * as IntentLauncher from "expo-intent-launcher";
+import * as Sharing from "expo-sharing";
+import * as WebBrowser from "expo-web-browser";
 
 interface Panduan {
   title: string;
@@ -31,16 +42,41 @@ export default function UnduhPanduan() {
     },
   });
 
+  const downloadPDF = async (pdfUrl: string) => {
+    await WebBrowser.openBrowserAsync(pdfUrl);
+    // const fileName = pdfUrl.split("/").pop();
+
+    // const fileUri = FileSystem.documentDirectory + `/${fileName}`;
+
+    // try {
+    //   const { uri } = await FileSystem.downloadAsync(pdfUrl, fileUri);
+    //   console.log(uri);
+    //   openPDF(uri);
+    // } catch (error) {
+    //   console.error("Error saving or opening PDF:", error);
+    //   alert("Failed to download or open PDF");
+    // }
+  };
+
+  const openPDF = async (fileUri: string) => {
+    try {
+      const contentUri = await FileSystem.getContentUriAsync(fileUri);
+      await IntentLauncher.startActivityAsync("android.intent.action.VIEW", {
+        data: contentUri,
+        flags: 1,
+      });
+    } catch (error) {
+      console.error("Error opening PDF:", error);
+      alert("Failed to open PDF");
+    }
+  };
+
   if (isPending) {
     return <Loading />;
   }
   if (isError) {
     return <Error />;
   }
-
-  const openPDF = (link: string) => {
-    Linking.openURL(link);
-  };
 
   return (
     <ContainerBackground>
@@ -56,7 +92,7 @@ export default function UnduhPanduan() {
         estimatedItemSize={11}
         renderItem={({ item, index }) => (
           <TouchableOpacity
-            onPress={() => openPDF(item.file)}
+            onPress={() => Linking.openURL(item.file)}
             style={{
               backgroundColor: "#F3F3F3",
               flexDirection: "row",

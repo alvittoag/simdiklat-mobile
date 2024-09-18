@@ -3,9 +3,9 @@ import {
   Text,
   Image,
   TouchableOpacity,
-  Platform,
   FlatList,
   RefreshControl,
+  ActivityIndicator,
 } from "react-native";
 import React from "react";
 import ContainerBackground from "@/components/container/ContainerBackground";
@@ -21,7 +21,6 @@ import { parseDateLong } from "@/lib/parseDate";
 import Loading from "@/components/elements/Loading";
 import Error from "@/components/elements/Error";
 import useDebounce from "@/hooks/useDebounce";
-import Pagination from "@/components/sections/pagination";
 import { router, useLocalSearchParams } from "expo-router";
 import NotFoundSearch from "@/components/sections/NotFoundSearch";
 import { axiosService } from "@/services/axiosService";
@@ -33,7 +32,7 @@ export default function KotakMasuk() {
   const [search, setSearch] = React.useState("");
   const debouncedSearch = useDebounce(search, 1000);
   const [page, setPage] = React.useState(1);
-  const [limit] = React.useState(10);
+  const [limit, setLimit] = React.useState(10);
   const [visibleMenuIndex, setVisibleMenuIndex] = React.useState<number | null>(
     null
   );
@@ -47,8 +46,6 @@ export default function KotakMasuk() {
       search: debouncedSearch,
     },
   });
-
-  const totalPage = data ? Math.ceil(data?.messageInbox.total / limit) : 1;
 
   const openMenu = (index: number) => {
     setVisibleMenuIndex(index);
@@ -82,18 +79,20 @@ export default function KotakMasuk() {
     refetch();
   }, [isRefetch]);
 
-  const ListFooter = React.useMemo(
-    () => (
-      <Pagination
-        horizontal={0}
-        loading={loading}
-        page={page}
-        setPage={setPage}
-        totalPage={totalPage}
-      />
-    ),
-    [loading, page, setPage, totalPage]
-  );
+  const loadMore = () => {
+    if (data?.messageInbox.hasMore && !loading) {
+      setLimit(limit + 10);
+    }
+  };
+
+  const renderFooter = () => {
+    if (!loading) return null;
+    return (
+      <View style={{ paddingVertical: 20 }}>
+        <ActivityIndicator size="large" color={Colors.primary} />
+      </View>
+    );
+  };
 
   if (error) return <Error />;
 
@@ -158,7 +157,7 @@ export default function KotakMasuk() {
         </View>
 
         <View style={{ flex: 1 }}>
-          {loading ? (
+          {loading && page === 1 ? (
             <Loading />
           ) : data?.messageInbox.items.length === 0 ? (
             <NotFoundSearch />
@@ -170,9 +169,15 @@ export default function KotakMasuk() {
               refreshControl={
                 <RefreshControl
                   refreshing={false}
-                  onRefresh={() => refetch()}
+                  onRefresh={() => {
+                    setPage(1);
+                    refetch();
+                  }}
                 />
               }
+              onEndReached={loadMore}
+              onEndReachedThreshold={0.1}
+              ListFooterComponent={renderFooter}
               renderItem={({ item, index }) => (
                 <View
                   style={{
@@ -275,8 +280,6 @@ export default function KotakMasuk() {
               )}
             />
           )}
-
-          {ListFooter}
         </View>
       </View>
     </ContainerBackground>

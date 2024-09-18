@@ -24,6 +24,7 @@ const sudah_diikuti_drawer = require("./images/icons/sidebar/sudah-diikuti.png")
 const semua_diklat_drawer = require("./images/icons/sidebar/semua-diklat.png");
 const podcast_perangkat_daerah = require("./images/icons/sidebar/podcast-perangkat-daerah.png");
 const kuisioner = require("./images/icons/sidebar/settings.png");
+const tutorial = require("./images/icons/sidebar/tutorial.png");
 const logout = require("./images/icons/sidebar/logout.png");
 
 // ** Icons Appbar
@@ -86,4 +87,5 @@ export default {
   podcast_perangkat_daerah,
   kuisioner,
   logout,
+  tutorial,
 };

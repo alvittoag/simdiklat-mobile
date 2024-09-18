@@ -1,4 +1,4 @@
-import { FlatList, Text, TouchableOpacity, View } from "react-native";
+import { FlatList, Image, Text, TouchableOpacity, View } from "react-native";
 import React from "react";
 import { moderateScale } from "react-native-size-matters";
 import ContainerBackground from "@/components/container/ContainerBackground";
@@ -14,7 +14,9 @@ import { parseDateLong } from "@/lib/parseDate";
 import Loading from "@/components/elements/Loading";
 import NotFoundSearch from "@/components/sections/NotFoundSearch";
 import { Colors } from "@/constants/Colors";
-import { router } from "expo-router";
+import { router, useNavigation } from "expo-router";
+import assets from "@/assets";
+import AppHeaderNav from "@/components/AppHeaderNav";
 
 export default function KotakMasukArsip() {
   const [search, setSearch] = React.useState("");
@@ -55,9 +57,16 @@ export default function KotakMasukArsip() {
     [loading, page, setPage, totalPage]
   );
 
+  const navigation = useNavigation();
+
+  React.useEffect(() => {
+    navigation.setOptions({ headerShown: false });
+  }, [navigation]);
+
   if (error) return <Error />;
   return (
     <ContainerBackground>
+      <AppHeaderNav title="Arsip" />
       <View
         style={{
           paddingHorizontal: moderateScale(15),
@@ -66,6 +75,38 @@ export default function KotakMasukArsip() {
           flex: 1,
         }}
       >
+        <View
+          style={{ flexDirection: "row", justifyContent: "center", gap: 15 }}
+        >
+          <TouchableOpacity onPress={() => router.push("/kotak-masuk")}>
+            <Image
+              source={assets.chat_kotak_masuk}
+              style={{ width: 55, height: 55 }}
+            />
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={() => router.push("/kotak-masuk.create")}>
+            <Image
+              source={assets.create_kotak_masuk}
+              style={{ width: 55, height: 55 }}
+            />
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={() => router.push("/kotak-masuk.keluar")}>
+            <Image
+              source={assets.share_kotak_masuk}
+              style={{ width: 55, height: 55 }}
+            />
+          </TouchableOpacity>
+
+          <TouchableOpacity>
+            <Image
+              source={assets.hamburger_kotak_masuk}
+              style={{ width: 55, height: 55 }}
+            />
+          </TouchableOpacity>
+        </View>
+
         <View>
           <TextInput
             value={search}

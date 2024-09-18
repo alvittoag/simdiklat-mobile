@@ -46,9 +46,12 @@ export default function KuisonerPengajarDetail() {
     name: string;
     peserta_id: string;
     jadwal_diklat: string;
+    angkatan: string;
   }>();
   const [selections, setSelections] = useState<Selection[]>([]);
   const [saran, setSaran] = useState("");
+
+  console.log(params.angkatan);
 
   const { data, isPending, error } = useQuery<KuisResponse>({
     queryKey: ["kuisoner-penyelenggara"],
@@ -144,7 +147,7 @@ export default function KuisonerPengajarDetail() {
           style={{
             fontWeight: "bold",
             color: Colors.text_primary,
-            fontSize: 15,
+            fontSize: 17,
           }}
         >
           {index + 1}. {item.pertanyaan}
@@ -164,7 +167,7 @@ export default function KuisonerPengajarDetail() {
                 alignItems: "center",
               }}
             >
-              <Text style={{ fontWeight: "bold", fontSize: 15 }}>
+              <Text style={{ fontWeight: "bold", fontSize: 16 }}>
                 {menu.label}
               </Text>
 
@@ -215,7 +218,7 @@ export default function KuisonerPengajarDetail() {
                     fontWeight: "bold",
                   }}
                 >
-                  {params.name}
+                  {params.name} angkatan {params.angkatan}
                 </Text>
               </View>
             )}

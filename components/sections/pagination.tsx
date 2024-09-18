@@ -11,12 +11,14 @@ export default function Pagination({
   totalPage,
   loading,
   horizontal = 15,
+  bottom = 10,
 }: {
   page: number;
   setPage: React.Dispatch<React.SetStateAction<number>>;
   totalPage: number;
   loading: boolean;
   horizontal?: number;
+  bottom?: number;
 }) {
   return (
     <View
@@ -25,7 +27,7 @@ export default function Pagination({
         justifyContent: "space-between",
         alignItems: "center",
         paddingHorizontal: moderateScale(horizontal),
-        paddingVertical: moderateScale(10),
+        paddingVertical: moderateScale(bottom),
         marginBottom: moderateScale(10),
       }}
     >

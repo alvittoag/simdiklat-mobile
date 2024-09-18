@@ -141,7 +141,7 @@ export default function LupaPassword() {
 
       Dialog.show({
         type: ALERT_TYPE.SUCCESS,
-        title: "Berhsil Reset Password",
+        title: "Berhasil Reset Password",
         textBody: "Silahkan login menggunakan password baru anda",
         button: "Tutup",
       });

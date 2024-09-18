@@ -28,11 +28,18 @@ import { router, useLocalSearchParams } from "expo-router";
 import { axiosService } from "@/services/axiosService";
 import { ALERT_TYPE, Dialog } from "react-native-alert-notification";
 import { useMutation } from "@tanstack/react-query";
+import Pagination from "../pagination";
 
 export default function DataKompetensi() {
   const isRefetch = useLocalSearchParams();
 
   const [checked, setChecked] = React.useState(false);
+  const [pagePendidikan, setPagePendidikan] = React.useState(1);
+  const [pagePeserta, setPagePeserta] = React.useState(1);
+  const [pagePelatihan, setPagePelatihan] = React.useState(1);
+  const [pagePekerjaan, setpagePekerjaan] = React.useState(1);
+  const [pagePengajaran, setPagePengajaran] = React.useState(1);
+  const [pageKarya, setPageKarya] = React.useState(1);
 
   const {
     data: pendidiakn,
@@ -45,7 +52,16 @@ export default function DataKompetensi() {
       total: number;
       hasMore: boolean;
     };
-  }>(getRiwayatPendidikanUser);
+  }>(getRiwayatPendidikanUser, {
+    variables: {
+      limit: 3,
+      page: pagePendidikan,
+    },
+  });
+
+  const totalPagePendidikan = pendidiakn
+    ? Math.ceil(pendidiakn?.riwayatPendidikanUser.total / 3)
+    : 1;
 
   const {
     data: peserta,
@@ -57,7 +73,16 @@ export default function DataKompetensi() {
       total: number;
       hasMore: boolean;
     };
-  }>(getPesertaDiklatList);
+  }>(getPesertaDiklatList, {
+    variables: {
+      limit: 5,
+      page: pagePeserta,
+    },
+  });
+
+  const totalPagePeserta = peserta
+    ? Math.ceil(peserta?.pesertaDiklats.total / 5)
+    : 1;
 
   const {
     data: pelatihan,
@@ -66,7 +91,16 @@ export default function DataKompetensi() {
     refetch: refetchPelatihan,
   } = useQuery<{
     pelatihanUser: { items: IPelatihanUser[]; total: number; hasMore: boolean };
-  }>(getPelatihanUser);
+  }>(getPelatihanUser, {
+    variables: {
+      limit: 5,
+      page: pagePelatihan,
+    },
+  });
+
+  const totalPagePelatihan = pelatihan
+    ? Math.ceil(pelatihan?.pelatihanUser.total / 5)
+    : 1;
 
   const {
     data: pekerjaan,
@@ -79,7 +113,16 @@ export default function DataKompetensi() {
       total: number;
       hasMore: boolean;
     };
-  }>(getRiwayatPekerjaanUser);
+  }>(getRiwayatPekerjaanUser, {
+    variables: {
+      limit: 3,
+      page: pagePekerjaan,
+    },
+  });
+
+  const totalPagePekerjaan = pekerjaan
+    ? Math.ceil(pekerjaan.riwayatPekerjaanUser.total / 3)
+    : 1;
 
   const {
     data: pengajaran,
@@ -92,7 +135,16 @@ export default function DataKompetensi() {
       total: number;
       hasMore: boolean;
     };
-  }>(getPengajaranUser);
+  }>(getPengajaranUser, {
+    variables: {
+      limit: 3,
+      page: pagePengajaran,
+    },
+  });
+
+  const totalPagePengajaran = pengajaran
+    ? Math.ceil(pengajaran.pengajaranUser.total / 3)
+    : 1;
 
   const {
     data: karya,
@@ -105,7 +157,14 @@ export default function DataKompetensi() {
       total: number;
       hasMore: boolean;
     };
-  }>(getKaryaTulisUser);
+  }>(getKaryaTulisUser, {
+    variables: {
+      limit: 3,
+      page: pageKarya,
+    },
+  });
+
+  const totalPageKarya = karya ? Math.ceil(karya.karyaTulisUser.total / 3) : 1;
 
   const mutationDeleteRiwayatPendidikan = useMutation({
     mutationFn: async (id: number) => {
@@ -291,17 +350,6 @@ export default function DataKompetensi() {
   }, [isRefetch]);
 
   if (
-    loadingPendidikan ||
-    loadingPeserta ||
-    loadingPelatihan ||
-    loadingPekerjaan ||
-    loadingPengajaran ||
-    loadingKarya
-  ) {
-    return <Loading />;
-  }
-
-  if (
     errorPendidiakn ||
     errorPeserta ||
     errorPelatihan ||
@@ -347,90 +395,105 @@ export default function DataKompetensi() {
         </Button>
 
         <View style={{ flex: 1 }}>
-          <FlashList
-            keyExtractor={(item) => item.id.toString()}
-            data={pendidiakn?.riwayatPendidikanUser.items}
-            estimatedItemSize={5}
-            renderItem={({ item, index }) => {
-              const length =
-                pendidiakn?.riwayatPendidikanUser.items.length ?? 0;
-              return (
-                <View
-                  key={item.id}
-                  style={{
-                    borderBottomWidth: length - 1 === index ? 0 : 1,
-                    borderBottomColor: Colors.border_primary,
-                    marginBottom: length - 1 === index ? 0 : moderateScale(10),
-                  }}
-                >
-                  <View style={{ marginBottom: moderateScale(10) }}>
-                    <Text style={{ fontSize: 15 }}>Jenjang</Text>
-                    <Text style={{ fontWeight: "bold" }}>{item.jenis}</Text>
-                  </View>
+          {loadingPendidikan ? (
+            <Loading />
+          ) : (
+            <FlashList
+              keyExtractor={(item) => item.id.toString()}
+              data={pendidiakn?.riwayatPendidikanUser.items}
+              estimatedItemSize={5}
+              renderItem={({ item, index }) => {
+                const length =
+                  pendidiakn?.riwayatPendidikanUser.items.length ?? 0;
+                return (
+                  <View
+                    key={item.id}
+                    style={{
+                      borderBottomWidth: length - 1 === index ? 0 : 1,
+                      borderBottomColor: Colors.border_primary,
+                      marginBottom:
+                        length - 1 === index ? 0 : moderateScale(10),
+                    }}
+                  >
+                    <View style={{ marginBottom: moderateScale(10) }}>
+                      <Text style={{ fontSize: 15 }}>Jenjang</Text>
+                      <Text style={{ fontWeight: "bold" }}>{item.jenis}</Text>
+                    </View>
 
-                  <View style={{ marginBottom: moderateScale(10) }}>
-                    <Text style={{ fontSize: 15 }}>Nama Sekolah</Text>
-                    <Text style={{ fontWeight: "bold" }}>
-                      {item.nama_sekolah === " " ? "-" : item.nama_sekolah}
-                    </Text>
-                  </View>
+                    <View style={{ marginBottom: moderateScale(10) }}>
+                      <Text style={{ fontSize: 15 }}>Nama Sekolah</Text>
+                      <Text style={{ fontWeight: "bold" }}>
+                        {item.nama_sekolah === " " ? "-" : item.nama_sekolah}
+                      </Text>
+                    </View>
 
-                  <View style={{ marginBottom: moderateScale(10) }}>
-                    <Text style={{ fontSize: 15 }}>Tempat Pendidikan</Text>
-                    <Text style={{ fontWeight: "bold" }}>{item.tempat}</Text>
-                  </View>
+                    <View style={{ marginBottom: moderateScale(10) }}>
+                      <Text style={{ fontSize: 15 }}>Tempat Pendidikan</Text>
+                      <Text style={{ fontWeight: "bold" }}>{item.tempat}</Text>
+                    </View>
 
-                  <View style={{ marginBottom: moderateScale(10) }}>
-                    <Text style={{ fontSize: 15 }}>Tahun Lulus</Text>
-                    <Text style={{ fontWeight: "bold" }}>
-                      {item.tahun_lulus}
-                    </Text>
-                  </View>
+                    <View style={{ marginBottom: moderateScale(10) }}>
+                      <Text style={{ fontSize: 15 }}>Tahun Lulus</Text>
+                      <Text style={{ fontWeight: "bold" }}>
+                        {item.tahun_lulus}
+                      </Text>
+                    </View>
 
-                  <View style={{ marginBottom: moderateScale(10) }}>
-                    <Text style={{ fontSize: 15 }}>Keterangan</Text>
-                    <Text style={{ fontWeight: "bold" }}>
-                      {item.keterangan === " " ? "-" : item.keterangan}
-                    </Text>
-                  </View>
+                    <View style={{ marginBottom: moderateScale(10) }}>
+                      <Text style={{ fontSize: 15 }}>Keterangan</Text>
+                      <Text style={{ fontWeight: "bold" }}>
+                        {item.keterangan === " " ? "-" : item.keterangan}
+                      </Text>
+                    </View>
 
-                  <View style={{ marginBottom: moderateScale(10) }}>
-                    <Text style={{ fontSize: 15 }}>Ijazah</Text>
-                    <Text style={{ fontWeight: "bold" }}>
-                      {item.ijazah_url}
-                    </Text>
-                  </View>
+                    <View style={{ marginBottom: moderateScale(10) }}>
+                      <Text style={{ fontSize: 15 }}>Ijazah</Text>
+                      <Text style={{ fontWeight: "bold" }}>
+                        {item.ijazah_url}
+                      </Text>
+                    </View>
 
-                  <View style={styles.actionButtonsContainer}>
-                    <Button
-                      onPress={() => handleDeleteRiwayatPendidikan(item.id)}
-                      icon="delete"
-                      mode="outlined"
-                      textColor={Colors.text_primary}
-                      style={styles.deleteButton}
-                    >
-                      Hapus
-                    </Button>
+                    <View style={styles.actionButtonsContainer}>
+                      <Button
+                        onPress={() => handleDeleteRiwayatPendidikan(item.id)}
+                        icon="delete"
+                        mode="outlined"
+                        textColor={Colors.text_primary}
+                        style={styles.deleteButton}
+                      >
+                        Hapus
+                      </Button>
 
-                    <Button
-                      onPress={() =>
-                        router.push({
-                          pathname: "/riwayat-pendidikan.edit",
-                          params: { data: JSON.stringify(item) },
-                        })
-                      }
-                      icon="content-save-edit-outline"
-                      mode="outlined"
-                      textColor={Colors.text_primary}
-                      style={styles.editButton}
-                    >
-                      Edit
-                    </Button>
+                      <Button
+                        onPress={() =>
+                          router.push({
+                            pathname: "/riwayat-pendidikan.edit",
+                            params: { data: JSON.stringify(item) },
+                          })
+                        }
+                        icon="content-save-edit-outline"
+                        mode="outlined"
+                        textColor={Colors.text_primary}
+                        style={styles.editButton}
+                      >
+                        Edit
+                      </Button>
+                    </View>
                   </View>
-                </View>
-              );
-            }}
-          />
+                );
+              }}
+              ListFooterComponent={() => (
+                <Pagination
+                  loading={loadingPendidikan}
+                  page={pagePendidikan}
+                  setPage={setPagePendidikan}
+                  totalPage={totalPagePendidikan}
+                  horizontal={0}
+                  bottom={0}
+                />
+              )}
+            />
+          )}
         </View>
       </View>
 
@@ -448,60 +511,75 @@ export default function DataKompetensi() {
         </Text>
 
         <View style={{ flex: 1 }}>
-          <FlashList
-            showsVerticalScrollIndicator={false}
-            keyExtractor={(item) => item.id.toString()}
-            data={peserta?.pesertaDiklats.items}
-            estimatedItemSize={200}
-            renderItem={({ item, index }) => {
-              const length = peserta?.pesertaDiklats.items.length ?? 0;
-              return (
-                <View
-                  key={item.id}
-                  style={{
-                    borderBottomWidth: length - 1 === index ? 0 : 1,
-                    borderBottomColor: Colors.border_primary,
-                    marginBottom: length - 1 === index ? 0 : moderateScale(10),
-                  }}
-                >
-                  <View style={{ marginBottom: moderateScale(10) }}>
-                    <Text style={{ fontSize: 15 }}>Kelompok Diklat</Text>
-                    <Text style={{ fontWeight: "bold" }}>
-                      {item.jadwal_diklat.diklat.jenis_diklat.name}
-                    </Text>
-                  </View>
+          {loadingPeserta ? (
+            <Loading />
+          ) : (
+            <FlashList
+              showsVerticalScrollIndicator={false}
+              keyExtractor={(item) => item.id.toString()}
+              data={peserta?.pesertaDiklats.items}
+              estimatedItemSize={200}
+              renderItem={({ item, index }) => {
+                const length = peserta?.pesertaDiklats.items.length ?? 0;
+                return (
+                  <View
+                    key={item.id}
+                    style={{
+                      borderBottomWidth: length - 1 === index ? 0 : 1,
+                      borderBottomColor: Colors.border_primary,
+                      marginBottom:
+                        length - 1 === index ? 0 : moderateScale(10),
+                    }}
+                  >
+                    <View style={{ marginBottom: moderateScale(10) }}>
+                      <Text style={{ fontSize: 15 }}>Kelompok Diklat</Text>
+                      <Text style={{ fontWeight: "bold" }}>
+                        {item.jadwal_diklat.diklat.jenis_diklat.name}
+                      </Text>
+                    </View>
 
-                  <View style={{ marginBottom: moderateScale(10) }}>
-                    <Text style={{ fontSize: 15 }}>Nama Diklat</Text>
-                    <Text style={{ fontWeight: "bold" }}>
-                      {item.jadwal_diklat.diklat.name}
-                    </Text>
-                  </View>
+                    <View style={{ marginBottom: moderateScale(10) }}>
+                      <Text style={{ fontSize: 15 }}>Nama Diklat</Text>
+                      <Text style={{ fontWeight: "bold" }}>
+                        {item.jadwal_diklat.diklat.name}
+                      </Text>
+                    </View>
 
-                  <View style={{ marginBottom: moderateScale(10) }}>
-                    <Text style={{ fontSize: 15 }}>Jadwal Pelaksanaan</Text>
-                    <Text style={{ fontWeight: "bold" }}>
-                      {parseDateLong(item.jadwal_diklat.jadwal_mulai)}
-                    </Text>
-                  </View>
+                    <View style={{ marginBottom: moderateScale(10) }}>
+                      <Text style={{ fontSize: 15 }}>Jadwal Pelaksanaan</Text>
+                      <Text style={{ fontWeight: "bold" }}>
+                        {parseDateLong(item.jadwal_diklat.jadwal_mulai)}
+                      </Text>
+                    </View>
 
-                  <View style={{ marginBottom: moderateScale(10) }}>
-                    <Text style={{ fontSize: 15 }}>Lokasi Diklat</Text>
-                    <Text style={{ fontWeight: "bold" }}>
-                      {item.jadwal_diklat.lokasi_diklat?.name ?? "-"}
-                    </Text>
-                  </View>
+                    <View style={{ marginBottom: moderateScale(10) }}>
+                      <Text style={{ fontSize: 15 }}>Lokasi Diklat</Text>
+                      <Text style={{ fontWeight: "bold" }}>
+                        {item.jadwal_diklat.lokasi_diklat?.name ?? "-"}
+                      </Text>
+                    </View>
 
-                  <View style={{ marginBottom: moderateScale(10) }}>
-                    <Text style={{ fontSize: 15 }}>Status</Text>
-                    <Text style={{ fontWeight: "bold" }}>
-                      {item.jadwal_diklat.status_registrasi}
-                    </Text>
+                    <View style={{ marginBottom: moderateScale(10) }}>
+                      <Text style={{ fontSize: 15 }}>Status</Text>
+                      <Text style={{ fontWeight: "bold" }}>
+                        {item.jadwal_diklat.status_registrasi}
+                      </Text>
+                    </View>
                   </View>
-                </View>
-              );
-            }}
-          />
+                );
+              }}
+              ListFooterComponent={() => (
+                <Pagination
+                  loading={loadingPelatihan}
+                  page={pagePeserta}
+                  setPage={setPagePeserta}
+                  totalPage={totalPagePeserta}
+                  horizontal={0}
+                  bottom={0}
+                />
+              )}
+            />
+          )}
         </View>
       </View>
 
@@ -621,6 +699,16 @@ export default function DataKompetensi() {
                 </View>
               );
             }}
+            ListFooterComponent={() => (
+              <Pagination
+                loading={loadingPelatihan}
+                page={pagePelatihan}
+                setPage={setPagePelatihan}
+                totalPage={totalPagePelatihan}
+                horizontal={0}
+                bottom={0}
+              />
+            )}
           />
         </View>
       </View>
@@ -723,6 +811,16 @@ export default function DataKompetensi() {
                 </View>
               );
             }}
+            ListFooterComponent={() => (
+              <Pagination
+                loading={loadingPekerjaan}
+                page={pagePekerjaan}
+                setPage={setpagePekerjaan}
+                totalPage={totalPagePekerjaan}
+                horizontal={0}
+                bottom={0}
+              />
+            )}
           />
         </View>
       </View>
@@ -836,6 +934,16 @@ export default function DataKompetensi() {
                 </View>
               );
             }}
+            ListFooterComponent={() => (
+              <Pagination
+                loading={loadingPengajaran}
+                page={pagePengajaran}
+                setPage={setPagePengajaran}
+                totalPage={totalPagePengajaran}
+                horizontal={0}
+                bottom={0}
+              />
+            )}
           />
         </View>
       </View>
@@ -933,6 +1041,16 @@ export default function DataKompetensi() {
                 </View>
               );
             }}
+            ListFooterComponent={() => (
+              <Pagination
+                loading={loadingKarya}
+                page={pageKarya}
+                setPage={setPageKarya}
+                totalPage={totalPageKarya}
+                horizontal={0}
+                bottom={0}
+              />
+            )}
           />
         </View>
       </View>

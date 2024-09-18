@@ -149,7 +149,15 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = React.memo(
             SectionSeparatorComponent={renderSectionSeparator}
             ListFooterComponent={() => (
               <>
-                <View style={{ marginTop: 0, marginBottom: 10 }}>
+                <View
+                  style={{
+                    marginTop: 0,
+                    borderBottomWidth: 0.5,
+                    borderColor: "#9F9F9F",
+                    paddingBottom: 10,
+                    marginBottom: 10,
+                  }}
+                >
                   <Text style={styles.routeTitle}>SETTING</Text>
                   <View style={{ paddingHorizontal: moderateScale(8) }}>
                     <TouchableOpacity
@@ -158,12 +166,33 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = React.memo(
                     >
                       <Image
                         resizeMode="contain"
-                        source={assets.logout}
+                        source={assets.tutorial}
                         style={styles.routeIcon}
                       />
-                      <Text style={styles.routeText}>Logout</Text>
+                      <Text style={styles.routeText}>
+                        Tutorial & Dokumentasi
+                      </Text>
                     </TouchableOpacity>
                   </View>
+                </View>
+
+                <View
+                  style={{
+                    paddingHorizontal: moderateScale(8),
+                    marginBottom: 0,
+                  }}
+                >
+                  <TouchableOpacity
+                    onPress={showDialog}
+                    style={[styles.routeItem]}
+                  >
+                    <Image
+                      resizeMode="contain"
+                      source={assets.logout}
+                      style={styles.routeIcon}
+                    />
+                    <Text style={styles.routeText}>Logout</Text>
+                  </TouchableOpacity>
                 </View>
 
                 <Portal>
