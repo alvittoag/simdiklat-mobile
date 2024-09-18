@@ -287,11 +287,6 @@ export const homeRouters = [
     path: "/kuisioner-pengajar",
     icon: assets.kuisioner,
   },
-  {
-    name: "Aksi Learning",
-    path: "/aksi-learning",
-    icon: assets.aksi_learning,
-  },
 ];
 
 export const kotakMasukRouters = [

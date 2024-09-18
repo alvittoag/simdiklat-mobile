@@ -41,6 +41,7 @@ export default function PodcastPerangkatDaerah() {
                 params: { id: 1 },
               })
             }
+            textColor="black"
             icon={"format-list-bulleted"}
             mode="contained"
             style={{

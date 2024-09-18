@@ -161,7 +161,6 @@ export default function HalamanUtama() {
                 flexDirection: "row",
                 gap: moderateScale(10),
                 flexWrap: "wrap",
-                justifyContent: "center",
               }}
             >
               {homeRouters.map((route) => (
