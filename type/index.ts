@@ -227,6 +227,7 @@ export interface IKaryTulisUser {
 export interface ISedangDiikuti {
   id: number;
   sertifikat_totaljam: string;
+  sertifikat_signed: number;
   status: string;
   jadwal_diklat: {
     id: number;
@@ -290,16 +291,6 @@ export interface ISession {
     nrk: string;
     roles: string[];
   };
-}
-
-export interface IPengumuman {
-  id: number;
-  title: string;
-  tahun: number;
-  registrasi_mulai: string;
-  registrasi_selesai: string;
-  keterangan: string;
-  isOpen: boolean;
 }
 
 export interface IKuisonerPenyelenggara {
@@ -490,6 +481,7 @@ export interface IPodcast {
     template_transkrip: "teknis";
     sp_status: "none";
   };
+  isRegisterd: boolean;
   thumbnail: string;
   sertifikat: string;
 }
@@ -679,4 +671,58 @@ export interface ISimpeg {
   KOJAB: string;
   JABATAN: string;
   KD: string;
+}
+
+export interface IPengumumanPublic {
+  id: number;
+  title: string;
+  tahun: number;
+  registrasi_mulai: string;
+  registrasi_selesai: string;
+  status_registrasi: string;
+  keterangan: string;
+  validation: any;
+  pengumuman_file: number;
+  created_at: string;
+  updated_at: string;
+  files: IFile;
+  isOpen: false;
+}
+
+interface IFile {
+  id: number;
+  title: string;
+  file_path: string;
+  file_name: string;
+  file_size: number;
+  mime_type: string;
+  file_extension: string;
+  keterangan: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface IPengumuman {
+  id: number;
+  seleksi_id: number;
+  user_id: number;
+  nomot_urut: number;
+  nomor_ujian: string;
+  status: string;
+  bidang: string;
+  keterangan: string;
+  created_at: string;
+  updated_at: string;
+  seleksi_widyaiswara: IPengumumanPublic;
+  lampiran: ILampiranPengumuman[] | null;
+  isOpen: boolean;
+}
+
+interface ILampiranPengumuman {
+  id: number;
+  seleksi_id: number;
+  file_id: number;
+  created_at: string;
+  updated_at: string;
+  files: IFile;
 }

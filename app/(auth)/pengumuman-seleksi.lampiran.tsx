@@ -1,6 +1,12 @@
-import { View, Text, ScrollView, Linking } from "react-native";
+import {
+  View,
+  Text,
+  ScrollView,
+  Linking,
+  TouchableOpacity,
+} from "react-native";
 import React from "react";
-import { router, useLocalSearchParams } from "expo-router";
+import { Link, router, useLocalSearchParams } from "expo-router";
 import { useQuery } from "@apollo/client";
 import { getPengumumanDetail } from "@/services/query/get-pengumuman";
 import Loading from "@/components/elements/Loading";
@@ -11,7 +17,7 @@ import { moderateScale } from "react-native-size-matters";
 import { Button } from "react-native-paper";
 import { parseDateLong } from "@/lib/parseDate";
 import AppHeader from "@/components/AppHeader";
-import { IPengumumanPublic } from "@/type";
+import { IPengumuman, IPengumumanPublic } from "@/type";
 
 interface SeleksiWidyaiswara {
   id: number;
@@ -28,10 +34,12 @@ interface QueryData {
   seleksiWidyaiswara: SeleksiWidyaiswara;
 }
 
-export default function PengumumanSeleksiDetail() {
+export default function PengumumanSeleksiLampiran() {
   const { item } = useLocalSearchParams();
 
-  const data: IPengumumanPublic = JSON.parse(item as string);
+  const data: IPengumuman = JSON.parse(item as string);
+
+  console.log(data.seleksi_widyaiswara.title);
 
   return (
     <ContainerBackground>
@@ -58,7 +66,7 @@ export default function PengumumanSeleksiDetail() {
               fontSize: 15,
             }}
           >
-            {data.title}
+            {data.seleksi_widyaiswara.title}
           </Text>
         </View>
 
@@ -83,7 +91,7 @@ export default function PengumumanSeleksiDetail() {
                 fontWeight: "bold",
               }}
             >
-              {data.title}
+              {data.seleksi_widyaiswara.title}
             </Text>
           </View>
 
@@ -98,7 +106,26 @@ export default function PengumumanSeleksiDetail() {
                 fontWeight: "bold",
               }}
             >
-              {parseDateLong(data.registrasi_mulai as string)}
+              {parseDateLong(
+                data.seleksi_widyaiswara.registrasi_mulai as string
+              )}
+            </Text>
+          </View>
+
+          <View style={{ gap: 5 }}>
+            <Text style={{ fontWeight: "bold", color: Colors.text_secondary }}>
+              Jadwal Selesai Registrasi
+            </Text>
+            <Text
+              style={{
+                fontSize: 15,
+                color: Colors.text_primary,
+                fontWeight: "bold",
+              }}
+            >
+              {parseDateLong(
+                data.seleksi_widyaiswara.registrasi_selesai as string
+              )}
             </Text>
           </View>
 
@@ -113,7 +140,9 @@ export default function PengumumanSeleksiDetail() {
                 fontWeight: "bold",
               }}
             >
-              {data.status_registrasi === "open" ? "Buka" : "Tutup"}
+              {data.seleksi_widyaiswara.status_registrasi === "open"
+                ? "Buka"
+                : "Tutup"}
             </Text>
           </View>
         </View>
@@ -126,112 +155,69 @@ export default function PengumumanSeleksiDetail() {
             paddingHorizontal: moderateScale(15),
             gap: moderateScale(15),
             borderRadius: moderateScale(7),
+            backgroundColor: Colors.button_primary,
           }}
         >
-          <View style={{ gap: 5 }}>
-            <Text
-              style={{
-                fontWeight: "bold",
-                color: Colors.text_red,
-                fontSize: 16,
-              }}
-            >
-              Catatan
-            </Text>
-            <Text
-              style={{
-                fontSize: 15,
-                color: Colors.text_primary,
-              }}
-            >
-              Untuk dapat mendafar anda harus login terlebih dahulu ke
-              SIM-Diklat dengan menggunakan
-            </Text>
-          </View>
-
-          <View style={{ gap: 5, flexDirection: "row" }}>
-            <Text style={{ fontWeight: "bold", color: Colors.text_secondary }}>
-              Username:
-            </Text>
-            <Text
-              style={{
-                fontSize: 15,
-                color: Colors.text_red,
-                fontWeight: "bold",
-              }}
-            >
-              NRK (6 digit)
-            </Text>
-          </View>
-
-          <View style={{ gap: 5, flexDirection: "row" }}>
-            <Text style={{ fontWeight: "bold", color: Colors.text_secondary }}>
-              Password:
-            </Text>
-            <Text
-              style={{
-                fontSize: 15,
-                color: Colors.text_red,
-                fontWeight: "bold",
-              }}
-            >
-              Password
-            </Text>
-          </View>
-
-          <Button
-            onPress={() => router.navigate("/halaman-utama")}
-            icon={"home"}
-            mode="contained"
-            textColor="white"
+          <Text
             style={{
-              backgroundColor: Colors.button_primary,
-              paddingVertical: 7,
+              fontSize: 16,
+              color: Colors.text_white,
+              fontWeight: 500,
             }}
           >
-            Halaman Utama
-          </Button>
+            Daftar Lampiran
+          </Text>
 
-          <View style={{ gap: 5 }}>
-            <Text
-              style={{
-                fontWeight: "bold",
-                color: Colors.text_red,
-                fontSize: 16,
-              }}
-            >
-              Peringatan
-            </Text>
-            <Text
-              style={{
-                fontSize: 15,
-                color: Colors.text_primary,
-              }}
-            >
-              Terkait isu keamanan, diwajibkan untuk setiap user Merubah
-              password setelah berhasil login
-            </Text>
+          <View style={{ gap: 15 }}>
+            {data.lampiran?.map((i, index) => (
+              <TouchableOpacity
+                onPress={() =>
+                  Linking.openURL(
+                    `https://simdiklat-bpsdm.jakarta.go.id/sim-diklat/download/file/${i.files.id}`
+                  )
+                }
+                key={i.id}
+                style={{
+                  padding: 10,
+                  backgroundColor: "#FFD700",
+                  flexDirection: "row",
+                  gap: 6,
+                  borderRadius: 7,
+                }}
+              >
+                <Text style={{ fontWeight: 500, fontSize: 15 }}>
+                  {index + 1}.
+                </Text>
+
+                <View style={{ gap: 5 }}>
+                  <Text
+                    style={{ paddingRight: 20, fontWeight: 500, fontSize: 15 }}
+                  >
+                    {i.files.keterangan}
+                  </Text>
+
+                  <Text
+                    style={{ paddingRight: 15, fontWeight: 500, fontSize: 15 }}
+                  >
+                    Tanggal Input: {parseDateLong(i.created_at)}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            ))}
           </View>
         </View>
 
         <Button
-          onPress={() =>
-            Linking.openURL(
-              `https://simdiklat-bpsdm.jakarta.go.id/sim-diklat/file/get/${data.files.file_path.replace(
-                "/app/files/",
-                ""
-              )}`
-            )
-          }
-          icon={"download"}
+          onPress={() => router.back()}
+          icon={"arrow-left"}
           textColor="white"
           style={{
-            backgroundColor: Colors.primary,
+            backgroundColor: Colors.button_primary,
             paddingVertical: moderateScale(9),
             borderRadius: 7,
           }}
         >
-          Download SK Lampiran
+          Kembali
         </Button>
       </ScrollView>
     </ContainerBackground>

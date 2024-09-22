@@ -5,9 +5,6 @@ import ButtonOpacity from "@/components/elements/ButtonOpacity";
 import assets from "@/assets";
 import { Colors } from "@/constants/Colors";
 import { moderateScale } from "react-native-size-matters";
-import { useQuery } from "@apollo/client";
-import { getPengumuman } from "@/services/query/get-pengumuman";
-import { IPengumuman } from "@/type";
 import Error from "@/components/elements/Error";
 import Loading from "@/components/elements/Loading";
 import { FlashList } from "@shopify/flash-list";
@@ -15,44 +12,55 @@ import Pagination from "@/components/sections/pagination";
 import { parseDateLong } from "@/lib/parseDate";
 import AppHeader from "@/components/AppHeader";
 import { router } from "expo-router";
+import { useQuery } from "@tanstack/react-query";
+import { axiosService } from "@/services/axiosService";
+import { IPengumumanPublic } from "@/type";
+
+type response = {
+  status: string;
+  message: string;
+  data: {
+    data: IPengumumanPublic[];
+    meta: {
+      page: number;
+      limit: number;
+      total: number;
+      totalPages: number;
+    };
+  };
+};
 
 export default function Pengumuman() {
   const [page, setPage] = React.useState(1);
   const [limit] = React.useState(10);
-  const { data, loading, error } = useQuery<{
-    seleksiWidyaiswaras: {
-      items: IPengumuman[];
-      total: number;
-      hasMore: boolean;
-    };
-  }>(getPengumuman, {
-    variables: {
-      page: page,
-      limit: limit,
+
+  const { data, isPending, isError } = useQuery({
+    queryKey: ["pengumuman", page, limit],
+    queryFn: async () => {
+      const { data } = await axiosService.get<response>(
+        `/api/pengumuman/public?page=${page}&limit=${limit}`
+      );
+      return data;
     },
   });
-
-  const totalPage = data
-    ? Math.ceil(data?.seleksiWidyaiswaras.total / limit)
-    : 1;
 
   const ListFooter = React.useMemo(
     () => (
       <Pagination
-        loading={loading}
+        loading={isPending}
         page={page}
         setPage={setPage}
-        totalPage={totalPage}
+        totalPage={data?.data.meta.totalPages as number}
       />
     ),
-    [loading, page, setPage, totalPage]
+    [isPending, page, setPage]
   );
 
-  if (error) {
+  if (isError) {
     return <Error />;
   }
 
-  if (loading) {
+  if (isPending) {
     return <Loading />;
   }
 
@@ -63,7 +71,7 @@ export default function Pengumuman() {
         showsVerticalScrollIndicator={false}
         keyExtractor={(item) => item.id.toString()}
         estimatedItemSize={10}
-        data={data?.seleksiWidyaiswaras.items}
+        data={data.data.data}
         renderItem={({ item }) => (
           <View
             style={{
@@ -153,12 +161,15 @@ export default function Pengumuman() {
 
               <Text
                 style={{
-                  color: item.isOpen ? Colors.text_green : Colors.text_red,
+                  color:
+                    item.status_registrasi === "open"
+                      ? Colors.text_green
+                      : Colors.text_red,
                   fontWeight: 600,
                   fontSize: 15,
                 }}
               >
-                {item.isOpen ? "Dibuka" : "Ditutup"}
+                {item.status_registrasi === "open" ? "Dibuka" : "Ditutup"}
               </Text>
             </View>
 
@@ -167,7 +178,7 @@ export default function Pengumuman() {
                 onPress={() =>
                   router.push({
                     pathname: "/pengumuman-detail",
-                    params: { id: item.id },
+                    params: { item: JSON.stringify(item) },
                   })
                 }
                 icon={assets.folder_plus}

@@ -30,9 +30,11 @@ import NotFoundSearch from "@/components/sections/NotFoundSearch";
 import { FlashList } from "@shopify/flash-list";
 import { parseDateLong } from "@/lib/parseDate";
 import { Dropdown } from "react-native-element-dropdown";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 
 export default function KuisionerPenyelenggara() {
+  const params = useLocalSearchParams();
+
   const [search, setSearch] = React.useState("");
   const [filter, setFilterValue] = React.useState("terbaru");
   const [status, setStatus] = React.useState("");
@@ -98,6 +100,10 @@ export default function KuisionerPenyelenggara() {
     [loading, page, setPage, totalPage]
   );
 
+  React.useEffect(() => {
+    refetch();
+  }, [params]);
+
   if (error) {
     return <Error />;
   }
@@ -107,6 +113,7 @@ export default function KuisionerPenyelenggara() {
         handleSearchChange={handleSearchChange}
         search={search}
         showDialog={showDialog}
+        showFilter
       />
 
       {loading ? (
@@ -179,37 +186,42 @@ export default function KuisionerPenyelenggara() {
                   style={{
                     fontWeight: "bold",
                     fontSize: 15,
-                    color: item.status === "accept" ? "green" : "red",
+                    color:
+                      item.kuis_penyelenggara_count === 0 ? "red" : "green",
                   }}
                 >
-                  {item.status === "accept" ? "Sudah Input" : "Belum Input"}
+                  {item.kuis_penyelenggara_count === 0
+                    ? "Belum Input"
+                    : "Sudah Input"}
                 </Text>
               </View>
 
-              <Button
-                onPress={() =>
-                  router.navigate({
-                    pathname: "/kuisoner-penyelenggara.detail",
-                    params: {
-                      id: item.jadwal_diklat.diklat.id,
-                      name: item.jadwal_diklat.diklat.name,
-                      jadwal_diklat: item.jadwal_diklat.id,
-                      peserta_id: item.id,
-                      angkatan: item.jadwal_diklat.name,
-                    },
-                  })
-                }
-                mode="contained"
-                icon={"login"}
-                textColor="black"
-                style={{
-                  backgroundColor: Colors.button_secondary,
-                  borderRadius: 7,
-                  paddingVertical: moderateScale(7),
-                }}
-              >
-                Input Kuisoner
-              </Button>
+              {item.kuis_penyelenggara_count === 0 && (
+                <Button
+                  onPress={() =>
+                    router.navigate({
+                      pathname: "/kuisoner-penyelenggara.detail",
+                      params: {
+                        id: item.jadwal_diklat.diklat.id,
+                        name: item.jadwal_diklat.diklat.name,
+                        jadwal_diklat: item.jadwal_diklat.id,
+                        peserta_id: item.id,
+                        angkatan: item.jadwal_diklat.name,
+                      },
+                    })
+                  }
+                  mode="contained"
+                  icon={"login"}
+                  textColor="black"
+                  style={{
+                    backgroundColor: Colors.button_secondary,
+                    borderRadius: 7,
+                    paddingVertical: moderateScale(7),
+                  }}
+                >
+                  Input Kuisoner
+                </Button>
+              )}
             </View>
           )}
           ListFooterComponent={ListFooter}

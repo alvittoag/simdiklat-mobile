@@ -354,7 +354,7 @@ export default function BiodataSimpeg() {
           )}
           {renderField(
             "jabatan_id",
-            data.data.user.jabatan.full_name,
+            data.data.user.jabatan?.full_name,
             data.data.simpeg_data.JABATAN,
             data.data.simpeg_data.KOJAB
           )}

@@ -1,57 +1,65 @@
-import { View, Text } from "react-native";
+import { View, Text, Linking } from "react-native";
 import React from "react";
 import ContainerBackground from "@/components/container/ContainerBackground";
 import ButtonOpacity from "@/components/elements/ButtonOpacity";
 import assets from "@/assets";
 import { Colors } from "@/constants/Colors";
 import { moderateScale } from "react-native-size-matters";
-import { useQuery } from "@apollo/client";
-import { getPengumuman } from "@/services/query/get-pengumuman";
-import { IPengumuman } from "@/type";
 import Error from "@/components/elements/Error";
 import Loading from "@/components/elements/Loading";
 import { FlashList } from "@shopify/flash-list";
 import Pagination from "@/components/sections/pagination";
 import { parseDateLong } from "@/lib/parseDate";
 import { router } from "expo-router";
+import { useQuery } from "@tanstack/react-query";
+import { axiosService } from "@/services/axiosService";
+import { IPengumuman } from "@/type";
+
+type response = {
+  status: string;
+  message: string;
+  data: {
+    data: IPengumuman[];
+    meta: {
+      page: number;
+      limit: number;
+      total: number;
+      totalPages: number;
+    };
+  };
+};
 
 export default function PengumumanSeleksi() {
   const [page, setPage] = React.useState(1);
   const [limit] = React.useState(10);
-  const { data, loading, error } = useQuery<{
-    seleksiWidyaiswaras: {
-      items: IPengumuman[];
-      total: number;
-      hasMore: boolean;
-    };
-  }>(getPengumuman, {
-    variables: {
-      page: page,
-      limit: limit,
+
+  const { data, isPending, isError } = useQuery<response>({
+    queryKey: ["seleksiWidyaiswaras", page, limit],
+    queryFn: async () => {
+      const { data } = await axiosService.get(
+        `/api/pengumuman/get?page=${page}&limit=${limit}`
+      );
+      return data;
     },
   });
-
-  const totalPage = data
-    ? Math.ceil(data?.seleksiWidyaiswaras.total / limit)
-    : 1;
 
   const ListFooter = React.useMemo(
     () => (
       <Pagination
-        loading={loading}
+        loading={isPending}
         page={page}
         setPage={setPage}
-        totalPage={totalPage}
+        totalPage={data?.data.meta.totalPages as number}
       />
     ),
-    [loading, page, setPage, totalPage]
+    [isPending, page, setPage]
   );
 
-  if (error) {
+  if (isError) {
     return <Error />;
   }
 
-  if (loading) {
+  if (isPending) {
     return <Loading />;
   }
 
@@ -61,7 +69,7 @@ export default function PengumumanSeleksi() {
         showsVerticalScrollIndicator={false}
         keyExtractor={(item) => item.id.toString()}
         estimatedItemSize={10}
-        data={data?.seleksiWidyaiswaras.items}
+        data={data.data.data}
         renderItem={({ item }) => (
           <View
             style={{
@@ -89,7 +97,7 @@ export default function PengumumanSeleksi() {
                   fontSize: 15,
                 }}
               >
-                {item.tahun}
+                {item.seleksi_widyaiswara.tahun}
               </Text>
             </View>
 
@@ -111,7 +119,7 @@ export default function PengumumanSeleksi() {
                   fontSize: 15,
                 }}
               >
-                {item.title}
+                {item.seleksi_widyaiswara.title}
               </Text>
             </View>
 
@@ -133,8 +141,8 @@ export default function PengumumanSeleksi() {
                   fontSize: 15,
                 }}
               >
-                {parseDateLong(item.registrasi_mulai)} s/d{" "}
-                {parseDateLong(item.registrasi_selesai)}
+                {parseDateLong(item.seleksi_widyaiswara.registrasi_mulai)} s/d{" "}
+                {parseDateLong(item.seleksi_widyaiswara.registrasi_selesai)}
               </Text>
             </View>
 
@@ -151,12 +159,17 @@ export default function PengumumanSeleksi() {
 
               <Text
                 style={{
-                  color: item.isOpen ? Colors.text_green : Colors.text_red,
+                  color:
+                    item.seleksi_widyaiswara.status_registrasi === "open"
+                      ? Colors.text_green
+                      : Colors.text_red,
                   fontWeight: 600,
                   fontSize: 15,
                 }}
               >
-                {item.isOpen ? "Dibuka" : "Ditutup"}
+                {item.seleksi_widyaiswara.status_registrasi === "open"
+                  ? "Dibuka"
+                  : "Ditutup"}
               </Text>
             </View>
 
@@ -165,7 +178,7 @@ export default function PengumumanSeleksi() {
                 onPress={() =>
                   router.push({
                     pathname: `/pengumuman-seleksi.detail`,
-                    params: { id: item.id },
+                    params: { item: JSON.stringify(item.seleksi_widyaiswara) },
                   })
                 }
                 icon={assets.folder_plus}
@@ -178,9 +191,14 @@ export default function PengumumanSeleksi() {
                 Tampilkan
               </ButtonOpacity>
 
-              {item.isOpen && (
+              {item.lampiran && (
                 <>
                   <ButtonOpacity
+                    onPress={() =>
+                      Linking.openURL(
+                        `https://simdiklat-bpsdm.jakarta.go.id/sim-diklat/widyaiswara/cetak-kartu/${item.user_id}/${item.seleksi_id}`
+                      )
+                    }
                     icon={assets.cetak}
                     bgcolor={Colors.button_primary}
                     textcolor="white"
@@ -192,6 +210,12 @@ export default function PengumumanSeleksi() {
                   </ButtonOpacity>
 
                   <ButtonOpacity
+                    onPress={() =>
+                      router.push({
+                        pathname: "/pengumuman-seleksi.lampiran",
+                        params: { item: JSON.stringify(item) },
+                      })
+                    }
                     icon={assets.download}
                     bgcolor={Colors.button_primary}
                     textcolor="white"

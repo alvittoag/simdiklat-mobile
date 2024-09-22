@@ -20,6 +20,7 @@ export const getDiklat = gql`
       items {
         id
         sertifikat_totaljam
+        sertifikat_signed
         jadwal_diklat {
           id
           status_registrasi

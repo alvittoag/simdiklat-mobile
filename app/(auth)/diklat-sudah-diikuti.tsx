@@ -175,24 +175,26 @@ export default function DiklatSudahDiikuti() {
                     Detail
                   </Button>
 
-                  <Button
-                    onPress={() =>
-                      Linking.openURL(
-                        `https://simdiklat-bpsdm.jakarta.go.id/sim-diklat/sertifikat/peserta-download-tte/${item.id}`
-                      )
-                    }
-                    mode="contained"
-                    icon={"download"}
-                    textColor="white"
-                    style={{
-                      backgroundColor: Colors.primary,
-                      paddingVertical: 6,
-                      flex: 1,
-                      borderRadius: 7,
-                    }}
-                  >
-                    Sertifikat
-                  </Button>
+                  {item.sertifikat_signed !== 0 && (
+                    <Button
+                      onPress={() =>
+                        Linking.openURL(
+                          `https://simdiklat-bpsdm.jakarta.go.id/sim-diklat/sertifikat/peserta-download-tte/${item.id}`
+                        )
+                      }
+                      mode="contained"
+                      icon={"download"}
+                      textColor="white"
+                      style={{
+                        backgroundColor: Colors.primary,
+                        paddingVertical: 6,
+                        flex: 1,
+                        borderRadius: 7,
+                      }}
+                    >
+                      Sertifikat
+                    </Button>
+                  )}
                 </View>
               </ContainerCard>
             </View>

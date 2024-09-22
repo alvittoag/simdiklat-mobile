@@ -307,11 +307,7 @@ const DrawerLayout: React.FC = () => {
                     key={r.path}
                     name={r.path.replace("/", "")}
                     options={{
-                      header: () =>
-                        r.title !== "Detail Podcast Perangkat Daerah" ? (
-                          <AppHeader title={r.title ?? r.name} />
-                        ) : null,
-                      headerShown: r.title !== "Form List Kuisoner Pengajar",
+                      header: () => <AppHeaderNav title={r.title ?? r.name} />,
                     }}
                   />
                 ))

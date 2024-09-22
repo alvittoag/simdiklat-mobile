@@ -18,10 +18,14 @@ import ButtonOpacity from "@/components/elements/ButtonOpacity";
 import assets from "@/assets";
 import { Href, router } from "expo-router";
 import { useQuery } from "@apollo/client";
-import { IJP, IProfilePeserta } from "@/type";
+import { IJP, IPodcast, IProfilePeserta } from "@/type";
 import { getProfilePeserta } from "@/services/query/getProfilePeserta";
 import { Button, Dialog, Portal } from "react-native-paper";
-import { useQuery as useQ } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQuery as useQ,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { axiosService } from "@/services/axiosService";
 import Loading from "@/components/elements/Loading";
 
@@ -31,7 +35,15 @@ type response = {
   data: IJP[];
 };
 
+type responsePodcast = {
+  status: string;
+  message: string;
+  data: IPodcast;
+};
+
 export default function HalamanUtama() {
+  const queryClient = useQueryClient();
+
   const { data, loading } = useQuery<{
     profilPesertaDiklat: IProfilePeserta;
   }>(getProfilePeserta);
@@ -49,13 +61,57 @@ export default function HalamanUtama() {
     },
   });
 
+  const { data: dataPodcast, isPending: isPendingPodcast } = useQ({
+    queryKey: ["podcast-newest"],
+    queryFn: async () => {
+      const res = await axiosService.get<responsePodcast>(
+        "/api/podcast/podcast-newest"
+      );
+      return res.data;
+    },
+  });
+
+  const { mutate, isPending: isPendingMutate } = useMutation({
+    mutationFn: async (formData: FormData) => {
+      return await axiosService.post("/api/podcast/register", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["podcast-newest", "podcastPerangkatDaerah"],
+      });
+    },
+
+    onError: (e) => {
+      console.error(e);
+      alert("Terjadi Kesalahan Pada Server");
+    },
+  });
+
+  const handleRegisterPodcast = () => {
+    const formData = new FormData();
+    formData.append("jadwal_diklat_id", dataPodcast?.data.angkatan_id as any);
+
+    if (!dataPodcast?.data.isRegisterd) {
+      mutate(formData);
+    }
+
+    router.push({
+      pathname: "/podcast-perangkat-daerah.detail",
+      params: { id: dataPodcast?.data.watch_id },
+    });
+  };
+
   return (
     <ContainerBackground>
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{
           paddingVertical: moderateScale(30),
-          gap: moderateScale(20),
+          gap: moderateScale(25),
         }}
       >
         <View style={{ paddingHorizontal: moderateScale(15) }}>
@@ -200,95 +256,70 @@ export default function HalamanUtama() {
           </View>
         </View>
 
-        <View style={{ gap: moderateScale(25) }}>
+        <View
+          style={{
+            gap: moderateScale(20),
+            paddingHorizontal: moderateScale(15),
+          }}
+        >
           <Text
             style={{
               fontSize: 18,
               fontWeight: "bold",
-              paddingHorizontal: moderateScale(15),
             }}
           >
             Podcast Yang Akan Datang
           </Text>
 
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{
-              gap: moderateScale(20),
-              paddingHorizontal: moderateScale(15),
-            }}
-          >
+          {isPendingPodcast ? (
+            <Loading />
+          ) : (
             <View
               style={{
                 padding: moderateScale(20),
                 backgroundColor: "#F8F8F8",
                 borderRadius: 20,
                 borderWidth: 1,
-                borderColor: "rgba(158, 150, 150, .5)",
+                borderColor: Colors.button_primary,
+                gap: moderateScale(15),
               }}
             >
               <Text
                 style={{
                   fontWeight: "bold",
                   fontSize: 18,
-                  textAlign: "center",
                 }}
               >
-                Podcast Rabu Belajar
+                {dataPodcast?.data.title}
               </Text>
 
               <Image
-                source={assets.podasct}
+                source={{ uri: dataPodcast?.data.thumbnail }}
                 resizeMode="contain"
-                style={{ height: 110, width: 200 }}
-              />
-              <ButtonOpacity
-                bgcolor={Colors.button_primary}
-                textcolor={Colors.text_white}
-                textweight="bold"
-                vertical={15}
-                textsize={15}
-              >
-                Tonton Di Sini
-              </ButtonOpacity>
-            </View>
-
-            <View
-              style={{
-                padding: moderateScale(20),
-                backgroundColor: "#F8F8F8",
-                borderRadius: 20,
-                borderWidth: 1,
-                borderColor: "rgba(158, 150, 150, .5)",
-              }}
-            >
-              <Text
                 style={{
-                  fontWeight: "bold",
-                  fontSize: 18,
-                  textAlign: "center",
+                  height: 180,
+                  borderRadius: 7,
+                  backgroundColor: Colors.border_primary,
+                  borderWidth: 0.5,
+                  borderColor: Colors.border_primary,
                 }}
-              >
-                Podcast Rabu Belajar
-              </Text>
-
-              <Image
-                source={assets.podasct}
-                resizeMode="contain"
-                style={{ height: 110, width: 200 }}
               />
               <ButtonOpacity
+                onPress={handleRegisterPodcast}
                 bgcolor={Colors.button_primary}
                 textcolor={Colors.text_white}
                 textweight="bold"
                 vertical={15}
                 textsize={15}
               >
-                Tonton Di Sini
+                {isPendingMutate ? (
+                  <ActivityIndicator size={"small"} color={Colors.text_white} />
+                ) : (
+                  "  Tonton Di Sini"
+                )}
               </ButtonOpacity>
             </View>
-          </ScrollView>
+          )}
         </View>
       </ScrollView>
 
@@ -519,22 +550,3 @@ const styles = StyleSheet.create({
     paddingVertical: 3,
   },
 });
-
-const tableData = [
-  {
-    name: "Character Building BPSDM Provinsi DKI Jakarta",
-    type: "Teknis",
-    jp: 20,
-  },
-  { name: "Podcast JPodcast", type: "Lainya", jp: 8 },
-  { name: "Podcast Kopi Sedap", type: "Lainya", jp: 36 },
-  { name: "Podcast Kopatik", type: "Lainya", jp: 2 },
-  { name: "Podacst OKE SIP", type: "Lainya", jp: 4 },
-  { name: "Podcast Rabu Belajar", type: "Lainya", jp: 36 },
-  { name: "SiJule-ASN pengabdian Tiada Henti", type: "Teknis", jp: 1 },
-  { name: "SiJule - Dasar Audio Visual", type: "Teknis", jp: 1 },
-  { name: "SiJule - Jakarta Sadar Memilah Sampah", type: "Teknis", jp: 1 },
-  { name: "SiJule - Melejitkan Prestasi", type: "Teknis", jp: 1 },
-  { name: "Webinar Bicara Kota", type: "Lainnya", jp: 16 },
-  { name: "Webinar Bina Konstruksi", type: "Lainnya", jp: 16 },
-];

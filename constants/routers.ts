@@ -24,6 +24,10 @@ export const routers = [
             title: "Detail Seleksi",
             path: "/pengumuman-seleksi.detail",
           },
+          {
+            title: "Lampiran Seleksi",
+            path: "/pengumuman-seleksi.lampiran",
+          },
         ],
       },
       {

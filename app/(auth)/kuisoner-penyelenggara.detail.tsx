@@ -6,7 +6,7 @@ import {
   ListRenderItemInfo,
   ScrollView,
 } from "react-native";
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Button, RadioButton, TextInput } from "react-native-paper";
 import { moderateScale } from "react-native-size-matters";
@@ -38,6 +38,8 @@ interface KuisResponse {
 interface Selection {
   pertanyaan_id: number;
   nilai: string;
+  peserta_id: string;
+  jadwal_diklat_id: string;
 }
 
 export default function KuisonerPengajarDetail() {
@@ -51,7 +53,7 @@ export default function KuisonerPengajarDetail() {
   const [selections, setSelections] = useState<Selection[]>([]);
   const [saran, setSaran] = useState("");
 
-  console.log(params.angkatan);
+  console.log(selections);
 
   const { data, isPending, error } = useQuery<KuisResponse>({
     queryKey: ["kuisoner-penyelenggara"],
@@ -78,6 +80,11 @@ export default function KuisonerPengajarDetail() {
         button: "Tutup",
       });
 
+      router.push({
+        pathname: "/kuisioner-penyelenggara",
+        params: { status: "success" },
+      });
+
       setSelections([]);
       setSaran("");
     },
@@ -98,14 +105,12 @@ export default function KuisonerPengajarDetail() {
         (s) => s.pertanyaan_id === questionId
       );
       if (existingSelectionIndex !== -1) {
-        if (prev[existingSelectionIndex].nilai === value) {
-          return prev.filter((s) => s.pertanyaan_id !== questionId);
-        } else {
-          return prev.map((s) =>
-            s.pertanyaan_id === questionId ? { ...s, value } : s
-          );
-        }
+        // Update existing selection
+        return prev.map((s) =>
+          s.pertanyaan_id === questionId ? { ...s, nilai: value } : s
+        );
       } else {
+        // Add new selection
         return [
           ...prev,
           {
@@ -129,9 +134,7 @@ export default function KuisonerPengajarDetail() {
   };
 
   const getSelectionForQuestion = (questionId: number) => {
-    return (
-      selections.find((s) => s.pertanyaan_id === questionId)?.nilai || null
-    );
+    return selections.find((s) => s.pertanyaan_id === questionId)?.nilai || "";
   };
 
   if (isPending) return <Loading />;

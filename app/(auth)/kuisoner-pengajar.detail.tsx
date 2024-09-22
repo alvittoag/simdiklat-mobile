@@ -6,7 +6,7 @@ import {
   ListRenderItemInfo,
   ScrollView,
 } from "react-native";
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Button, RadioButton, TextInput } from "react-native-paper";
 import { moderateScale } from "react-native-size-matters";

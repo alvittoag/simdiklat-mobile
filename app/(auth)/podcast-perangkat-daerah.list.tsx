@@ -1,4 +1,4 @@
-import { View, Text, Image, Linking } from "react-native";
+import { View, Text, Image, Linking, FlatList } from "react-native";
 import React from "react";
 import ContainerBackground from "@/components/container/ContainerBackground";
 import AppHeader from "@/components/AppHeader";
@@ -9,7 +9,7 @@ import { Button } from "react-native-paper";
 import { router } from "expo-router";
 import useDebounce from "@/hooks/useDebounce";
 import Pagination from "@/components/sections/pagination";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { axiosService } from "@/services/axiosService";
 import Error from "@/components/elements/Error";
 import { IPodcast } from "@/type";
@@ -17,6 +17,7 @@ import { parseDateLong } from "@/lib/parseDate";
 import { FlashList } from "@shopify/flash-list";
 import Loading from "@/components/elements/Loading";
 import NotFoundSearch from "@/components/sections/NotFoundSearch";
+import { ALERT_TYPE, Dialog } from "react-native-alert-notification";
 
 type response = {
   status: string;
@@ -33,6 +34,7 @@ type response = {
 };
 
 export default function PodcastPerangkatDaerahList() {
+  const queryClient = useQueryClient();
   const [search, setSearch] = React.useState("");
 
   const debouncedSearch = useDebounce(search, 1000);
@@ -48,6 +50,37 @@ export default function PodcastPerangkatDaerahList() {
       );
 
       return res.data;
+    },
+  });
+
+  const { mutate, isPending: isPendingMutate } = useMutation({
+    mutationFn: async (formData: FormData) => {
+      return await axiosService.post("/api/podcast/register", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+    },
+    onSuccess: () => {
+      Dialog.show({
+        type: ALERT_TYPE.SUCCESS,
+        title: "Berhasil",
+        textBody: "Berhasil Mengikuti Podcast Rabu Belajar",
+        button: "Tutup",
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["podcastPerangkatDaerah"],
+      });
+    },
+
+    onError: (e) => {
+      console.error(e);
+      Dialog.show({
+        type: ALERT_TYPE.DANGER,
+        title: "Gagal",
+        textBody: "Gagal Mengikuti Podcast Rabu Belajar",
+        button: "Tutup",
+      });
     },
   });
 
@@ -67,12 +100,17 @@ export default function PodcastPerangkatDaerahList() {
     [isPending, page, setPage, data?.data.meta.totalPages]
   );
 
+  const handleRegisterDiklat = async (id: number) => {
+    const formData = new FormData();
+    formData.append("jadwal_diklat_id", id as any);
+
+    mutate(formData);
+  };
+
   if (error) return <Error />;
 
   return (
     <ContainerBackground>
-      <AppHeader title="Daftar Podcast Rabu Belajar" />
-
       <SearchBar handleSearchChange={handleSearchChange} search={search} />
 
       {isPending ? (
@@ -80,8 +118,7 @@ export default function PodcastPerangkatDaerahList() {
       ) : data.data.data.length === 0 ? (
         <NotFoundSearch />
       ) : (
-        <FlashList
-          estimatedItemSize={200}
+        <FlatList
           showsVerticalScrollIndicator={false}
           data={data?.data.data}
           renderItem={({ item }) => (
@@ -159,25 +196,44 @@ export default function PodcastPerangkatDaerahList() {
               </View>
 
               <View style={{ flexDirection: "row", gap: moderateScale(10) }}>
-                <Button
-                  onPress={() =>
-                    router.navigate({
-                      pathname: "/podcast-perangkat-daerah.detail",
-                      params: { id: item.watch_id },
-                    })
-                  }
-                  icon={"play"}
-                  textColor="black"
-                  mode="contained"
-                  style={{
-                    flex: 1,
-                    backgroundColor: Colors.button_secondary,
-                    borderRadius: 7,
-                    paddingVertical: 6,
-                  }}
-                >
-                  Lihat
-                </Button>
+                {item.isRegisterd ? (
+                  <Button
+                    onPress={() =>
+                      router.navigate({
+                        pathname: "/podcast-perangkat-daerah.detail",
+                        params: { id: item.watch_id },
+                      })
+                    }
+                    icon={"play"}
+                    textColor="black"
+                    mode="contained"
+                    style={{
+                      flex: 1,
+                      backgroundColor: Colors.button_secondary,
+                      borderRadius: 7,
+                      paddingVertical: 6,
+                    }}
+                  >
+                    Lihat
+                  </Button>
+                ) : (
+                  <Button
+                    onPress={() => handleRegisterDiklat(item.angkatan_id)}
+                    disabled={isPendingMutate}
+                    loading={isPendingMutate}
+                    icon={"login"}
+                    textColor="white"
+                    mode="contained"
+                    style={{
+                      flex: 1,
+                      backgroundColor: Colors.button_primary,
+                      borderRadius: 7,
+                      paddingVertical: 6,
+                    }}
+                  >
+                    Ikuti
+                  </Button>
+                )}
 
                 {item.sertifikat && (
                   <Button

@@ -13,33 +13,10 @@ export default function useSession() {
       try {
         const session = await AsyncStorage.getItem("session");
 
-        const { data } = await auth.getSession();
-
         const dateNow = new Date();
-
-        const expired = dateNow.getTime() > data.expires;
-
-        if (expired) {
-          Dialog.show({
-            type: ALERT_TYPE.DANGER,
-            title: "Error",
-            textBody: "Sesi anda telah habis. Silahkan login kembali",
-            button: "Tutup",
-          });
-
-          await AsyncStorage.clear();
-
-          router.replace("/login");
-        }
 
         setIsAuthenticated(session !== null);
       } catch (error) {
-        Dialog.show({
-          type: ALERT_TYPE.DANGER,
-          title: "Error",
-          textBody: "Terjadi Kesalahan saat melakukan prosess data pada Server",
-          button: "Tutup",
-        });
         console.error("Error checking session:", error);
       } finally {
         setIsLoading(false);
