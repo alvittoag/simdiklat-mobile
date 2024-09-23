@@ -22,6 +22,7 @@ export const getKuisonerPenyelenggara = gql`
         sertifikat_totaljam
         kuis_penyelenggara_count
         status
+        user_id
         jadwal_diklat {
           id
           name

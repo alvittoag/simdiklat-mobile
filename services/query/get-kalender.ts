@@ -6,8 +6,17 @@ export const getKalenderDiklatList = gql`
     $page: Int
     $limit: Int
     $tahun: Int
+    $sortBy: String
+    $sortDirection: String
   ) {
-    kalenderDiklats(search: $q, page: $page, limit: $limit, tahun: $tahun) {
+    kalenderDiklats(
+      search: $q
+      page: $page
+      limit: $limit
+      tahun: $tahun
+      sortBy: $sortBy
+      sortDirection: $sortDirection
+    ) {
       items {
         id
         waktu_pelaksanaan
@@ -15,6 +24,7 @@ export const getKalenderDiklatList = gql`
         registrasi_selesai
         status_registrasi
         diklat {
+          id
           name
         }
         lokasi_diklat {

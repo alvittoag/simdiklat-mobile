@@ -15,6 +15,7 @@ import { DrawerActions } from "@react-navigation/native";
 import { useQuery } from "@apollo/client";
 import { getProfilePeserta } from "@/services/query/getProfilePeserta";
 import { IProfilePeserta } from "@/type";
+import auth from "@/services/api/auth";
 
 export default function AppHeaderAuth() {
   const navigation = useNavigation();
@@ -22,6 +23,24 @@ export default function AppHeaderAuth() {
   const { data, error, loading } = useQuery<{
     profilPesertaDiklat: IProfilePeserta;
   }>(getProfilePeserta);
+
+  const [photo, setPhoto] = React.useState("#");
+
+  React.useEffect(() => {
+    const getData = async () => {
+      try {
+        const { data } = await auth.getSession();
+
+        setPhoto(
+          `https://simdiklat-bpsdm.jakarta.go.id/sim-diklat/image/photos/${data.user.image}`
+        );
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    getData();
+  }, []);
 
   return (
     <Appbar.Header
@@ -48,9 +67,9 @@ export default function AppHeaderAuth() {
             onPress={() => router.push("/profile")}
             style={{ flexDirection: "row", alignItems: "center", gap: 10 }}
           >
-            <Avatar.Text
+            <Avatar.Image
               size={42}
-              label={data?.profilPesertaDiklat.full_name.charAt(0) ?? ""}
+              source={{ uri: photo }}
               style={{ backgroundColor: "white" }}
             />
 

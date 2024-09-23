@@ -31,7 +31,7 @@ export default function SearchBar({
       <Searchbar
         value={search}
         onChangeText={handleSearchChange}
-        placeholder="Search"
+        placeholder="Cari Data..."
         placeholderTextColor={Colors.text_primary}
         iconColor={Colors.text_primary}
         inputStyle={{

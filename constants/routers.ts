@@ -150,7 +150,7 @@ export const routers = [
       {
         icon: assets.kalender_drawer,
         name: "Kalender Diklat",
-        title: "Rencana Kegiatana Kediklatan",
+        title: "Rencana Kegiatan Kediklatan",
         path: "/kalender-diklat",
         other_routes: [
           {

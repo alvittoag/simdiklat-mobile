@@ -34,12 +34,10 @@ import { router } from "expo-router";
 
 export default function KuisionerPengajar() {
   const [search, setSearch] = React.useState("");
-  const [filter, setFilterValue] = React.useState("terbaru");
-
-  const [terapkan, setTerapkan] = React.useState({
-    filterDate: { sortBy: "a.jadwal_mulai", sortDirection: "DESC" },
+  const [filter, setfilter] = React.useState("DESC");
+  const [terapkan, setTerapkan] = React.useState<any>({
+    sortDirection: filter,
   });
-
   const debouncedSearch = useDebounce(search, 1000);
 
   const [page, setPage] = React.useState(1);
@@ -56,7 +54,8 @@ export default function KuisionerPengajar() {
       page: page,
       limit: limit,
       q: debouncedSearch,
-      ...terapkan.filterDate,
+      sortBy: "a.jadwal_mulai",
+      ...terapkan,
     },
   });
 
@@ -70,12 +69,10 @@ export default function KuisionerPengajar() {
 
   const showDialog = () => setVisible(true);
 
-  const handleFilter = () => {
-    setTerapkan(() => ({
-      filterDate:
-        filter === "terbaru"
-          ? { sortBy: "a.jadwal_mulai", sortDirection: "DESC" }
-          : { sortBy: "a.jadwal_mulai", sortDirection: "ASC" },
+  const hideDialog = () => {
+    setTerapkan((prev: any) => ({
+      ...prev,
+      sortDirection: filter,
     }));
     setSearch("");
     setPage(1);
@@ -103,6 +100,7 @@ export default function KuisionerPengajar() {
         handleSearchChange={handleSearchChange}
         search={search}
         showDialog={showDialog}
+        showFilter
       />
 
       {loading ? (
@@ -194,7 +192,7 @@ export default function KuisionerPengajar() {
       <Portal>
         <Dialog
           visible={visible}
-          onDismiss={() => setVisible(false)}
+          onDismiss={hideDialog}
           style={{ backgroundColor: "white" }}
         >
           <Dialog.Title style={{ color: Colors.text_primary }}>
@@ -202,7 +200,7 @@ export default function KuisionerPengajar() {
           </Dialog.Title>
           <Dialog.Content>
             <RadioButton.Group
-              onValueChange={(newValue) => setFilterValue(newValue)}
+              onValueChange={(newValue) => setfilter(newValue)}
               value={filter}
             >
               <View
@@ -212,7 +210,8 @@ export default function KuisionerPengajar() {
                 }}
               >
                 <RadioButton
-                  value="terbaru"
+                  status={filter === "DESC" ? "checked" : "unchecked"}
+                  value="DESC"
                   color={Colors.border_input_active}
                   uncheckedColor="black"
                 />
@@ -226,7 +225,8 @@ export default function KuisionerPengajar() {
                 }}
               >
                 <RadioButton
-                  value="terlama"
+                  value="ASC"
+                  status={filter === "ASC" ? "checked" : "unchecked"}
                   color={Colors.border_input_active}
                   uncheckedColor="black"
                 />
@@ -236,9 +236,9 @@ export default function KuisionerPengajar() {
           </Dialog.Content>
           <Dialog.Actions>
             <Button
-              onPress={handleFilter}
-              mode="contained"
+              onPress={hideDialog}
               textColor="black"
+              mode="contained"
               style={{ backgroundColor: Colors.button_secondary, flexGrow: 1 }}
             >
               Terapkan

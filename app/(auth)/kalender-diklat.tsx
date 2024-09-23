@@ -42,8 +42,10 @@ import { ALERT_TYPE, Dialog as DNote } from "react-native-alert-notification";
 export default function KalenderDiklat() {
   const [search, setSearch] = React.useState("");
   const [yearFilter, setYearFilter] = React.useState("2024");
-  const [terapkan, setTerapkan] = React.useState<{ year: string | null }>({
-    year: null,
+  const [filter, setfilter] = React.useState("DESC");
+  const [terapkan, setTerapkan] = React.useState<any>({
+    tahun: Number(yearFilter),
+    sortDirection: filter,
   });
 
   const debouncedSearch = useDebounce(search, 1000);
@@ -59,10 +61,11 @@ export default function KalenderDiklat() {
     };
   }>(getKalenderDiklatList, {
     variables: {
-      tahun: Number(terapkan.year ?? 2024),
       page: page,
       limit: limit,
       q: debouncedSearch,
+      sortBy: "kd.registrasi_mulai",
+      ...terapkan,
     },
   });
 
@@ -77,7 +80,11 @@ export default function KalenderDiklat() {
   const showDialog = () => setVisible(true);
 
   const hideDialog = () => {
-    setTerapkan((prev) => ({ ...prev, year: yearFilter }));
+    setTerapkan((prev: any) => ({
+      ...prev,
+      tahun: Number(yearFilter),
+      sortDirection: filter,
+    }));
     setSearch("");
     setPage(1);
     setVisible(false);
@@ -200,6 +207,22 @@ export default function KalenderDiklat() {
                 </View>
 
                 <View style={{ gap: 5 }}>
+                  <Text style={{ fontSize: 16 }}>Status Registrasi</Text>
+                  <Text
+                    style={{
+                      color:
+                        item.status_registrasi === "open"
+                          ? Colors.text_green
+                          : Colors.text_red,
+                      fontWeight: "bold",
+                      fontSize: 16,
+                    }}
+                  >
+                    {item.status_registrasi === "open" ? "Dibuka" : "Ditutup"}
+                  </Text>
+                </View>
+
+                <View style={{ gap: 5 }}>
                   <Text style={{ fontSize: 16 }}>Persayaratan</Text>
 
                   <View>
@@ -273,6 +296,41 @@ export default function KalenderDiklat() {
           </Dialog.Title>
 
           <Dialog.Content>
+            <RadioButton.Group
+              onValueChange={(newValue) => setfilter(newValue)}
+              value={filter}
+            >
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                }}
+              >
+                <RadioButton
+                  status={filter === "DESC" ? "checked" : "unchecked"}
+                  value="DESC"
+                  color={Colors.border_input_active}
+                  uncheckedColor="black"
+                />
+                <Text>Data Paling Terbaru</Text>
+              </View>
+
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                }}
+              >
+                <RadioButton
+                  value="ASC"
+                  status={filter === "ASC" ? "checked" : "unchecked"}
+                  color={Colors.border_input_active}
+                  uncheckedColor="black"
+                />
+                <Text>Data Terlama</Text>
+              </View>
+            </RadioButton.Group>
+
             <Dropdown
               value={yearFilter}
               onChange={({ value }) => setYearFilter(value)}

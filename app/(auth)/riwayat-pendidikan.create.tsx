@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 import React from "react";
 import { moderateScale } from "react-native-size-matters";
 import {
@@ -131,7 +131,7 @@ export default function RiwayaPendidikanAdd() {
 
   console.log(dataInput);
   return (
-    <View>
+    <ScrollView>
       <View
         style={{
           gap: moderateScale(20),
@@ -351,7 +351,7 @@ export default function RiwayaPendidikanAdd() {
           />
         </Modal>
       </Portal>
-    </View>
+    </ScrollView>
   );
 }
 

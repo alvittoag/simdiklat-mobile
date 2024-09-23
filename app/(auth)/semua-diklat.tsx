@@ -28,8 +28,9 @@ import { router } from "expo-router";
 
 export default function SemuaDiklat() {
   const [search, setSearch] = React.useState("");
-  const [terapkan, setTerapkan] = React.useState<{ year: string | null }>({
-    year: null,
+  const [filter, setfilter] = React.useState("DESC");
+  const [terapkan, setTerapkan] = React.useState<any>({
+    sortDirection: filter,
   });
 
   const debouncedSearch = useDebounce(search, 1000);
@@ -50,7 +51,7 @@ export default function SemuaDiklat() {
       q: debouncedSearch,
       tipe: "",
       sortBy: "a.jadwal_mulai",
-      sortDirection: "DESC",
+      ...terapkan,
     },
   });
 
@@ -81,13 +82,22 @@ export default function SemuaDiklat() {
 
   const showDialog = () => setVisible(true);
 
-  const hideDialog = () => setVisible(false);
+  const hideDialog = () => {
+    setTerapkan((prev: any) => ({
+      ...prev,
+      sortDirection: filter,
+    }));
+    setSearch("");
+    setPage(1);
+    setVisible(false);
+  };
   return (
     <ContainerBackground>
       <SearchBar
         handleSearchChange={handleSearchChange}
         search={search}
         showDialog={showDialog}
+        showFilter
       />
 
       {loading ? (
@@ -217,8 +227,8 @@ export default function SemuaDiklat() {
           </Dialog.Title>
           <Dialog.Content>
             <RadioButton.Group
-              onValueChange={(newValue) => setValue(newValue)}
-              value={value}
+              onValueChange={(newValue) => setfilter(newValue)}
+              value={filter}
             >
               <View
                 style={{
@@ -227,11 +237,12 @@ export default function SemuaDiklat() {
                 }}
               >
                 <RadioButton
-                  value="status"
+                  status={filter === "DESC" ? "checked" : "unchecked"}
+                  value="DESC"
                   color={Colors.border_input_active}
                   uncheckedColor="black"
                 />
-                <Text>Status</Text>
+                <Text>Data Paling Terbaru</Text>
               </View>
 
               <View
@@ -241,47 +252,20 @@ export default function SemuaDiklat() {
                 }}
               >
                 <RadioButton
-                  value="jenis-diklat"
+                  value="ASC"
+                  status={filter === "ASC" ? "checked" : "unchecked"}
                   color={Colors.border_input_active}
                   uncheckedColor="black"
                 />
-                <Text>Jenis Diklat</Text>
-              </View>
-
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                }}
-              >
-                <RadioButton
-                  value="jadwal-pelaksanaan"
-                  color={Colors.border_input_active}
-                  uncheckedColor="black"
-                />
-                <Text>Jadwal Pelaksanaan</Text>
-              </View>
-
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                }}
-              >
-                <RadioButton
-                  value="lokasi-diklat"
-                  color={Colors.border_input_active}
-                  uncheckedColor="black"
-                />
-                <Text>Lokasi Diklat</Text>
+                <Text>Data Terlama</Text>
               </View>
             </RadioButton.Group>
           </Dialog.Content>
           <Dialog.Actions>
             <Button
               onPress={hideDialog}
-              mode="contained"
               textColor="black"
+              mode="contained"
               style={{ backgroundColor: Colors.button_secondary, flexGrow: 1 }}
             >
               Terapkan

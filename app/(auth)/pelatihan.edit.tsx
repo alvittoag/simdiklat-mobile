@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 import React from "react";
 import { moderateScale } from "react-native-size-matters";
 import { Button, Icon, TextInput } from "react-native-paper";
@@ -85,8 +85,8 @@ export default function pelatihanEdit() {
         instansi: "",
         tahun: "",
         keterangan: "",
-        materi: " ",
-        expired_sertifikat: " ",
+        materi: "",
+        expired_sertifikat: "",
         sertifikat_pdf: null as any,
       });
       router.navigate({
@@ -147,7 +147,7 @@ export default function pelatihanEdit() {
 
   console.log(dataInput);
   return (
-    <View>
+    <ScrollView>
       <View
         style={{
           gap: moderateScale(20),
@@ -172,7 +172,7 @@ export default function pelatihanEdit() {
           value={dataInput.materi}
           onChangeText={(text) => setDataInput({ ...dataInput, materi: text })}
           textColor={Colors.text_primary}
-          label={"Materi; *"}
+          label={"Materi *"}
           mode="outlined"
           outlineColor={Colors.border_primary}
           activeOutlineColor={Colors.border_input_active}
@@ -314,7 +314,7 @@ export default function pelatihanEdit() {
           </Button>
         </View>
       </View>
-    </View>
+    </ScrollView>
   );
 }
 

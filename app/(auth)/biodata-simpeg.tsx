@@ -136,22 +136,26 @@ export default function BiodataSimpeg() {
     simpegValue: string,
     otherValue?: string
   ) => (
-    <View style={{ gap: moderateScale(5) }}>
-      <TextInput
-        value={simdiklatValue}
-        disabled
-        mode="outlined"
-        textColor="black"
-        style={styles.textInput}
-        outlineColor={Colors.border_primary}
-        activeOutlineColor={Colors.border_input_active}
-      />
+    <View style={{ gap: moderateScale(10) }}>
+      <View style={{ gap: 5 }}>
+        <Text style={{ fontWeight: 500, fontSize: 16 }}>
+          {key.toUpperCase().replace("_", " ")}
+        </Text>
+        <TextInput
+          value={simdiklatValue}
+          disabled
+          mode="outlined"
+          textColor="black"
+          style={styles.textInput}
+          outlineColor={Colors.border_primary}
+          activeOutlineColor={Colors.border_input_active}
+        />
+      </View>
+
       <View
         style={{
-          paddingHorizontal: moderateScale(25),
           flexDirection: "row",
           alignItems: "center",
-          gap: moderateScale(5),
         }}
       >
         <Checkbox.Android
@@ -160,7 +164,7 @@ export default function BiodataSimpeg() {
           uncheckedColor={Colors.text_primary}
           color={Colors.text_primary}
         />
-        <Text style={{ fontSize: 16 }}>{simpegValue}</Text>
+        <Text style={{ fontSize: 16, paddingRight: 50 }}>{simpegValue}</Text>
       </View>
     </View>
   );
@@ -220,7 +224,7 @@ export default function BiodataSimpeg() {
 
           <View
             style={{
-              paddingHorizontal: moderateScale(35),
+              paddingHorizontal: moderateScale(10),
               flexDirection: "row",
               alignItems: "center",
               gap: moderateScale(5),
@@ -241,7 +245,7 @@ export default function BiodataSimpeg() {
             paddingTop: moderateScale(20),
             paddingBottom: moderateScale(40),
             paddingHorizontal: moderateScale(15),
-            gap: moderateScale(30),
+            gap: moderateScale(20),
           }}
         >
           {renderField("nrk", data.data.user.nrk, data.data.simpeg_data.NRK)}
@@ -310,12 +314,12 @@ export default function BiodataSimpeg() {
           )}
           {renderField(
             "tmt_cpns",
-            parseDateLong(data.data.user.tmt_cpns as any),
+            parseDate(data.data.user.tmt_cpns),
             data.data.simpeg_data["TMT CPNS"]
           )}
           {renderField(
             "tmt_pns",
-            parseDateLong(data.data.user.tmt_pns as any),
+            parseDate(data.data.user.tmt_pns),
             data.data.simpeg_data["TMT PNS"]
           )}
           {renderField(
@@ -338,7 +342,7 @@ export default function BiodataSimpeg() {
           )}
           {renderField(
             "tmt_pangkat",
-            parseDateLong(data.data.user.tmt_pangkat as any),
+            parseDate(data.data.user.tmt_pangkat),
             data.data.simpeg_data["TMT PANGKAT"]
           )}
           {renderField(
@@ -349,7 +353,7 @@ export default function BiodataSimpeg() {
           )}
           {renderField(
             "tmt_eselon",
-            parseDateLong(data.data.user.tmt_pns as any),
+            parseDate(data.data.user.tmt_pns),
             data.data.simpeg_data["TMT ESELON"]
           )}
           {renderField(
@@ -436,3 +440,15 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
 });
+
+const parseDate = (d: Date) => {
+  const date = new Date(d);
+  return date
+    .toLocaleDateString("en-US", {
+      month: "2-digit",
+      day: "2-digit",
+      year: "numeric",
+    })
+    .split("/")
+    .join("-");
+};

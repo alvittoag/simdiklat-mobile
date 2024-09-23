@@ -1,31 +1,44 @@
-import { FlatList, Image, Text, TouchableOpacity, View } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  FlatList,
+  RefreshControl,
+  ActivityIndicator,
+} from "react-native";
 import React from "react";
-import { moderateScale } from "react-native-size-matters";
 import ContainerBackground from "@/components/container/ContainerBackground";
-import Pagination from "@/components/sections/pagination";
-import { getKotakMasuk } from "@/services/query/get-kotak-masuk";
-import useDebounce from "@/hooks/useDebounce";
-import { IKotakMasuk } from "@/type";
-import { useQuery } from "@apollo/client";
-import Error from "@/components/elements/Error";
+import { moderateScale } from "react-native-size-matters";
 import { Avatar, Menu, TextInput } from "react-native-paper";
+import { Colors } from "@/constants/Colors";
+import assets from "@/assets";
+import { useQuery } from "@apollo/client";
+import { getKotakMasuk } from "@/services/query/get-kotak-masuk";
 import { Feather } from "@expo/vector-icons";
+import { IKotakMasuk } from "@/type";
 import { parseDateLong } from "@/lib/parseDate";
 import Loading from "@/components/elements/Loading";
+import Error from "@/components/elements/Error";
+import useDebounce from "@/hooks/useDebounce";
+import { router, useLocalSearchParams } from "expo-router";
 import NotFoundSearch from "@/components/sections/NotFoundSearch";
-import { Colors } from "@/constants/Colors";
-import { router, useNavigation } from "expo-router";
-import assets from "@/assets";
-import AppHeaderNav from "@/components/AppHeaderNav";
+import { axiosService } from "@/services/axiosService";
+import { ALERT_TYPE, Dialog } from "react-native-alert-notification";
+import { useMutation } from "@tanstack/react-query";
 
-export default function KotakMasukArsip() {
+export default function KotakMasuk() {
+  const isRefetch = useLocalSearchParams();
+
   const [search, setSearch] = React.useState("");
-
   const debouncedSearch = useDebounce(search, 1000);
-
   const [page, setPage] = React.useState(1);
-  const [limit] = React.useState(10);
-  const { data, loading, error } = useQuery<{
+  const [limit, setLimit] = React.useState(10);
+  const [visibleMenuIndex, setVisibleMenuIndex] = React.useState<number | null>(
+    null
+  );
+
+  const { data, loading, error, refetch } = useQuery<{
     messageInbox: { items: IKotakMasuk[]; total: number; hasMore: boolean };
   }>(getKotakMasuk, {
     variables: {
@@ -36,37 +49,93 @@ export default function KotakMasukArsip() {
     },
   });
 
-  const totalPage = data ? Math.ceil(data?.messageInbox.total / limit) : 1;
+  const mutationArsip = useMutation({
+    mutationFn: async (id: number) => {
+      await axiosService.put("/api/message/unarchive", {
+        message_id: id,
+      });
+    },
+    onSuccess: () => {
+      Dialog.show({
+        type: ALERT_TYPE.SUCCESS,
+        title: "Berhasil",
+        textBody: "Pesan Berhasil Diunarchive",
+        button: "Tutup",
+      });
 
-  const [visible, setVisible] = React.useState(false);
+      refetch();
 
-  const openMenu = () => setVisible(true);
+      router.push("/kotak-masuk");
 
-  const closeMenu = () => setVisible(false);
+      closeMenu();
+    },
+    onError: (err) => {
+      Dialog.show({
+        type: ALERT_TYPE.DANGER,
+        title: "Gagal Mengarsipkan",
+        textBody: "Pesan Gagal Di unarchive",
+        button: "Tutup",
+      });
 
-  const ListFooter = React.useMemo(
-    () => (
-      <Pagination
-        horizontal={0}
-        loading={loading}
-        page={page}
-        setPage={setPage}
-        totalPage={totalPage}
-      />
-    ),
-    [loading, page, setPage, totalPage]
-  );
+      console.log(err);
+    },
+  });
 
-  const navigation = useNavigation();
+  const handleArsip = (id: number) => {
+    mutationArsip.mutate(id);
+  };
+
+  const openMenu = (index: number) => {
+    setVisibleMenuIndex(index);
+  };
+
+  const deletePesan = async (id: number) => {
+    try {
+      await axiosService.delete("/api/message/delete-message", {
+        data: {
+          id,
+        },
+      });
+
+      refetch();
+    } catch (error) {
+      console.log(error);
+      Dialog.show({
+        type: ALERT_TYPE.DANGER,
+        title: "Gagal Menghapus",
+        textBody: "Pesan Gagal Dihapus",
+        button: "Tutup",
+      });
+    }
+  };
+
+  const closeMenu = () => {
+    setVisibleMenuIndex(null);
+  };
 
   React.useEffect(() => {
-    navigation.setOptions({ headerShown: false });
-  }, [navigation]);
+    refetch();
+  }, [isRefetch]);
+
+  const loadMore = () => {
+    if (data?.messageInbox.hasMore && !loading) {
+      setLimit(limit + 10);
+    }
+  };
+
+  const renderFooter = () => {
+    if (!loading) return null;
+    return (
+      <View style={{ paddingVertical: 20 }}>
+        <ActivityIndicator size="large" color={Colors.primary} />
+      </View>
+    );
+  };
 
   if (error) return <Error />;
+
   return (
     <ContainerBackground>
-      <AppHeaderNav title="Arsip" />
       <View
         style={{
           paddingHorizontal: moderateScale(15),
@@ -126,7 +195,7 @@ export default function KotakMasukArsip() {
         </View>
 
         <View style={{ flex: 1 }}>
-          {loading ? (
+          {loading && page === 1 ? (
             <Loading />
           ) : data?.messageInbox.items.length === 0 ? (
             <NotFoundSearch />
@@ -135,11 +204,35 @@ export default function KotakMasukArsip() {
               showsVerticalScrollIndicator={false}
               keyExtractor={(item) => item.id.toString()}
               data={data?.messageInbox.items}
+              refreshControl={
+                <RefreshControl
+                  refreshing={false}
+                  onRefresh={() => {
+                    setPage(1);
+                    refetch();
+                  }}
+                />
+              }
+              onEndReached={loadMore}
+              onEndReachedThreshold={0.1}
+              ListFooterComponent={renderFooter}
               renderItem={({ item, index }) => (
-                <View
+                <TouchableOpacity
+                  onPress={() => {
+                    closeMenu();
+                    router.push({
+                      pathname: "/kotak-masuk.pesan",
+                      params: {
+                        dari: item.sender.full_name,
+                        subjek: item.subject,
+                        pesan: item.message,
+                      },
+                    });
+                  }}
                   style={{
                     backgroundColor: "#F3F3F3",
-                    padding: moderateScale(20),
+                    paddingHorizontal: moderateScale(20),
+                    paddingVertical: moderateScale(15),
                     borderRadius: 10,
                     flexDirection: "row",
                     justifyContent: "space-between",
@@ -150,45 +243,47 @@ export default function KotakMasukArsip() {
                     marginBottom: moderateScale(25),
                   }}
                 >
-                  <View>
-                    <View
-                      style={{
-                        flexDirection: "row",
-                        gap: moderateScale(15),
-                      }}
-                    >
-                      <Avatar.Text size={50} label="AG" />
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      gap: moderateScale(15),
+                      alignItems: "center",
+                    }}
+                  >
+                    <Avatar.Text
+                      size={50}
+                      label={item.sender.full_name.at(0) as string}
+                    />
 
-                      <View style={{ gap: 5 }}>
-                        <View>
-                          <Text
-                            numberOfLines={1}
-                            style={{ fontWeight: "bold", fontSize: 15 }}
-                          >
-                            {item.sender.full_name}
-                          </Text>
-                          <Text numberOfLines={1}>{item.subject}</Text>
-                        </View>
-
+                    <View style={{ gap: 5 }}>
+                      <View>
                         <Text
-                          style={{
-                            color: Colors.text_secondary,
-                            fontSize: 12,
-                          }}
+                          numberOfLines={1}
+                          style={{ fontWeight: "bold", fontSize: 15 }}
                         >
-                          {parseDateLong(item.created_at)}
+                          {item.sender.full_name}
                         </Text>
+                        <Text numberOfLines={1}>{item.subject}</Text>
                       </View>
+
+                      <Text
+                        style={{
+                          color: Colors.text_secondary,
+                          fontSize: 12,
+                        }}
+                      >
+                        {parseDateLong(item.created_at)}
+                      </Text>
                     </View>
                   </View>
 
                   <Menu
-                    visible={visible}
+                    visible={visibleMenuIndex === item.id}
                     onDismiss={closeMenu}
                     anchorPosition="bottom"
                     contentStyle={{ backgroundColor: "white" }}
                     anchor={
-                      <TouchableOpacity onPress={openMenu}>
+                      <TouchableOpacity onPress={() => openMenu(item.id)}>
                         <Feather name="more-vertical" size={25} />
                       </TouchableOpacity>
                     }
@@ -217,8 +312,12 @@ export default function KotakMasukArsip() {
                         fontWeight: 500,
                         color: Colors.text_primary,
                       }}
-                      onPress={() => {}}
-                      title="Pindahkan Ke Arsip"
+                      onPress={() => handleArsip(item.id)}
+                      title={
+                        mutationArsip.isPending
+                          ? "Loading..."
+                          : "Batalkan Arsip"
+                      }
                     />
 
                     <Menu.Item
@@ -226,16 +325,14 @@ export default function KotakMasukArsip() {
                         fontWeight: 500,
                         color: Colors.text_primary,
                       }}
-                      onPress={() => {}}
+                      onPress={() => deletePesan(item.id)}
                       title="Hapus"
                     />
                   </Menu>
-                </View>
+                </TouchableOpacity>
               )}
             />
           )}
-
-          {ListFooter}
         </View>
       </View>
     </ContainerBackground>

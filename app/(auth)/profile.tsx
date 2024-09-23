@@ -17,10 +17,16 @@ export default function Profile() {
     profilPesertaDiklat: IProfilePeserta;
   }>(getProfilePeserta);
 
+  const [photo, setPhoto] = React.useState("#");
+
   React.useEffect(() => {
     const getData = async () => {
       try {
-        await auth.getSession();
+        const { data } = await auth.getSession();
+
+        setPhoto(
+          `https://simdiklat-bpsdm.jakarta.go.id/sim-diklat/image/photos/${data.user.image}`
+        );
       } catch (error) {
         console.log(error);
       }
@@ -48,9 +54,9 @@ export default function Profile() {
           }}
         >
           <View style={{ alignItems: "center", gap: moderateScale(25) }}>
-            <Avatar.Text
+            <Avatar.Image
               size={180}
-              label={data?.profilPesertaDiklat.full_name.charAt(0) ?? ""}
+              source={{ uri: photo }}
               style={{
                 backgroundColor: Colors.primary,
                 borderWidth: 1,

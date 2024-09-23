@@ -91,6 +91,8 @@ export default function HalamanUtama() {
     },
   });
 
+  console.log(dataPodcast?.data.isRegisterd);
+
   const handleRegisterPodcast = () => {
     const formData = new FormData();
     formData.append("jadwal_diklat_id", dataPodcast?.data.angkatan_id as any);

@@ -36,12 +36,9 @@ export default function KuisionerPenyelenggara() {
   const params = useLocalSearchParams();
 
   const [search, setSearch] = React.useState("");
-  const [filter, setFilterValue] = React.useState("terbaru");
-  const [status, setStatus] = React.useState("");
-
-  const [terapkan, setTerapkan] = React.useState({
-    filterDate: { sortBy: "a.jadwal_mulai", sortDirection: "DESC" },
-    status: "",
+  const [filter, setfilter] = React.useState("DESC");
+  const [terapkan, setTerapkan] = React.useState<any>({
+    sortDirection: filter,
   });
 
   const debouncedSearch = useDebounce(search, 1000);
@@ -60,8 +57,8 @@ export default function KuisionerPenyelenggara() {
       page: page,
       limit: limit,
       q: debouncedSearch,
-      status: terapkan.status,
-      ...terapkan.filterDate,
+      sortBy: "a.jadwal_mulai",
+      ...terapkan,
     },
   });
 
@@ -73,20 +70,17 @@ export default function KuisionerPenyelenggara() {
 
   const [visible, setVisible] = React.useState(false);
 
-  const showDialog = () => setVisible(true);
-
-  const handleFilter = () => {
-    setTerapkan(() => ({
-      filterDate:
-        filter === "terbaru"
-          ? { sortBy: "a.jadwal_mulai", sortDirection: "DESC" }
-          : { sortBy: "a.jadwal_mulai", sortDirection: "ASC" },
-      status,
+  const hideDialog = () => {
+    setTerapkan((prev: any) => ({
+      ...prev,
+      sortDirection: filter,
     }));
     setSearch("");
     setPage(1);
     setVisible(false);
   };
+
+  const showDialog = () => setVisible(true);
 
   const ListFooter = React.useMemo(
     () => (
@@ -231,7 +225,7 @@ export default function KuisionerPenyelenggara() {
       <Portal>
         <Dialog
           visible={visible}
-          onDismiss={() => setVisible(false)}
+          onDismiss={hideDialog}
           style={{ backgroundColor: "white" }}
         >
           <Dialog.Title style={{ color: Colors.text_primary }}>
@@ -239,7 +233,7 @@ export default function KuisionerPenyelenggara() {
           </Dialog.Title>
           <Dialog.Content>
             <RadioButton.Group
-              onValueChange={(newValue) => setFilterValue(newValue)}
+              onValueChange={(newValue) => setfilter(newValue)}
               value={filter}
             >
               <View
@@ -249,7 +243,8 @@ export default function KuisionerPenyelenggara() {
                 }}
               >
                 <RadioButton
-                  value="terbaru"
+                  status={filter === "DESC" ? "checked" : "unchecked"}
+                  value="DESC"
                   color={Colors.border_input_active}
                   uncheckedColor="black"
                 />
@@ -263,37 +258,20 @@ export default function KuisionerPenyelenggara() {
                 }}
               >
                 <RadioButton
-                  value="terlama"
+                  value="ASC"
+                  status={filter === "ASC" ? "checked" : "unchecked"}
                   color={Colors.border_input_active}
                   uncheckedColor="black"
                 />
                 <Text>Data Terlama</Text>
               </View>
-
-              <Dropdown
-                value={status}
-                onChange={({ value }) => setStatus(value)}
-                style={{
-                  backgroundColor: "white",
-                  borderWidth: 1,
-                  borderRadius: 7,
-                  borderColor: Colors.border_primary,
-                  paddingVertical: 10,
-                  paddingHorizontal: 15,
-                  marginTop: 10,
-                }}
-                placeholder="Berdasarkan Status"
-                labelField="label"
-                valueField="value"
-                data={dataStatus}
-              />
             </RadioButton.Group>
           </Dialog.Content>
           <Dialog.Actions>
             <Button
-              onPress={handleFilter}
-              mode="contained"
+              onPress={hideDialog}
               textColor="black"
+              mode="contained"
               style={{ backgroundColor: Colors.button_secondary, flexGrow: 1 }}
             >
               Terapkan

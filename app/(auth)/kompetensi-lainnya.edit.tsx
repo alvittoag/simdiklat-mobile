@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 import React from "react";
 import { moderateScale } from "react-native-size-matters";
 import {
@@ -142,7 +142,7 @@ export default function KompetensiLainnyaEdit() {
     formData.append("tahun", dataInput.tahun);
     formData.append("durasi", dataInput.durasi);
     formData.append("nomor_sertifikat", dataInput.nomor_sertifikat);
-    formData.append("tgl_sertifikat", dataInput.tgl_sertifikat);
+    formData.append("tgl_sertifikat", date.toISOString());
 
     if (dataInput.sertifikat_pdf) {
       const fileToUpload = {
@@ -181,7 +181,7 @@ export default function KompetensiLainnyaEdit() {
   console.log(dataInput);
 
   return (
-    <View>
+    <ScrollView>
       <View
         style={{
           gap: moderateScale(20),
@@ -438,7 +438,7 @@ export default function KompetensiLainnyaEdit() {
           />
         </Modal>
       </Portal>
-    </View>
+    </ScrollView>
   );
 }
 

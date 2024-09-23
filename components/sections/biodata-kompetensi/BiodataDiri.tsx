@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { StyleSheet, FlatList } from "react-native";
+import { StyleSheet, FlatList, View, Text } from "react-native";
 import { Button, TextInput } from "react-native-paper";
 import { moderateScale } from "react-native-size-matters";
 import { Colors } from "@/constants/Colors";
@@ -151,19 +151,20 @@ const BiodataDiri = ({ navigation }: { navigation: any }) => {
   console.log("Changed data:", changedData);
 
   const renderItem = ({ item }: { item: BiodataInput }) => (
-    <TextInput
-      key={item.id}
-      editable={item.editable}
-      mode="outlined"
-      multiline
-      textColor={Colors.text_primary}
-      value={inputData[item.id] === " " ? "-" : inputData[item.id]}
-      onChangeText={(value) => handleInputChange(item.id, value)}
-      label={item.label}
-      style={[styles.textInput, !item.editable && styles.disabledInput]}
-      outlineColor={Colors.border_primary}
-      activeOutlineColor={Colors.border_input_active}
-    />
+    <View style={{ gap: 5 }}>
+      <Text style={{ fontWeight: 500, fontSize: 15 }}>{item.label}</Text>
+      <TextInput
+        key={item.id}
+        editable={item.editable}
+        mode="outlined"
+        textColor={Colors.text_primary}
+        value={inputData[item.id] === " " ? "-" : inputData[item.id]}
+        onChangeText={(value) => handleInputChange(item.id, value)}
+        style={[styles.textInput, !item.editable && styles.disabledInput]}
+        outlineColor={Colors.border_primary}
+        activeOutlineColor={Colors.border_input_active}
+      />
+    </View>
   );
 
   return (
@@ -201,7 +202,7 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   disabledInput: {
-    backgroundColor: "#F7F7F8",
+    backgroundColor: "#B7B7B7",
   },
   button: {
     backgroundColor: Colors.button_secondary,

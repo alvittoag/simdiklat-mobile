@@ -108,7 +108,18 @@ export default function KotakKeluar() {
 
   const renderItem = useCallback(
     ({ item, index }: { item: IKontakKeluar; index: number }) => (
-      <View
+      <TouchableOpacity
+        onPress={() => {
+          closeMenu();
+          router.push({
+            pathname: "/kotak-masuk.keluar.detail",
+            params: {
+              kepada: item.receiver.map((i) => i.full_name).join(", "),
+              subjek: item.subject,
+              pesan: item.message,
+            },
+          });
+        }}
         style={{
           backgroundColor: "#F3F3F3",
           paddingHorizontal: moderateScale(20),
@@ -180,7 +191,7 @@ export default function KotakKeluar() {
             title={isPending ? "Menghapus..." : "Hapus"}
           />
         </Menu>
-      </View>
+      </TouchableOpacity>
     ),
     [visibleIndex, isPending]
   );

@@ -105,7 +105,7 @@ export default function DiklatSudahDiikutiDetail() {
           <View
             style={{
               backgroundColor: "#f0f0f0",
-              paddingVertical: moderateScale(50),
+              paddingVertical: moderateScale(35),
               borderWidth: 1,
               borderColor: Colors.border_primary,
               borderRadius: 7,

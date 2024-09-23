@@ -51,10 +51,10 @@ export default function DiklatSedangDiikuti() {
   }, []);
 
   const [search, setSearch] = React.useState("");
-  const [terapkan, setTerapkan] = React.useState<{ year: string | null }>({
-    year: null,
+  const [filter, setfilter] = React.useState("DESC");
+  const [terapkan, setTerapkan] = React.useState<any>({
+    sortDirection: filter,
   });
-
   const debouncedSearch = useDebounce(search, 1000);
 
   const [page, setPage] = React.useState(1);
@@ -72,6 +72,8 @@ export default function DiklatSedangDiikuti() {
       limit: limit,
       q: debouncedSearch,
       tipe: "current",
+      sortBy: "a.jadwal_mulai",
+      ...terapkan,
     },
   });
 
@@ -82,7 +84,6 @@ export default function DiklatSedangDiikuti() {
   }, []);
 
   const [visible, setVisible] = React.useState(false);
-  const [value, setValue] = React.useState("status");
 
   const ListFooter = React.useMemo(
     () => (
@@ -100,9 +101,17 @@ export default function DiklatSedangDiikuti() {
     return <Error />;
   }
 
-  const showDialog = () => setVisible(true);
+  const hideDialog = () => {
+    setTerapkan((prev: any) => ({
+      ...prev,
+      sortDirection: filter,
+    }));
+    setSearch("");
+    setPage(1);
+    setVisible(false);
+  };
 
-  const hideDialog = () => setVisible(false);
+  const showDialog = () => setVisible(true);
 
   const imageUri = Image.resolveAssetSource(bg).uri;
 
@@ -195,6 +204,7 @@ export default function DiklatSedangDiikuti() {
         handleSearchChange={handleSearchChange}
         search={search}
         showDialog={showDialog}
+        showFilter
       />
 
       {loading ? (
@@ -357,8 +367,8 @@ export default function DiklatSedangDiikuti() {
           </Dialog.Title>
           <Dialog.Content>
             <RadioButton.Group
-              onValueChange={(newValue) => setValue(newValue)}
-              value={value}
+              onValueChange={(newValue) => setfilter(newValue)}
+              value={filter}
             >
               <View
                 style={{
@@ -367,11 +377,12 @@ export default function DiklatSedangDiikuti() {
                 }}
               >
                 <RadioButton
-                  value="status"
+                  status={filter === "DESC" ? "checked" : "unchecked"}
+                  value="DESC"
                   color={Colors.border_input_active}
                   uncheckedColor="black"
                 />
-                <Text>Status</Text>
+                <Text>Data Paling Terbaru</Text>
               </View>
 
               <View
@@ -381,39 +392,12 @@ export default function DiklatSedangDiikuti() {
                 }}
               >
                 <RadioButton
-                  value="jenis-diklat"
+                  value="ASC"
+                  status={filter === "ASC" ? "checked" : "unchecked"}
                   color={Colors.border_input_active}
                   uncheckedColor="black"
                 />
-                <Text>Jenis Diklat</Text>
-              </View>
-
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                }}
-              >
-                <RadioButton
-                  value="jadwal-pelaksanaan"
-                  color={Colors.border_input_active}
-                  uncheckedColor="black"
-                />
-                <Text>Jadwal Pelaksanaan</Text>
-              </View>
-
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                }}
-              >
-                <RadioButton
-                  value="lokasi-diklat"
-                  color={Colors.border_input_active}
-                  uncheckedColor="black"
-                />
-                <Text>Lokasi Diklat</Text>
+                <Text>Data Terlama</Text>
               </View>
             </RadioButton.Group>
           </Dialog.Content>

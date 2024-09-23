@@ -30,6 +30,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import assets from "@/assets";
 import useSession from "@/hooks/useSession";
 import Loading from "@/components/elements/Loading";
+import auth from "@/services/api/auth";
 
 interface RouteItem {
   name: string;
@@ -52,6 +53,24 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = React.memo(
 
     const [visible, setVisible] = React.useState(false);
 
+    const [photo, setPhoto] = React.useState("#");
+
+    React.useEffect(() => {
+      const getData = async () => {
+        try {
+          const { data } = await auth.getSession();
+
+          setPhoto(
+            `https://simdiklat-bpsdm.jakarta.go.id/sim-diklat/image/photos/${data.user.image}`
+          );
+        } catch (error) {
+          console.log(error);
+        }
+      };
+
+      getData();
+    }, []);
+
     const showDialog = () => setVisible(true);
 
     const hideDialog = () => setVisible(false);
@@ -64,11 +83,12 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = React.memo(
           onPress={() => navigation.navigate("profile")}
           style={styles.profileContainer}
         >
-          <Avatar.Text
-            size={104}
-            label={data?.profilPesertaDiklat.full_name.charAt(0) ?? ""}
+          <Avatar.Image
+            source={{ uri: photo }}
+            size={120}
             style={styles.avatar}
           />
+
           <View>
             <Text style={styles.fullName}>
               {data?.profilPesertaDiklat.full_name}
@@ -79,7 +99,7 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = React.memo(
           </View>
         </TouchableOpacity>
       ),
-      [data, navigation]
+      [data, navigation, photo]
     );
 
     const renderRouteItem = useCallback(

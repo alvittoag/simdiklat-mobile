@@ -195,7 +195,11 @@ export default function RiwayaPekerjaanEdit() {
         tmt_jabatan: "",
         keterangan: "",
       });
-      setSelectValue(null);
+      setSelectValue({
+        uke: null,
+        jenis: null,
+        jabatan: null,
+      });
       router.navigate({
         pathname: "/biodata-kompetensi",
         params: { data: "success" },
@@ -217,7 +221,7 @@ export default function RiwayaPekerjaanEdit() {
     formData.append("id", dataParams?.id as any);
     formData.append("instansi", selectValue?.uke?.value as string);
     formData.append("jabatan", selectValue?.jabatan?.value as string);
-    formData.append("tmt_jabatan", dataInput.tmt_jabatan);
+    formData.append("tmt_jabatan", date.toISOString());
     formData.append("keterangan", dataInput.keterangan);
 
     mutationEdit.mutate(formData);

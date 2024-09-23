@@ -79,6 +79,7 @@ export default function RiwayaPekerjaanAdd() {
     tmt_jabatan: "",
     keterangan: "",
   });
+
   const [selectValue, setSelectValue] = React.useState<any>({
     uke: null,
     jenis: null,
@@ -122,13 +123,22 @@ export default function RiwayaPekerjaanAdd() {
     refetch();
   }, [searchUkeVal, page, selectValue]);
 
+  console.log(date);
+
   const onChangeDate = (event: any, selectedDate?: Date) => {
     const currentDate = selectedDate || date;
     setShowDatePicker(false);
     setDate(currentDate);
     setDataInput({
       ...dataInput,
-      tmt_jabatan: currentDate.toLocaleDateString("id-ID"),
+      tmt_jabatan: currentDate
+        .toLocaleDateString("id-ID", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        })
+        .split("/")
+        .join("-"),
     });
   };
 
@@ -155,7 +165,11 @@ export default function RiwayaPekerjaanAdd() {
         tmt_jabatan: "",
         keterangan: "",
       });
-      setSelectValue(null);
+      setSelectValue({
+        uke: null,
+        jenis: null,
+        jabatan: null,
+      });
       router.navigate({
         pathname: "/biodata-kompetensi",
         params: { data: "success" },
@@ -176,7 +190,7 @@ export default function RiwayaPekerjaanAdd() {
     const formData = new FormData();
     formData.append("instansi", selectValue?.uke?.value as string);
     formData.append("jabatan", selectValue?.jabatan?.value as string);
-    formData.append("tmt_jabatan", dataInput.tmt_jabatan);
+    formData.append("tmt_jabatan", date.toISOString());
     formData.append("keterangan", dataInput.keterangan);
 
     mutationAdd.mutate(formData);

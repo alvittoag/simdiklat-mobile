@@ -25,6 +25,7 @@ import { router, useLocalSearchParams } from "expo-router";
 import NotFoundSearch from "@/components/sections/NotFoundSearch";
 import { axiosService } from "@/services/axiosService";
 import { ALERT_TYPE, Dialog } from "react-native-alert-notification";
+import { useMutation } from "@tanstack/react-query";
 
 export default function KotakMasuk() {
   const isRefetch = useLocalSearchParams();
@@ -44,8 +45,45 @@ export default function KotakMasuk() {
       page: page,
       limit: limit,
       search: debouncedSearch,
+      isArchive: false,
     },
   });
+
+  const mutationArsip = useMutation({
+    mutationFn: async (id: number) => {
+      await axiosService.put("/api/message/archive", {
+        message_id: id,
+      });
+    },
+    onSuccess: () => {
+      Dialog.show({
+        type: ALERT_TYPE.SUCCESS,
+        title: "Berhasil",
+        textBody: "Pesan Berhasil Diarsipkan",
+        button: "Tutup",
+      });
+
+      refetch();
+
+      router.push("/kotak-masuk.arsip");
+
+      closeMenu();
+    },
+    onError: (err) => {
+      Dialog.show({
+        type: ALERT_TYPE.DANGER,
+        title: "Gagal Mengarsipkan",
+        textBody: "Pesan Gagal Diarsipkan",
+        button: "Tutup",
+      });
+
+      console.log(err);
+    },
+  });
+
+  const handleArsip = (id: number) => {
+    mutationArsip.mutate(id);
+  };
 
   const openMenu = (index: number) => {
     setVisibleMenuIndex(index);
@@ -179,7 +217,18 @@ export default function KotakMasuk() {
               onEndReachedThreshold={0.1}
               ListFooterComponent={renderFooter}
               renderItem={({ item, index }) => (
-                <View
+                <TouchableOpacity
+                  onPress={() => {
+                    closeMenu();
+                    router.push({
+                      pathname: "/kotak-masuk.pesan",
+                      params: {
+                        dari: item.sender.full_name,
+                        subjek: item.subject,
+                        pesan: item.message,
+                      },
+                    });
+                  }}
                   style={{
                     backgroundColor: "#F3F3F3",
                     paddingHorizontal: moderateScale(20),
@@ -263,8 +312,10 @@ export default function KotakMasuk() {
                         fontWeight: 500,
                         color: Colors.text_primary,
                       }}
-                      onPress={() => {}}
-                      title="Pindahkan Ke Arsip"
+                      onPress={() => handleArsip(item.id)}
+                      title={
+                        mutationArsip.isPending ? "Loading..." : "Arsipkan"
+                      }
                     />
 
                     <Menu.Item
@@ -276,7 +327,7 @@ export default function KotakMasuk() {
                       title="Hapus"
                     />
                   </Menu>
-                </View>
+                </TouchableOpacity>
               )}
             />
           )}
