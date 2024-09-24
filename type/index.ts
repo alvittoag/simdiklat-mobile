@@ -726,3 +726,12 @@ interface ILampiranPengumuman {
   updated_at: string;
   files: IFile;
 }
+
+export interface IJenisLampiran {
+  id: number;
+  name: string;
+  active: number;
+  keterangan: string;
+  created_at: Date;
+  updated_at: Date;
+}

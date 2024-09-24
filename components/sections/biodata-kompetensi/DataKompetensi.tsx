@@ -1083,7 +1083,6 @@ export default function DataKompetensi() {
         </View>
 
         <Button
-          disabled={!checked}
           onPress={() => {
             Dialog.show({
               type: ALERT_TYPE.SUCCESS,

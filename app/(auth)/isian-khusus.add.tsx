@@ -12,17 +12,26 @@ import { Colors } from "@/constants/Colors";
 import { moderateScale } from "react-native-size-matters";
 import * as DocumentPicker from "expo-document-picker";
 import { ALERT_TYPE, Dialog } from "react-native-alert-notification";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { axiosService } from "@/services/axiosService";
 import ContainerBackground from "@/components/container/ContainerBackground";
 import { router } from "expo-router";
 import useDebounce from "@/hooks/useDebounce";
 import { FlashList } from "@shopify/flash-list";
+import { IJenisLampiran } from "@/type";
+import Loading from "@/components/elements/Loading";
+import Error from "@/components/elements/Error";
+
+type response = {
+  status: string;
+  message: string;
+  data: IJenisLampiran[];
+};
 
 export default function IsianKhususAdd() {
   const queryClient = useQueryClient();
   const [selectValue, setSelectValue] = React.useState<{
-    value: string;
+    value: number;
     label: string;
   } | null>(null);
   const [dataLampiran, setDataLampiran] = React.useState({
@@ -33,6 +42,16 @@ export default function IsianKhususAdd() {
   const [search, setsearch] = React.useState("");
   const searchVal = useDebounce(search, 500);
   const [visible, setVisible] = React.useState(false);
+
+  const { data, isPending, isError } = useQuery({
+    queryKey: ["isian-khusus-lampiran"],
+    queryFn: async () => {
+      const { data } = await axiosService.get<response>(
+        "/api/isian-khusus/lampiran/jenis"
+      );
+      return data;
+    },
+  });
 
   const showModal = () => setVisible(true);
   const hideModal = () => setVisible(false);
@@ -74,7 +93,7 @@ export default function IsianKhususAdd() {
 
   const handleAddLampiran = async () => {
     const formData = new FormData();
-    formData.append("jenis_id", selectValue?.value as string);
+    formData.append("jenis_id", selectValue?.value.toString() as string);
     formData.append("title", dataLampiran.title);
     formData.append("keterangan", dataLampiran.keterangan);
 
@@ -112,9 +131,13 @@ export default function IsianKhususAdd() {
     setsearch(text);
   }, []);
 
-  const filteredData = dataSelect.filter((item) =>
-    item.label.toLowerCase().includes(searchVal.toLowerCase())
+  const filteredData = data?.data.filter((item) =>
+    item.name.toLowerCase().includes(searchVal.toLowerCase())
   );
+
+  if (isPending) return <Loading />;
+
+  if (isError) return <Error />;
 
   return (
     <ContainerBackground>
@@ -273,18 +296,21 @@ export default function IsianKhususAdd() {
 
           <FlashList
             data={filteredData}
-            keyExtractor={(item) => item.value.toString()}
+            keyExtractor={(item) => item.id.toString()}
             estimatedItemSize={10}
             renderItem={({ item, index }) => (
               <TouchableOpacity
                 onPress={() => {
-                  setSelectValue(item);
+                  setSelectValue({ value: item.id, label: item.name });
                   hideModal();
                 }}
                 style={{
-                  marginBottom: index === filteredData.length - 1 ? 0 : 20,
-                  borderBottomWidth: index === filteredData.length - 1 ? 0 : 1,
-                  paddingBottom: index === filteredData.length - 1 ? 0 : 15,
+                  marginBottom:
+                    index === (filteredData?.length as any) - 1 ? 0 : 20,
+                  borderBottomWidth:
+                    index === (filteredData?.length as any) - 1 ? 0 : 1,
+                  paddingBottom:
+                    index === (filteredData?.length as any) - 1 ? 0 : 15,
                   borderBottomColor: Colors.border_primary,
                 }}
               >
@@ -295,7 +321,7 @@ export default function IsianKhususAdd() {
                     fontWeight: "500",
                   }}
                 >
-                  {item.label}
+                  {item.name}
                 </Text>
               </TouchableOpacity>
             )}

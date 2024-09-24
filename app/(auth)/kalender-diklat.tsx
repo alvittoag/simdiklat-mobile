@@ -207,7 +207,7 @@ export default function KalenderDiklat() {
                 </View>
 
                 <View style={{ gap: 5 }}>
-                  <Text style={{ fontSize: 16 }}>Status Registrasi</Text>
+                  <Text style={{ fontSize: 16 }}>Status</Text>
                   <Text
                     style={{
                       color:
@@ -244,6 +244,7 @@ export default function KalenderDiklat() {
 
                 <View style={{ flexDirection: "row", gap: 20 }}>
                   <Button
+                    icon={"eye"}
                     onPress={() =>
                       router.navigate({
                         params: { id: item.id },

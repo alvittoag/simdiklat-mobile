@@ -21,12 +21,19 @@ import Loading from "@/components/elements/Loading";
 import Error from "@/components/elements/Error";
 import useDebounce from "@/hooks/useDebounce";
 import { FlashList } from "@shopify/flash-list";
+import { IJenisLampiran } from "@/type";
 
 export interface LampiranResponse {
   status: "success" | "error";
   message: string;
   data: Lampiran;
 }
+
+type response = {
+  status: string;
+  message: string;
+  data: IJenisLampiran[];
+};
 
 export default function IsianKhususEdit() {
   const { id } = useLocalSearchParams<any>();
@@ -43,8 +50,22 @@ export default function IsianKhususEdit() {
     },
   });
 
+  const {
+    data: dataJenis,
+    isPending: isPendingJenis,
+    isError: isErrorJenis,
+  } = useQuery({
+    queryKey: ["isian-khusus-lampiran"],
+    queryFn: async () => {
+      const { data } = await axiosService.get<response>(
+        "/api/isian-khusus/lampiran/jenis"
+      );
+      return data;
+    },
+  });
+
   const [selectValue, setSelectValue] = React.useState<{
-    value: string;
+    value: number;
     label: string;
   } | null>(null);
   const [dataLampiran, setDataLampiran] = React.useState({
@@ -66,7 +87,10 @@ export default function IsianKhususEdit() {
         keterangan: data?.data?.file.keterangan,
       });
 
-      setSelectValue({ label: "Pas Photo", value: data?.data.jenis_id as any });
+      setSelectValue({
+        label: data.data.jenis.name,
+        value: data?.data.jenis.id as any,
+      });
     }
   }, [data]);
 
@@ -90,6 +114,8 @@ export default function IsianKhususEdit() {
         button: "Tutup",
       });
       queryClient.invalidateQueries({ queryKey: ["isian-khusus"] });
+      setDataLampiran({ title: "", keterangan: "" });
+      setSelectValue(null);
       router.back();
     },
     onError: (error) => {
@@ -107,7 +133,7 @@ export default function IsianKhususEdit() {
     const formData = new FormData();
     formData.append("id", id as string);
     formData.append("file_id", data?.data.file_id as any);
-    formData.append("jenis_id", "6");
+    formData.append("jenis_id", selectValue?.value as any);
     formData.append("title", dataLampiran.title as string);
     formData.append("keterangan", dataLampiran.keterangan as string);
 
@@ -118,15 +144,15 @@ export default function IsianKhususEdit() {
     setsearch(text);
   }, []);
 
-  const filteredData = dataSelect.filter((item) =>
-    item.label.toLowerCase().includes(searchVal.toLowerCase())
+  const filteredData = dataJenis?.data.filter((item) =>
+    item.name.toLowerCase().includes(searchVal.toLowerCase())
   );
 
-  if (isPending) {
+  if (isPending || isPendingJenis) {
     return <Loading />;
   }
 
-  if (isError) {
+  if (isError || isErrorJenis) {
     return <Error />;
   }
 
@@ -257,18 +283,21 @@ export default function IsianKhususEdit() {
 
           <FlashList
             data={filteredData}
-            keyExtractor={(item) => item.value.toString()}
+            keyExtractor={(item) => item.id.toString()}
             estimatedItemSize={10}
             renderItem={({ item, index }) => (
               <TouchableOpacity
                 onPress={() => {
-                  setSelectValue(item);
+                  setSelectValue({ value: item.id, label: item.name });
                   hideModal();
                 }}
                 style={{
-                  marginBottom: index === filteredData.length - 1 ? 0 : 20,
-                  borderBottomWidth: index === filteredData.length - 1 ? 0 : 1,
-                  paddingBottom: index === filteredData.length - 1 ? 0 : 15,
+                  marginBottom:
+                    index === (filteredData?.length as any) - 1 ? 0 : 20,
+                  borderBottomWidth:
+                    index === (filteredData?.length as any) - 1 ? 0 : 1,
+                  paddingBottom:
+                    index === (filteredData?.length as any) - 1 ? 0 : 15,
                   borderBottomColor: Colors.border_primary,
                 }}
               >
@@ -279,7 +308,7 @@ export default function IsianKhususEdit() {
                     fontWeight: "500",
                   }}
                 >
-                  {item.label}
+                  {item.name}
                 </Text>
               </TouchableOpacity>
             )}

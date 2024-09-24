@@ -40,7 +40,7 @@ export const routers = [
             path: "/isian-khusus.add",
           },
           {
-            title: "Edito  Lampiran",
+            title: "Edit Lampiran",
             path: "/isian-khusus.edit",
           },
         ],

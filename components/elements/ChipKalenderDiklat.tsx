@@ -40,14 +40,15 @@ export default function ChipKalenderDiklat({
 
   return (
     <Button
-      mode="text"
-      textColor="white"
-      labelStyle={{
+      style={{
+        flex: 1,
         backgroundColor: background,
         paddingHorizontal: moderateScale(25),
-        paddingVertical: 10,
+        paddingVertical: 5,
         borderRadius: 8,
+        marginBottom: 10,
       }}
+      textColor="white"
     >
       {status}
     </Button>
