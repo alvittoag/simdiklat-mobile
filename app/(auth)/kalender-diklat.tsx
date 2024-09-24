@@ -226,7 +226,7 @@ export default function KalenderDiklat() {
                   <Text style={{ fontSize: 16 }}>Persayaratan</Text>
 
                   <View>
-                    {item?.persyaratan === " " ? (
+                    {item.persyaratan === " " ? (
                       <Text>-</Text>
                     ) : (
                       parseLongText({

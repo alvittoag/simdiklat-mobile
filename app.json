@@ -25,10 +25,7 @@
         "usesCleartextTraffic": true
       },
       "package": "com.simdiklat",
-      "permissions": [
-        "WRITE_EXTERNAL_STORAGE",
-        "READ_EXTERNAL_STORAGE"
-      ]
+      "permissions": ["WRITE_EXTERNAL_STORAGE", "READ_EXTERNAL_STORAGE"]
     },
     "web": {
       "bundler": "metro",
@@ -53,9 +50,6 @@
     "extra": {
       "router": {
         "origin": false
-      },
-      "eas": {
-        "projectId": "8778d8db-6da7-410c-b3f6-800ac0eca78a"
       }
     }
   }
