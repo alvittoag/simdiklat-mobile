@@ -144,9 +144,10 @@ export default function BiodataSimpeg() {
         <TextInput
           value={simdiklatValue}
           disabled
+          multiline
           mode="outlined"
           textColor="black"
-          style={styles.textInput}
+          style={[styles.textInput, key === "rumah_alamat" && { height: 100 }]}
           outlineColor={Colors.border_primary}
           activeOutlineColor={Colors.border_input_active}
         />
