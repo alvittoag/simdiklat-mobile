@@ -243,7 +243,7 @@ export default function PodcastPerangkatDaerahList() {
                     textColor="white"
                     style={{
                       flex: 1,
-                      backgroundColor: Colors.button_primary,
+                      backgroundColor: Colors.primary,
                       borderRadius: 7,
                       paddingVertical: 6,
                     }}
