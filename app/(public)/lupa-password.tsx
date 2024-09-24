@@ -5,6 +5,7 @@ import {
   StyleSheet,
   Dimensions,
   Platform,
+  Text,
 } from "react-native";
 import React from "react";
 import ContainerBackground from "@/components/container/ContainerBackground";
@@ -21,30 +22,49 @@ const lineWidth = (width - iconSize * 3 - paddingHorizontal * 2) / 4;
 import { ALERT_TYPE, Dialog } from "react-native-alert-notification";
 import auth from "@/services/api/auth";
 import { AxiosError } from "axios";
+import { Formik } from "formik";
+import * as Yup from "yup";
+
+const emailSchema = Yup.object().shape({
+  email: Yup.string()
+    .email("Email Tidak Valid")
+    .required("Harap Masukan Email"),
+});
+
+const tokenSchema = Yup.object().shape({
+  token: Yup.string()
+    .min(5, "Minimum 5 Karakter")
+    .required("Harap Masukan Token"),
+});
+
+const resetSchema = Yup.object().shape({
+  pass: Yup.string()
+    .min(2, "Minimum 2 Karakter")
+    .required("Harap Masukan Password"),
+  conf: Yup.string().equals([Yup.ref("pass")], "Password Tidak Sama"),
+});
 
 export default function LupaPassword() {
   const [active, setActive] = React.useState(0);
   const [doneProgress, setDoneProgress] = React.useState<any>([]);
 
-  const [showPassword, setShowPassword] = React.useState(false);
-
-  const [email, setEmail] = React.useState("");
-  const [tokenVal, setTokenVal] = React.useState("");
-  const [password, setPassword] = React.useState({
-    pass: "",
-    conf: "",
+  const [showPassword, setShowPassword] = React.useState({
+    pass: false,
+    conf: false,
   });
+  const [emailValid, setEmailValid] = React.useState("");
+  const [tokenValid, setTokenValid] = React.useState("");
 
   const [loading, setLoading] = React.useState(false);
 
-  const handleEmail = async () => {
+  const handleEmail = async (values: { email: string }) => {
     setLoading(true);
     const token = Math.ceil(Math.random() * 99999).toString();
 
     const templateParams = {
-      email: email,
+      email: values.email,
       message: token,
-      to: email,
+      to: values.email,
       location: Platform.OS === "web" ? "Web Browser" : "React Native App",
     };
 
@@ -67,6 +87,8 @@ export default function LupaPassword() {
           accessToken: process.env.EXPO_PUBLIC_TOKEN!,
         }),
       });
+
+      setEmailValid(values.email);
 
       if (!response.ok) {
         return Dialog.show({
@@ -96,16 +118,17 @@ export default function LupaPassword() {
     }
   };
 
-  const handleVerifyEmail = async () => {
+  const handleVerifyEmail = async (values: { token: string }) => {
     setLoading(true);
     try {
       await auth.forget_password_verify({
-        email: "pusdatinbpsdmjakarta@gmail.com",
-        token: tokenVal,
+        email: emailValid,
+        token: values.token,
       });
 
       setActive(2);
       setDoneProgress([...doneProgress, active]);
+      setTokenValid(values.token);
     } catch (err) {
       const error = err as AxiosError;
 
@@ -124,23 +147,21 @@ export default function LupaPassword() {
     }
   };
 
-  const handleReset = async () => {
-    if (password.pass !== password.conf) {
-      return Dialog.show({
-        type: ALERT_TYPE.DANGER,
-        title: "Gagal Reset",
-        textBody: "Konfirmasi Password Tidak Sesuai",
-        button: "Tutup",
-      });
-    }
-
+  const handleReset = async ({
+    pass,
+    conf,
+  }: {
+    pass: string;
+    conf: string;
+  }) => {
     setLoading(true);
 
     try {
+      // email should be email valid state
       await auth.forget_password_reset({
-        email: "pusdatinbpsdmjakarta@gmail.com",
-        token: tokenVal,
-        password: password.pass,
+        email: emailValid,
+        token: tokenValid,
+        password: pass,
       });
 
       Dialog.show({
@@ -229,140 +250,200 @@ export default function LupaPassword() {
           </View>
 
           {active === 0 && (
-            <View style={{ gap: moderateScale(20) }}>
-              <TextInput
-                value={email}
-                inputMode="email"
-                onChangeText={(e) => setEmail(e)}
-                label="Masukan Email Anda"
-                mode="outlined"
-                style={{
-                  width: scale(320),
-                  backgroundColor: "white",
-                  height: verticalScale(50),
-                }}
-                activeOutlineColor={Colors.border_input_active}
-                outlineColor={Colors.border_primary}
-                textColor="black"
-              />
+            <Formik
+              initialValues={{ email: "" }}
+              validationSchema={emailSchema}
+              onSubmit={(values) => handleEmail(values)}
+            >
+              {({ handleChange, handleSubmit, values, errors }) => (
+                <View style={{ gap: moderateScale(20) }}>
+                  <TextInput
+                    value={values.email}
+                    error={errors.email ? true : false}
+                    inputMode="email"
+                    onChangeText={handleChange("email")}
+                    label="Masukan Email Anda"
+                    mode="outlined"
+                    style={{
+                      width: scale(320),
+                      backgroundColor: "white",
+                      height: verticalScale(50),
+                    }}
+                    activeOutlineColor={Colors.border_input_active}
+                    outlineColor={Colors.border_primary}
+                    textColor="black"
+                  />
 
-              <Button
-                icon={"send"}
-                onPress={handleEmail}
-                loading={loading}
-                mode="contained"
-                textColor="white"
-                style={{
-                  backgroundColor: Colors.button_primary,
-                  borderRadius: 7,
-                  paddingVertical: 8,
-                }}
-              >
-                Kirim
-              </Button>
-            </View>
+                  {errors.email && (
+                    <Text style={{ color: "salmon", fontWeight: "bold" }}>
+                      {errors.email}
+                    </Text>
+                  )}
+
+                  <Button
+                    icon={"send"}
+                    onPress={handleSubmit as any}
+                    loading={loading}
+                    mode="contained"
+                    textColor="white"
+                    style={{
+                      backgroundColor: Colors.button_primary,
+                      borderRadius: 7,
+                      paddingVertical: 8,
+                    }}
+                  >
+                    Kirim
+                  </Button>
+                </View>
+              )}
+            </Formik>
           )}
 
           {active === 1 && (
-            <View style={{ gap: moderateScale(20) }}>
-              <TextInput
-                value={tokenVal}
-                onChangeText={(e) => setTokenVal(e)}
-                inputMode="numeric"
-                label="Masukan Token Anda"
-                mode="outlined"
-                style={{
-                  width: scale(320),
-                  backgroundColor: "white",
-                  height: verticalScale(50),
-                }}
-                activeOutlineColor={Colors.border_input_active}
-                outlineColor={Colors.border_primary}
-                textColor="black"
-              />
+            <Formik
+              initialValues={{ token: "" }}
+              validationSchema={tokenSchema}
+              onSubmit={(val) => handleVerifyEmail(val)}
+            >
+              {({ handleChange, handleSubmit, values, errors }) => (
+                <View style={{ gap: moderateScale(20) }}>
+                  <TextInput
+                    value={values.token}
+                    error={errors.token ? true : false}
+                    onChangeText={handleChange("token")}
+                    inputMode="numeric"
+                    label="Masukan Token Anda"
+                    mode="outlined"
+                    style={{
+                      width: scale(320),
+                      backgroundColor: "white",
+                      height: verticalScale(50),
+                    }}
+                    activeOutlineColor={Colors.border_input_active}
+                    outlineColor={Colors.border_primary}
+                    textColor="black"
+                  />
 
-              <Button
-                icon={"send"}
-                onPress={handleVerifyEmail}
-                loading={loading}
-                mode="contained"
-                textColor="white"
-                style={{
-                  backgroundColor: Colors.button_primary,
-                  borderRadius: 7,
-                  paddingVertical: 8,
-                }}
-              >
-                Kirim
-              </Button>
-            </View>
+                  {errors.token && (
+                    <Text style={{ color: "salmon", fontWeight: "bold" }}>
+                      {errors.token}
+                    </Text>
+                  )}
+
+                  <Button
+                    icon={"send"}
+                    onPress={handleSubmit as any}
+                    loading={loading}
+                    mode="contained"
+                    textColor="white"
+                    style={{
+                      backgroundColor: Colors.button_primary,
+                      borderRadius: 7,
+                      paddingVertical: 8,
+                    }}
+                  >
+                    Kirim
+                  </Button>
+                </View>
+              )}
+            </Formik>
           )}
 
           {active === 2 && (
-            <View style={{ gap: moderateScale(20) }}>
-              <TextInput
-                value={password.pass}
-                onChangeText={(e) =>
-                  setPassword((prev) => ({ ...prev, pass: e }))
-                }
-                label="Password Baru"
-                mode="outlined"
-                secureTextEntry={!showPassword}
-                style={{
-                  width: scale(320),
-                  backgroundColor: "white",
-                  height: verticalScale(50),
-                }}
-                activeOutlineColor={Colors.border_input_active}
-                outlineColor={Colors.border_primary}
-                textColor="black"
-                right={
-                  <TextInput.Icon
-                    icon={showPassword ? "eye-off" : "eye"}
-                    onPress={() => setShowPassword(!showPassword)}
+            <Formik
+              initialValues={{ pass: "", conf: "" }}
+              onSubmit={(val) =>
+                handleReset({ pass: val.pass, conf: val.conf })
+              }
+              validationSchema={resetSchema}
+            >
+              {({ handleChange, handleSubmit, values, errors }) => (
+                <View style={{ gap: moderateScale(20) }}>
+                  <TextInput
+                    value={values.pass}
+                    onChangeText={handleChange("pass")}
+                    error={errors.pass ? true : false}
+                    label="Password Baru"
+                    mode="outlined"
+                    secureTextEntry={!showPassword.pass}
+                    style={{
+                      width: scale(320),
+                      backgroundColor: "white",
+                      height: verticalScale(50),
+                    }}
+                    activeOutlineColor={Colors.border_input_active}
+                    outlineColor={Colors.border_primary}
+                    textColor="black"
+                    right={
+                      <TextInput.Icon
+                        icon={showPassword.pass ? "eye-off" : "eye"}
+                        onPress={() =>
+                          setShowPassword((prev) => ({
+                            ...prev,
+                            pass: !prev.pass,
+                          }))
+                        }
+                      />
+                    }
                   />
-                }
-              />
 
-              <TextInput
-                value={password.conf}
-                onChangeText={(e) =>
-                  setPassword((prev) => ({ ...prev, conf: e }))
-                }
-                label="Konfirmasi Password Baru"
-                mode="outlined"
-                secureTextEntry={!showPassword}
-                style={{
-                  width: scale(320),
-                  backgroundColor: "white",
-                  height: verticalScale(50),
-                }}
-                activeOutlineColor={Colors.border_input_active}
-                outlineColor={Colors.border_primary}
-                textColor="black"
-                right={
-                  <TextInput.Icon
-                    icon={showPassword ? "eye-off" : "eye"}
-                    onPress={() => setShowPassword(!showPassword)}
+                  {errors.pass && (
+                    <Text style={{ color: "salmon", fontWeight: "bold" }}>
+                      {errors.pass}
+                    </Text>
+                  )}
+
+                  <TextInput
+                    value={values.conf}
+                    onChangeText={handleChange("conf")}
+                    error={errors.conf ? true : false}
+                    label="Konfirmasi Password Baru"
+                    mode="outlined"
+                    secureTextEntry={!showPassword.conf}
+                    style={{
+                      width: scale(320),
+                      backgroundColor: "white",
+                      height: verticalScale(50),
+                    }}
+                    activeOutlineColor={Colors.border_input_active}
+                    outlineColor={Colors.border_primary}
+                    textColor="black"
+                    right={
+                      <TextInput.Icon
+                        icon={showPassword.conf ? "eye-off" : "eye"}
+                        onPress={() =>
+                          setShowPassword((prev) => ({
+                            ...prev,
+                            conf: !prev.conf,
+                          }))
+                        }
+                      />
+                    }
                   />
-                }
-              />
 
-              <Button
-                icon={"send"}
-                onPress={handleReset}
-                loading={loading}
-                mode="contained"
-                textColor="white"
-                style={{
-                  backgroundColor: Colors.button_primary,
-                  borderRadius: 7,
-                  paddingVertical: 8,
-                }}
-              >
-                Ganti Password
-              </Button>
-            </View>
+                  {errors.conf && (
+                    <Text style={{ color: "salmon", fontWeight: "bold" }}>
+                      {errors.conf}
+                    </Text>
+                  )}
+
+                  <Button
+                    icon={"send"}
+                    onPress={handleSubmit as any}
+                    loading={loading}
+                    mode="contained"
+                    textColor="white"
+                    style={{
+                      backgroundColor: Colors.button_primary,
+                      borderRadius: 7,
+                      paddingVertical: 8,
+                    }}
+                  >
+                    Ganti Password
+                  </Button>
+                </View>
+              )}
+            </Formik>
           )}
         </View>
       </View>
