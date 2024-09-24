@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import { StyleSheet, FlatList, View, Text } from "react-native";
 import { Button, TextInput } from "react-native-paper";
-import { moderateScale } from "react-native-size-matters";
+import { moderateScale, verticalScale } from "react-native-size-matters";
 import { Colors } from "@/constants/Colors";
 import { useMutation, useQuery } from "@apollo/client";
 import Loading from "@/components/elements/Loading";
@@ -154,11 +154,12 @@ const BiodataDiri = ({ navigation }: { navigation: any }) => {
     <View style={{ gap: 5 }}>
       <Text style={{ fontWeight: 500, fontSize: 15 }}>{item.label}</Text>
       <TextInput
+        activeUnderlineColor={Colors.primary}
         key={item.id}
         editable={item.editable}
-        mode="outlined"
+        multiline
         textColor={Colors.text_primary}
-        value={inputData[item.id] === " " ? "-" : inputData[item.id]}
+        value={inputData[item.id] === " " || null ? "-" : inputData[item.id]}
         onChangeText={(value) => handleInputChange(item.id, value)}
         style={[styles.textInput, !item.editable && styles.disabledInput]}
         outlineColor={Colors.border_primary}
@@ -197,9 +198,11 @@ const styles = StyleSheet.create({
     paddingVertical: moderateScale(20),
   },
   textInput: {
+    minHeight: moderateScale(50),
     backgroundColor: "white",
-    borderRadius: 20,
     marginBottom: 15,
+    borderWidth: 0.5,
+    borderColor: Colors.border_primary,
   },
   disabledInput: {
     backgroundColor: "#B7B7B7",
