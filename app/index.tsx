@@ -69,7 +69,7 @@ export default function index() {
             textweight="600"
             onPress={() => router.navigate("/login")}
           >
-            Get Started
+            Lanjutkan
           </ButtonOpacity>
 
           <Text style={{ fontWeight: "600", textAlign: "center" }}>

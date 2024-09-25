@@ -98,6 +98,15 @@ export default function KotakMasuk() {
       });
 
       refetch();
+
+      closeMenu();
+
+      Dialog.show({
+        type: ALERT_TYPE.SUCCESS,
+        title: "Berhasil",
+        textBody: "Pesan Berhasil Dihapus",
+        button: "Tutup",
+      });
     } catch (error) {
       console.log(error);
       Dialog.show({

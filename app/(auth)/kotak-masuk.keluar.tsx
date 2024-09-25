@@ -80,6 +80,13 @@ export default function KotakKeluar() {
     onSuccess: () => {
       refetch();
       closeMenu();
+
+      Dialog.show({
+        type: ALERT_TYPE.SUCCESS,
+        title: "Berhasil",
+        textBody: "Pesan Berhasil Dihapus",
+        button: "Tutup",
+      });
     },
     onError: (error) => {
       console.log(error);

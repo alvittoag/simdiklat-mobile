@@ -435,6 +435,21 @@ export default function IsianKhusus() {
             </Text>
           </View>
 
+          <View style={{ paddingHorizontal: moderateScale(15) }}>
+            <Button
+              onPress={() => router.push("/isian-khusus.add")}
+              icon={"plus"}
+              mode="contained"
+              textColor="black"
+              style={{
+                paddingVertical: moderateScale(5),
+                backgroundColor: Colors.button_secondary,
+              }}
+            >
+              Tambah Data
+            </Button>
+          </View>
+
           <View style={{ paddingHorizontal: moderateScale(15), gap: 20 }}>
             {data.lampiran?.data.map((item) => (
               <View
@@ -493,21 +508,6 @@ export default function IsianKhusus() {
                 </View>
               </View>
             ))}
-          </View>
-
-          <View style={{ paddingHorizontal: moderateScale(15) }}>
-            <Button
-              onPress={() => router.push("/isian-khusus.add")}
-              icon={"plus"}
-              mode="contained"
-              textColor="black"
-              style={{
-                paddingVertical: moderateScale(5),
-                backgroundColor: Colors.button_secondary,
-              }}
-            >
-              Tambah Data
-            </Button>
           </View>
         </View>
 

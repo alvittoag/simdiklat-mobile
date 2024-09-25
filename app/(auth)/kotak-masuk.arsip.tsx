@@ -59,7 +59,7 @@ export default function KotakMasuk() {
       Dialog.show({
         type: ALERT_TYPE.SUCCESS,
         title: "Berhasil",
-        textBody: "Pesan Berhasil Diunarchive",
+        textBody: "Pesan berhasil di pindahkan ke kotak masuk",
         button: "Tutup",
       });
 
@@ -221,7 +221,7 @@ export default function KotakMasuk() {
                   onPress={() => {
                     closeMenu();
                     router.push({
-                      pathname: "/kotak-masuk.pesan",
+                      pathname: "/kotak-masuk.pesan.arsip",
                       params: {
                         dari: item.sender.full_name,
                         subjek: item.subject,
@@ -296,7 +296,7 @@ export default function KotakMasuk() {
                       onPress={() => {
                         closeMenu();
                         router.push({
-                          pathname: "/kotak-masuk.pesan",
+                          pathname: "/kotak-masuk.pesan.arsip",
                           params: {
                             dari: item.sender.full_name,
                             subjek: item.subject,

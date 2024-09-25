@@ -171,35 +171,9 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = React.memo(
               <>
                 <View
                   style={{
-                    marginTop: 0,
-                    borderBottomWidth: 0.5,
-                    borderColor: "#9F9F9F",
-                    paddingBottom: 10,
-                    marginBottom: 10,
-                  }}
-                >
-                  <Text style={styles.routeTitle}>SETTING</Text>
-                  <View style={{ paddingHorizontal: moderateScale(8) }}>
-                    <TouchableOpacity
-                      onPress={showDialog}
-                      style={[styles.routeItem]}
-                    >
-                      <Image
-                        resizeMode="contain"
-                        source={assets.tutorial}
-                        style={styles.routeIcon}
-                      />
-                      <Text style={styles.routeText}>
-                        Tutorial & Dokumentasi
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-
-                <View
-                  style={{
+                    marginTop: -moderateScale(10),
                     paddingHorizontal: moderateScale(8),
-                    marginBottom: 0,
+                    marginBottom: moderateScale(10),
                   }}
                 >
                   <TouchableOpacity

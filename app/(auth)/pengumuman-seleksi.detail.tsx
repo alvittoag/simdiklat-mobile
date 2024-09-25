@@ -231,7 +231,7 @@ export default function PengumumanSeleksiDetail() {
             borderRadius: 7,
           }}
         >
-          Download SK Lampiran
+          Download SK Pengumuman
         </Button>
       </ScrollView>
     </ContainerBackground>

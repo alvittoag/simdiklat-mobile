@@ -51,8 +51,12 @@ export const routers = [
         path: "/kotak-masuk",
         other_routes: [
           {
-            title: "Pesan Kotak Masuk / Arsip",
+            title: "Pesan Kotak Masuk",
             path: "/kotak-masuk.pesan",
+          },
+          {
+            title: "Pesan Arsip",
+            path: "/kotak-masuk.pesan.arsip",
           },
           {
             title: "Arsip",
