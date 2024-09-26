@@ -124,15 +124,11 @@ export default function KotakMasuk() {
     setVisibleMenuIndex(null);
   };
 
-  React.useEffect(() => {
-    refetch();
-  }, [isRefetch]);
-
-  React.useEffect(() => {
-    if (isFocused) {
-      refetch(); // Refetch when the screen comes into focus
-    }
-  }, [isFocused]);
+  useFocusEffect(
+    React.useCallback(() => {
+      refetch();
+    }, [isRefetch])
+  );
 
   const loadMore = () => {
     if (data?.messageInbox.hasMore && !loading) {
@@ -148,6 +144,8 @@ export default function KotakMasuk() {
       </View>
     );
   };
+
+  console.log("kotak masuk");
 
   if (error) return <Error />;
 

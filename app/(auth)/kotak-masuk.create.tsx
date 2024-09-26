@@ -15,7 +15,7 @@ import { Colors } from "@/constants/Colors";
 import { router } from "expo-router";
 import { FlashList } from "@shopify/flash-list";
 import Pagination from "@/components/sections/pagination";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { axiosService } from "@/services/axiosService";
 import useDebounce from "@/hooks/useDebounce";
 import { IUsers } from "@/type";
@@ -25,6 +25,7 @@ import { ALERT_TYPE, Dialog } from "react-native-alert-notification";
 import auth from "@/services/api/auth";
 import { Formik, FormikProps, FormikValues } from "formik";
 import * as Yup from "yup";
+import { useApolloClient } from "@apollo/client";
 
 type respnose = {
   status: "success" | "error";
@@ -50,6 +51,8 @@ const messageSchema = Yup.object().shape({
 });
 
 export default function KotakMasukCreate() {
+  const queryClient = useQueryClient();
+  const client = useApolloClient();
   const [searchUsers, setsearchUsers] = React.useState("");
 
   const [page, setPage] = React.useState(1);
@@ -84,7 +87,7 @@ export default function KotakMasukCreate() {
         },
       });
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       Dialog.show({
         type: ALERT_TYPE.SUCCESS,
         title: "Berhasil",
@@ -92,6 +95,7 @@ export default function KotakMasukCreate() {
         button: "Tutup",
       });
       setSelectValue({ label: null, value: null });
+      queryClient.invalidateQueries({ queryKey: ["count-notif"] });
       router.navigate({
         pathname: "/kotak-masuk.keluar",
         params: { data: "success" },

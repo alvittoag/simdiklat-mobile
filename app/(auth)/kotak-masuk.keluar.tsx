@@ -20,7 +20,12 @@ import NotFoundSearch from "@/components/sections/NotFoundSearch";
 import { moderateScale } from "react-native-size-matters";
 import { parseDateLong } from "@/lib/parseDate";
 import { Feather } from "@expo/vector-icons";
-import { router, useLocalSearchParams, useNavigation } from "expo-router";
+import {
+  router,
+  useFocusEffect,
+  useLocalSearchParams,
+  useNavigation,
+} from "expo-router";
 import ContainerBackground from "@/components/container/ContainerBackground";
 import { useMutation } from "@tanstack/react-query";
 import { axiosService } from "@/services/axiosService";
@@ -37,7 +42,9 @@ export default function KotakKeluar() {
   const [limit, setLimit] = useState(10);
   const [visibleIndex, setVisibleIndex] = useState<number | null>(null);
 
-  const { data, loading, error, refetch, previousData } = useQuery<{
+  console.log("test kotak keluar");
+
+  const { data, loading, error, refetch } = useQuery<{
     messageOutbox: {
       items: IKontakKeluar[];
       total: number;
@@ -50,8 +57,6 @@ export default function KotakKeluar() {
       search: debouncedSearch,
     },
   });
-
-  console.log(previousData?.messageOutbox.items.length);
 
   const openMenu = (index: number) => setVisibleIndex(index);
   const closeMenu = () => setVisibleIndex(null);
@@ -107,9 +112,11 @@ export default function KotakKeluar() {
     refetch();
   }, [refetch]);
 
-  React.useEffect(() => {
-    refetch();
-  }, [isRefetch, refetch]);
+  useFocusEffect(
+    React.useCallback(() => {
+      refetch();
+    }, [isRefetch])
+  );
 
   if (error) return <Error />;
 
