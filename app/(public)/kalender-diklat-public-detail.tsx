@@ -3,34 +3,41 @@ import React from "react";
 import { useLocalSearchParams } from "expo-router";
 import ContainerBackground from "@/components/container/ContainerBackground";
 import { moderateScale } from "react-native-size-matters";
-import { useQuery } from "@apollo/client";
 import { IKalenderDiklatList } from "@/type";
-import Loading from "@/components/elements/Loading";
-import Error from "@/components/elements/Error";
-import { getKalenderDiklatDetail } from "@/services/query/get-kalender";
 import parseLongText from "@/lib/parseLongText";
 import AppHeader from "@/components/AppHeader";
+import { Icon } from "react-native-paper";
 
 export default function KalenderDiklatDetail() {
-  const { id } = useLocalSearchParams();
+  const dataParams = useLocalSearchParams();
 
-  const { data, loading, error } = useQuery<{
-    kalenderDiklat: IKalenderDiklatList;
-  }>(getKalenderDiklatDetail, {
-    variables: { id: Number(id) },
-  });
-
-  if (loading) {
-    return <Loading />;
-  }
-
-  if (error) {
-    return <Error />;
-  }
+  const data: IKalenderDiklatList = JSON.parse(dataParams?.data as string);
 
   return (
     <ContainerBackground>
       <AppHeader title="Kalender Diklat Detail" />
+      <View
+        style={{
+          paddingHorizontal: 15,
+          paddingVertical: 20,
+          backgroundColor: "red",
+          flexDirection: "row",
+          alignItems: "center",
+          gap: 10,
+        }}
+      >
+        <Icon size={28} source={"information"} />
+        <Text
+          style={{
+            fontSize: 16,
+            color: "white",
+            paddingRight: 30,
+          }}
+        >
+          Informasi Penting : Untuk dapat mendaftar diklat anda harus login
+          terlebih dahulu.
+        </Text>
+      </View>
       <ScrollView showsVerticalScrollIndicator={false}>
         <View
           style={{
@@ -44,9 +51,7 @@ export default function KalenderDiklatDetail() {
               Kelompok Diklat
             </Text>
             <Text style={{ fontSize: 16 }}>
-              {data?.kalenderDiklat.diklat.name === " "
-                ? "-"
-                : data?.kalenderDiklat.diklat.name}
+              {data?.diklat.name === " " ? "-" : data?.diklat.name}
             </Text>
           </View>
 
@@ -54,27 +59,21 @@ export default function KalenderDiklatDetail() {
             <Text style={{ fontSize: 18, fontWeight: "bold" }}>
               Jumlah Angkatan
             </Text>
-            <Text style={{ fontSize: 16 }}>
-              {data?.kalenderDiklat.jumlah_angkatan}
-            </Text>
+            <Text style={{ fontSize: 16 }}>{data?.jumlah_angkatan}</Text>
           </View>
 
           <View style={{ gap: 5 }}>
             <Text style={{ fontSize: 18, fontWeight: "bold" }}>
               Jumlah Peserta
             </Text>
-            <Text style={{ fontSize: 16 }}>
-              {data?.kalenderDiklat.jumlah_peserta}
-            </Text>
+            <Text style={{ fontSize: 16 }}>{data?.jumlah_peserta}</Text>
           </View>
 
           <View style={{ gap: 5 }}>
             <Text style={{ fontSize: 18, fontWeight: "bold" }}>
               Durasi Hari
             </Text>
-            <Text style={{ fontSize: 16 }}>
-              {data?.kalenderDiklat.durasi_hari}
-            </Text>
+            <Text style={{ fontSize: 16 }}>{data?.durasi_hari}</Text>
           </View>
 
           <View style={{ gap: 5 }}>
@@ -82,18 +81,14 @@ export default function KalenderDiklatDetail() {
               Waktu Pelaksanaan
             </Text>
             <Text style={{ fontSize: 16 }}>
-              {data?.kalenderDiklat.waktu_pelaksanaan === " "
-                ? "-"
-                : data?.kalenderDiklat.waktu_pelaksanaan}
+              {data?.waktu_pelaksanaan === " " ? "-" : data?.waktu_pelaksanaan}
             </Text>
           </View>
 
           <View style={{ gap: 5 }}>
             <Text style={{ fontSize: 18, fontWeight: "bold" }}>Tujuan</Text>
             <Text style={{ fontSize: 16 }}>
-              {data?.kalenderDiklat.tujuan == " "
-                ? "-"
-                : data?.kalenderDiklat.tujuan}
+              {data?.tujuan == " " ? "-" : data?.tujuan}
             </Text>
           </View>
 
@@ -102,11 +97,11 @@ export default function KalenderDiklatDetail() {
               Persyaratan
             </Text>
             <View>
-              {data?.kalenderDiklat.persyaratan === " " ? (
+              {data?.persyaratan === " " ? (
                 <Text style={{ fontSize: 16 }}>-</Text>
               ) : (
                 parseLongText({
-                  data: data?.kalenderDiklat.persyaratan,
+                  data: data?.persyaratan,
                 })
               )}
             </View>
@@ -115,9 +110,7 @@ export default function KalenderDiklatDetail() {
           <View style={{ gap: 5 }}>
             <Text style={{ fontSize: 18, fontWeight: "bold" }}>Keterangan</Text>
             <Text style={{ fontSize: 16 }}>
-              {data?.kalenderDiklat.keterangan === " "
-                ? "-"
-                : data?.kalenderDiklat.keterangan}
+              {data?.keterangan === " " ? "-" : data?.keterangan}
             </Text>
           </View>
         </View>

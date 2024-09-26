@@ -58,6 +58,28 @@ export interface IKalenderDiklatList {
   approval: number | null;
 }
 
+interface IDiklat {
+  id: number;
+  jenis_diklat_id: number;
+  name: string;
+  keterangan: string;
+  created_at: string;
+  updated_at: string;
+  elearning_id: number;
+  elearning_enable: number;
+  kodik: number;
+  sertifikat_instansi: number;
+  active: number;
+  kompetensi_teknis_sertifikat: number;
+  mata_pelajaran_sertifikat: number;
+  template_sertifikat: string;
+  kabid_nrk_sertifikat: number;
+  skpd_code: string;
+  template_transkrip: string;
+  rumpun_id: number;
+  sijule_course_id: number;
+}
+
 export interface IUserPeserta {
   id: number;
   nrk: string;
@@ -734,4 +756,36 @@ export interface IJenisLampiran {
   keterangan: string;
   created_at: Date;
   updated_at: Date;
+}
+
+export interface ILokasiDiklat {
+  id: number;
+  name: string;
+  alamat: string;
+  rute: string;
+  google_map: string;
+  manajer_kelas: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface IKalenderPublic {
+  id: number;
+  periode: number;
+  diklat_id: number;
+  jumlah_angkatan: number;
+  jumlah_peserta: number;
+  durasi_hari: number;
+  lokasi: number;
+  waktu_pelaksanaan: string;
+  tujuan: string;
+  persyaratan: string;
+  keterangan: string;
+  created_at: Date;
+  updated_at: Date;
+  registrasi_mulai: Date;
+  registrasi_selesai: Date;
+  status_registrasi: string;
+  diklat: IDiklat;
+  lokasi_diklat: ILokasiDiklat;
 }
