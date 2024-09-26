@@ -1,6 +1,12 @@
-import { View, Text, useWindowDimensions, LogBox } from "react-native";
+import {
+  View,
+  Text,
+  useWindowDimensions,
+  LogBox,
+  TouchableOpacity,
+} from "react-native";
 import React from "react";
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import ContainerBackground from "@/components/container/ContainerBackground";
 import { moderateScale } from "react-native-size-matters";
 import HTMLRenderer from "@/components/elements/HTMLRenderer";
@@ -9,6 +15,8 @@ import { axiosService } from "@/services/axiosService";
 import { ALERT_TYPE, Dialog } from "react-native-alert-notification";
 import { useApolloClient } from "@apollo/client";
 import { getKotakMasuk } from "@/services/query/get-kotak-masuk";
+import { Button } from "react-native-paper";
+import { Colors } from "@/constants/Colors";
 
 export default function KotakMasukPesan() {
   const queryClient = useQueryClient();
@@ -51,6 +59,26 @@ export default function KotakMasukPesan() {
           gap: moderateScale(20),
         }}
       >
+        <View>
+          <Button
+            onPress={() =>
+              router.push({
+                pathname: "/kotak-masuk.create",
+                params: { subject: subjek, message: pesan },
+              })
+            }
+            icon={"share"}
+            textColor="black"
+            mode="contained"
+            style={{
+              backgroundColor: Colors.button_secondary,
+              paddingVertical: 7,
+              borderRadius: 7,
+            }}
+          >
+            Teruskan
+          </Button>
+        </View>
         <View style={{ gap: moderateScale(5) }}>
           <Text style={{ fontWeight: 400, fontSize: 16 }}>Dari</Text>
           <Text style={{ fontWeight: 600, fontSize: 16 }}>{dari}</Text>

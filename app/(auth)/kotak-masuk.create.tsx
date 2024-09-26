@@ -12,7 +12,7 @@ import {
   TextInput,
 } from "react-native-paper";
 import { Colors } from "@/constants/Colors";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { FlashList } from "@shopify/flash-list";
 import Pagination from "@/components/sections/pagination";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -51,8 +51,9 @@ const messageSchema = Yup.object().shape({
 });
 
 export default function KotakMasukCreate() {
+  const { subject, message }: any = useLocalSearchParams();
+
   const queryClient = useQueryClient();
-  const client = useApolloClient();
   const [searchUsers, setsearchUsers] = React.useState("");
 
   const [page, setPage] = React.useState(1);
@@ -159,116 +160,121 @@ export default function KotakMasukCreate() {
             resetForm();
           }}
         >
-          {({ handleChange, handleSubmit, values, errors }) => (
-            <>
-              <View style={{ gap: moderateScale(15) }}>
-                <View style={{ position: "relative" }}>
-                  <TouchableOpacity
-                    onPress={() => setModal(true)}
-                    style={{
-                      borderWidth: 1,
-                      borderColor: Colors.border_primary,
-                      paddingHorizontal: 10,
-                      paddingVertical: 15,
-                      borderRadius: 5,
-                      flexDirection: "row",
-                      backgroundColor: "white",
-                    }}
-                  >
-                    <Text
+          {({ handleChange, handleSubmit, values, errors, setValues }) => {
+            React.useEffect(() => {
+              setValues({ subject: subject, message: message });
+            }, [message, subject]);
+            return (
+              <>
+                <View style={{ gap: moderateScale(15) }}>
+                  <View style={{ position: "relative" }}>
+                    <TouchableOpacity
+                      onPress={() => setModal(true)}
                       style={{
-                        flex: 1,
-                        color: "grey",
-                        fontWeight: "400",
-                        fontSize: 16,
+                        borderWidth: 1,
+                        borderColor: Colors.border_primary,
+                        paddingHorizontal: 10,
+                        paddingVertical: 15,
+                        borderRadius: 5,
+                        flexDirection: "row",
+                        backgroundColor: "white",
                       }}
                     >
-                      {selectValue?.label ?? "Kepada"}
+                      <Text
+                        style={{
+                          flex: 1,
+                          color: "grey",
+                          fontWeight: "400",
+                          fontSize: 16,
+                        }}
+                      >
+                        {selectValue?.label ?? "Kepada"}
+                      </Text>
+                      <Icon size={24} source={"open-in-new"} color="gray" />
+                    </TouchableOpacity>
+                  </View>
+
+                  <TextInput
+                    textColor="black"
+                    value={values.subject}
+                    onChangeText={handleChange("subject")}
+                    error={errors.subject ? true : false}
+                    mode="outlined"
+                    label="Subjek"
+                    activeOutlineColor={Colors.border_input_active}
+                    outlineColor={Colors.border_primary}
+                    style={{
+                      backgroundColor: "white",
+                      minHeight: 60,
+                    }}
+                  />
+
+                  {errors.subject && (
+                    <Text style={{ color: "salmon", fontWeight: "bold" }}>
+                      {errors.subject}
                     </Text>
-                    <Icon size={24} source={"open-in-new"} color="gray" />
-                  </TouchableOpacity>
+                  )}
+
+                  <TextInput
+                    error={errors.message ? true : false}
+                    textColor="black"
+                    value={values.message}
+                    onChangeText={handleChange("message")}
+                    mode="outlined"
+                    label="Isi Pesan"
+                    multiline
+                    activeOutlineColor={Colors.border_input_active}
+                    outlineColor={Colors.border_primary}
+                    style={{
+                      backgroundColor: "white",
+                      minHeight: moderateScale(100),
+                    }}
+                  />
+
+                  {errors.message && (
+                    <Text style={{ color: "salmon", fontWeight: "bold" }}>
+                      {errors.message}
+                    </Text>
+                  )}
                 </View>
 
-                <TextInput
-                  textColor="black"
-                  value={values.subject}
-                  onChangeText={handleChange("subject")}
-                  error={errors.subject ? true : false}
-                  mode="outlined"
-                  label="Subjek"
-                  activeOutlineColor={Colors.border_input_active}
-                  outlineColor={Colors.border_primary}
-                  style={{
-                    backgroundColor: "white",
-                    minHeight: 60,
-                  }}
-                />
+                <View style={{ gap: moderateScale(25), flexDirection: "row" }}>
+                  <Button
+                    onPress={() => router.back()}
+                    icon={"arrow-left"}
+                    mode="contained"
+                    textColor="white"
+                    style={{
+                      borderRadius: 7,
+                      backgroundColor: Colors.button_primary,
+                      paddingVertical: moderateScale(5),
+                      flex: 1,
+                    }}
+                  >
+                    Kembali
+                  </Button>
 
-                {errors.subject && (
-                  <Text style={{ color: "salmon", fontWeight: "bold" }}>
-                    {errors.subject}
-                  </Text>
-                )}
-
-                <TextInput
-                  error={errors.message ? true : false}
-                  textColor="black"
-                  value={values.message}
-                  onChangeText={handleChange("message")}
-                  mode="outlined"
-                  label="Isi Pesan"
-                  multiline
-                  activeOutlineColor={Colors.border_input_active}
-                  outlineColor={Colors.border_primary}
-                  style={{
-                    backgroundColor: "white",
-                    minHeight: moderateScale(100),
-                  }}
-                />
-
-                {errors.message && (
-                  <Text style={{ color: "salmon", fontWeight: "bold" }}>
-                    {errors.message}
-                  </Text>
-                )}
-              </View>
-
-              <View style={{ gap: moderateScale(25), flexDirection: "row" }}>
-                <Button
-                  onPress={() => router.back()}
-                  icon={"arrow-left"}
-                  mode="contained"
-                  textColor="white"
-                  style={{
-                    borderRadius: 7,
-                    backgroundColor: Colors.button_primary,
-                    paddingVertical: moderateScale(5),
-                    flex: 1,
-                  }}
-                >
-                  Kembali
-                </Button>
-
-                <Button
-                  loading={isPendingMutate}
-                  disabled={isPendingMutate}
-                  onPress={handleSubmit as any}
-                  labelStyle={{ color: "black" }}
-                  icon={"send"}
-                  mode="contained"
-                  textColor="black"
-                  style={{
-                    borderRadius: 7,
-                    backgroundColor: Colors.button_secondary,
-                    paddingVertical: moderateScale(5),
-                    flex: 1,
-                  }}
-                >
-                  Kirim
-                </Button>
-              </View>
-            </>
-          )}
+                  <Button
+                    loading={isPendingMutate}
+                    disabled={isPendingMutate}
+                    onPress={handleSubmit as any}
+                    labelStyle={{ color: "black" }}
+                    icon={"send"}
+                    mode="contained"
+                    textColor="black"
+                    style={{
+                      borderRadius: 7,
+                      backgroundColor: Colors.button_secondary,
+                      paddingVertical: moderateScale(5),
+                      flex: 1,
+                    }}
+                  >
+                    Kirim
+                  </Button>
+                </View>
+              </>
+            );
+          }}
         </Formik>
       </View>
 

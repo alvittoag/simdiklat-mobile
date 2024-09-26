@@ -71,7 +71,7 @@ export const routers = [
             path: "/kotak-masuk.keluar.detail",
           },
           {
-            title: "Pesan",
+            title: "Kirim Pesan",
             path: "/kotak-masuk.create",
           },
         ],
