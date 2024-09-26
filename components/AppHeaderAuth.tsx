@@ -1,5 +1,5 @@
 import React from "react";
-import { Appbar, Avatar } from "react-native-paper";
+import { Appbar, Avatar, Badge } from "react-native-paper";
 import { router, useNavigation } from "expo-router";
 import { Colors } from "@/constants/Colors";
 import {
@@ -16,6 +16,14 @@ import { useQuery } from "@apollo/client";
 import { getProfilePeserta } from "@/services/query/getProfilePeserta";
 import { IProfilePeserta } from "@/type";
 import auth from "@/services/api/auth";
+import { useQuery as useQ } from "@tanstack/react-query";
+import { axiosService } from "@/services/axiosService";
+
+type response = {
+  status: string;
+  message: string;
+  data: number;
+};
 
 export default function AppHeaderAuth() {
   const navigation = useNavigation();
@@ -23,6 +31,19 @@ export default function AppHeaderAuth() {
   const { data, error, loading } = useQuery<{
     profilPesertaDiklat: IProfilePeserta;
   }>(getProfilePeserta);
+
+  const {
+    data: dataCount,
+    isPending,
+    isError,
+  } = useQ({
+    queryKey: ["count-notif"],
+    queryFn: async () => {
+      const { data } = await axiosService.get<response>("/api/message/notify");
+
+      return data;
+    },
+  });
 
   const [photo, setPhoto] = React.useState("#");
 
@@ -92,7 +113,24 @@ export default function AppHeaderAuth() {
         )}
       </View>
 
-      <TouchableOpacity onPress={() => router.push("/kotak-masuk")}>
+      <TouchableOpacity
+        onPress={() => router.push("/kotak-masuk")}
+        style={{ position: "relative" }}
+      >
+        <Badge
+          style={{
+            position: "absolute",
+            top: -5,
+            right: -9,
+            zIndex: 1,
+            backgroundColor: "red",
+            color: Colors.text_white,
+            fontWeight: 500,
+            fontSize: 12,
+          }}
+        >
+          {isPending ? "-" : dataCount?.data}
+        </Badge>
         <Image
           resizeMode="contain"
           source={assets.notify}

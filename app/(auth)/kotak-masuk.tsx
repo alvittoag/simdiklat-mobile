@@ -21,14 +21,16 @@ import { parseDateLong } from "@/lib/parseDate";
 import Loading from "@/components/elements/Loading";
 import Error from "@/components/elements/Error";
 import useDebounce from "@/hooks/useDebounce";
-import { router, useLocalSearchParams } from "expo-router";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
 import NotFoundSearch from "@/components/sections/NotFoundSearch";
 import { axiosService } from "@/services/axiosService";
 import { ALERT_TYPE, Dialog } from "react-native-alert-notification";
 import { useMutation } from "@tanstack/react-query";
+import { useIsFocused } from "@react-navigation/native";
 
 export default function KotakMasuk() {
   const isRefetch = useLocalSearchParams();
+  const isFocused = useIsFocused();
 
   const [search, setSearch] = React.useState("");
   const debouncedSearch = useDebounce(search, 1000);
@@ -126,6 +128,12 @@ export default function KotakMasuk() {
     refetch();
   }, [isRefetch]);
 
+  React.useEffect(() => {
+    if (isFocused) {
+      refetch(); // Refetch when the screen comes into focus
+    }
+  }, [isFocused]);
+
   const loadMore = () => {
     if (data?.messageInbox.hasMore && !loading) {
       setLimit(limit + 10);
@@ -204,7 +212,7 @@ export default function KotakMasuk() {
         </View>
 
         <View style={{ flex: 1 }}>
-          {loading && page === 1 ? (
+          {loading ? (
             <Loading />
           ) : data?.messageInbox.items.length === 0 ? (
             <NotFoundSearch />
@@ -217,29 +225,30 @@ export default function KotakMasuk() {
                 <RefreshControl
                   refreshing={false}
                   onRefresh={() => {
-                    setPage(1);
                     refetch();
                   }}
                 />
               }
               onEndReached={loadMore}
-              onEndReachedThreshold={0.1}
               ListFooterComponent={renderFooter}
               renderItem={({ item, index }) => (
                 <TouchableOpacity
                   onPress={() => {
                     closeMenu();
-                    router.push({
+                    router.navigate({
                       pathname: "/kotak-masuk.pesan",
                       params: {
+                        id: item.id,
                         dari: item.sender.full_name,
                         subjek: item.subject,
                         pesan: item.message,
+                        read: item.read_notify,
                       },
                     });
                   }}
                   style={{
-                    backgroundColor: "#F3F3F3",
+                    backgroundColor:
+                      item.read_notify === "1" ? "#f5f5f5" : "#B7B7B7",
                     paddingHorizontal: moderateScale(20),
                     paddingVertical: moderateScale(15),
                     borderRadius: 10,
@@ -307,6 +316,7 @@ export default function KotakMasuk() {
                         router.push({
                           pathname: "/kotak-masuk.pesan",
                           params: {
+                            id: item.id,
                             dari: item.sender.full_name,
                             subjek: item.subject,
                             pesan: item.message,

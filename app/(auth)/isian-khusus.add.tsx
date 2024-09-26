@@ -21,12 +21,23 @@ import { FlashList } from "@shopify/flash-list";
 import { IJenisLampiran } from "@/type";
 import Loading from "@/components/elements/Loading";
 import Error from "@/components/elements/Error";
+import { Formik } from "formik";
+import * as Yup from "yup";
 
 type response = {
   status: string;
   message: string;
   data: IJenisLampiran[];
 };
+
+const loginSchema = Yup.object().shape({
+  title: Yup.string()
+    .min(2, "Minimum 2 Karakter")
+    .required("Harap Masukan Judul Dokumen"),
+  keterangan: Yup.string()
+    .min(2, "Minimum 2 Karakter")
+    .required("Harap Masukan Keterangan"),
+});
 
 export default function IsianKhususAdd() {
   const queryClient = useQueryClient();
@@ -91,11 +102,17 @@ export default function IsianKhususAdd() {
     },
   });
 
-  const handleAddLampiran = async () => {
+  const handleAddLampiran = async ({
+    title,
+    keterangan,
+  }: {
+    title: string;
+    keterangan: string;
+  }) => {
     const formData = new FormData();
     formData.append("jenis_id", selectValue?.value.toString() as string);
-    formData.append("title", dataLampiran.title);
-    formData.append("keterangan", dataLampiran.keterangan);
+    formData.append("title", title);
+    formData.append("keterangan", keterangan);
 
     if (dataLampiran.file) {
       const fileToUpload = {
@@ -141,129 +158,168 @@ export default function IsianKhususAdd() {
 
   return (
     <ContainerBackground>
-      <View
-        style={{
-          gap: moderateScale(20),
-          paddingHorizontal: moderateScale(15),
-          paddingVertical: moderateScale(20),
+      <Formik
+        validationSchema={loginSchema}
+        initialValues={{ title: "", keterangan: "" }}
+        onSubmit={(val, { resetForm }) => {
+          if (!selectValue)
+            return Dialog.show({
+              type: ALERT_TYPE.DANGER,
+              title: "Gagal",
+              textBody: "Harap Pilih Jenis Lampiran",
+              button: "Tutup",
+            });
+
+          if (!dataLampiran.file)
+            return Dialog.show({
+              type: ALERT_TYPE.DANGER,
+              title: "Gagal",
+              textBody: "Harap Masukan Sertifikat / Dokumen Bukti",
+              button: "Tutup",
+            });
+
+          handleAddLampiran({
+            title: val.title,
+            keterangan: val.keterangan,
+          }).then(() => resetForm());
         }}
       >
-        <View style={{ position: "relative" }}>
-          <TouchableOpacity
-            onPress={showModal}
-            style={{
-              borderWidth: 1,
-              borderColor: Colors.border_primary,
-              paddingHorizontal: 10,
-              paddingVertical: 15,
-              borderRadius: 5,
-              flexDirection: "row",
-              backgroundColor: "white",
-            }}
-          >
-            <Text
-              style={{
-                flex: 1,
-                color: "grey",
-                fontWeight: "400",
-                fontSize: 16,
-              }}
-            >
-              {selectValue?.label ?? "Pilih Jenis Lampiran"}
-            </Text>
-            <Icon size={24} source={"open-in-new"} color="gray" />
-          </TouchableOpacity>
-        </View>
-
-        <TextInput
-          textColor={Colors.text_primary}
-          value={dataLampiran.title}
-          onChangeText={(text) =>
-            setDataLampiran({ ...dataLampiran, title: text })
-          }
-          label={"Judul Dokumen *"}
-          mode="outlined"
-          outlineColor={Colors.border_primary}
-          activeOutlineColor={Colors.border_input_active}
-          style={{ backgroundColor: "white" }}
-        />
-
-        <TextInput
-          textColor={Colors.text_primary}
-          value={dataLampiran.keterangan}
-          onChangeText={(text) =>
-            setDataLampiran({ ...dataLampiran, keterangan: text })
-          }
-          label={"Keterangan *"}
-          mode="outlined"
-          outlineColor={Colors.border_primary}
-          activeOutlineColor={Colors.border_input_active}
-          style={{ backgroundColor: "white" }}
-        />
-
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            gap: moderateScale(25),
-          }}
-        >
+        {({ handleChange, values, handleSubmit, errors }) => (
           <View
             style={{
-              borderWidth: 1,
-              borderColor: Colors.border_primary,
-              padding: 15,
-              width: "60%",
-              borderRadius: 7,
+              gap: moderateScale(20),
+              paddingHorizontal: moderateScale(15),
+              paddingVertical: moderateScale(20),
             }}
           >
-            <Text style={{ color: Colors.text_secondary }}>
-              {dataLampiran?.file?.name ??
-                "Upload Sertifikat/Dokumen Bukti Lainnya *"}
-            </Text>
+            <View style={{ position: "relative" }}>
+              <TouchableOpacity
+                onPress={showModal}
+                style={{
+                  borderWidth: 1,
+                  borderColor: Colors.border_primary,
+                  paddingHorizontal: 10,
+                  paddingVertical: 15,
+                  borderRadius: 5,
+                  flexDirection: "row",
+                  backgroundColor: "white",
+                }}
+              >
+                <Text
+                  style={{
+                    flex: 1,
+                    color: "grey",
+                    fontWeight: "400",
+                    fontSize: 16,
+                  }}
+                >
+                  {selectValue?.label ?? "Pilih Jenis Lampiran"}
+                </Text>
+                <Icon size={24} source={"open-in-new"} color="gray" />
+              </TouchableOpacity>
+            </View>
+
+            <TextInput
+              value={values.title}
+              textColor={Colors.text_primary}
+              onChangeText={handleChange("title")}
+              error={errors.title ? true : false}
+              label={"Judul Dokumen *"}
+              mode="outlined"
+              outlineColor={Colors.border_primary}
+              activeOutlineColor={Colors.border_input_active}
+              style={{ backgroundColor: "white" }}
+            />
+
+            {errors.title && (
+              <Text style={{ color: "salmon", fontWeight: "bold" }}>
+                {errors.title}
+              </Text>
+            )}
+
+            <TextInput
+              value={values.keterangan}
+              textColor={Colors.text_primary}
+              onChangeText={handleChange("keterangan")}
+              error={errors.keterangan ? true : false}
+              label={"Keterangan *"}
+              mode="outlined"
+              outlineColor={Colors.border_primary}
+              activeOutlineColor={Colors.border_input_active}
+              style={{ backgroundColor: "white" }}
+            />
+
+            {errors.keterangan && (
+              <Text style={{ color: "salmon", fontWeight: "bold" }}>
+                {errors.keterangan}
+              </Text>
+            )}
+
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                gap: moderateScale(25),
+              }}
+            >
+              <View
+                style={{
+                  borderWidth: 1,
+                  borderColor: Colors.border_primary,
+                  padding: 15,
+                  width: "60%",
+                  borderRadius: 7,
+                }}
+              >
+                <Text style={{ color: Colors.text_secondary }}>
+                  {dataLampiran?.file?.name ??
+                    "Upload Sertifikat/Dokumen Bukti Lainnya *"}
+                </Text>
+              </View>
+
+              <Button
+                onPress={handleDocumentPick}
+                icon={"upload"}
+                mode="contained"
+                textColor="black"
+                style={{
+                  flex: 1,
+                  borderRadius: 7,
+                  backgroundColor: Colors.button_secondary,
+                  paddingVertical: 7,
+                }}
+              >
+                Upload
+              </Button>
+            </View>
+
+            <View
+              style={{
+                flexDirection: "row",
+                gap: 10,
+                alignItems: "center",
+              }}
+            >
+              <Button
+                loading={mutationAdd.isPending}
+                disabled={mutationAdd.isPending}
+                onPress={handleSubmit as any}
+                icon={"content-save-outline"}
+                mode="contained"
+                textColor="white"
+                style={{
+                  backgroundColor: Colors.button_primary,
+                  borderRadius: 7,
+                  paddingVertical: 7,
+                  flex: 1,
+                }}
+              >
+                Simpan
+              </Button>
+            </View>
           </View>
-
-          <Button
-            onPress={handleDocumentPick}
-            icon={"upload"}
-            mode="contained"
-            textColor="black"
-            style={{
-              flex: 1,
-              borderRadius: 7,
-              backgroundColor: Colors.button_secondary,
-              paddingVertical: 7,
-            }}
-          >
-            Upload
-          </Button>
-        </View>
-
-        <View
-          style={{
-            flexDirection: "row",
-            gap: 10,
-            alignItems: "center",
-          }}
-        >
-          <Button
-            loading={mutationAdd.isPending}
-            disabled={mutationAdd.isPending}
-            onPress={handleAddLampiran}
-            icon={"content-save-outline"}
-            mode="contained"
-            textColor="white"
-            style={{
-              backgroundColor: Colors.button_primary,
-              borderRadius: 7,
-              paddingVertical: 7,
-              flex: 1,
-            }}
-          >
-            Simpan
-          </Button>
-        </View>
-      </View>
+        )}
+      </Formik>
 
       <Portal>
         <Modal

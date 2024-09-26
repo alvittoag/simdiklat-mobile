@@ -22,6 +22,8 @@ import Error from "@/components/elements/Error";
 import useDebounce from "@/hooks/useDebounce";
 import { FlashList } from "@shopify/flash-list";
 import { IJenisLampiran } from "@/type";
+import { Formik } from "formik";
+import * as Yup from "yup";
 
 export interface LampiranResponse {
   status: "success" | "error";
@@ -34,6 +36,15 @@ type response = {
   message: string;
   data: IJenisLampiran[];
 };
+
+const loginSchema = Yup.object().shape({
+  title: Yup.string()
+    .min(2, "Minimum 2 Karakter")
+    .required("Harap Masukan Judul Dokumen"),
+  keterangan: Yup.string()
+    .min(2, "Minimum 2 Karakter")
+    .required("Harap Masukan Keterangan"),
+});
 
 export default function IsianKhususEdit() {
   const { id } = useLocalSearchParams<any>();
@@ -80,20 +91,6 @@ export default function IsianKhususEdit() {
   const showModal = () => setVisible(true);
   const hideModal = () => setVisible(false);
 
-  React.useEffect(() => {
-    if (data?.data?.file) {
-      setDataLampiran({
-        title: data?.data?.file.title,
-        keterangan: data?.data?.file.keterangan,
-      });
-
-      setSelectValue({
-        label: data.data.jenis.name,
-        value: data?.data.jenis.id as any,
-      });
-    }
-  }, [data]);
-
   const mutationEdit = useMutation({
     mutationFn: async (formData: FormData) => {
       return await axiosService.put(
@@ -114,7 +111,6 @@ export default function IsianKhususEdit() {
         button: "Tutup",
       });
       queryClient.invalidateQueries({ queryKey: ["isian-khusus"] });
-      setDataLampiran({ title: "", keterangan: "" });
       setSelectValue(null);
       router.back();
     },
@@ -129,13 +125,19 @@ export default function IsianKhususEdit() {
     },
   });
 
-  const handleEditLampiran = async () => {
+  const handleEditLampiran = async ({
+    title,
+    keterangan,
+  }: {
+    title: string;
+    keterangan: string;
+  }) => {
     const formData = new FormData();
     formData.append("id", id as string);
     formData.append("file_id", data?.data.file_id as any);
     formData.append("jenis_id", selectValue?.value as any);
-    formData.append("title", dataLampiran.title as string);
-    formData.append("keterangan", dataLampiran.keterangan as string);
+    formData.append("title", title);
+    formData.append("keterangan", keterangan);
 
     mutationEdit.mutate(formData);
   };
@@ -158,99 +160,135 @@ export default function IsianKhususEdit() {
 
   return (
     <ContainerBackground>
-      <View
-        style={{
-          gap: moderateScale(20),
-          paddingHorizontal: moderateScale(15),
-          paddingVertical: moderateScale(20),
+      <Formik
+        validationSchema={loginSchema}
+        initialValues={{ title: "", keterangan: "" }}
+        onSubmit={(val, { resetForm }) => {
+          handleEditLampiran({ ...val }).then(() => resetForm());
         }}
       >
-        <View style={{ position: "relative" }}>
-          <TouchableOpacity
-            onPress={showModal}
-            style={{
-              borderWidth: 1,
-              borderColor: Colors.border_primary,
-              paddingHorizontal: 10,
-              paddingVertical: 15,
-              borderRadius: 5,
-              flexDirection: "row",
-              backgroundColor: "white",
-            }}
-          >
-            <Text
+        {({ handleChange, values, handleSubmit, errors, setValues }) => {
+          React.useEffect(() => {
+            if (data?.data?.file) {
+              setValues({
+                title: data.data.file.title,
+                keterangan: data.data.file.keterangan,
+              });
+
+              setSelectValue({
+                label: data.data.jenis.name,
+                value: data?.data.jenis.id as any,
+              });
+            }
+          }, [data]);
+
+          return (
+            <View
               style={{
-                flex: 1,
-                color: "grey",
-                fontWeight: "400",
-                fontSize: 16,
+                gap: moderateScale(20),
+                paddingHorizontal: moderateScale(15),
+                paddingVertical: moderateScale(20),
               }}
             >
-              {selectValue?.label ?? "Pilih Jenis Lampiran"}
-            </Text>
-            <Icon size={24} source={"open-in-new"} color="gray" />
-          </TouchableOpacity>
-        </View>
+              <View style={{ position: "relative" }}>
+                <TouchableOpacity
+                  onPress={showModal}
+                  style={{
+                    borderWidth: 1,
+                    borderColor: Colors.border_primary,
+                    paddingHorizontal: 10,
+                    paddingVertical: 15,
+                    borderRadius: 5,
+                    flexDirection: "row",
+                    backgroundColor: "white",
+                  }}
+                >
+                  <Text
+                    style={{
+                      flex: 1,
+                      color: "grey",
+                      fontWeight: "400",
+                      fontSize: 16,
+                    }}
+                  >
+                    {selectValue?.label ?? "Pilih Jenis Lampiran"}
+                  </Text>
+                  <Icon size={24} source={"open-in-new"} color="gray" />
+                </TouchableOpacity>
+              </View>
 
-        <TextInput
-          textColor={Colors.text_primary}
-          value={dataLampiran.title}
-          onChangeText={(text) =>
-            setDataLampiran({ ...dataLampiran, title: text })
-          }
-          label={"Judul Dokumen *"}
-          mode="outlined"
-          outlineColor={Colors.border_primary}
-          activeOutlineColor={Colors.border_input_active}
-          style={{ backgroundColor: "white" }}
-        />
+              <TextInput
+                value={values.title}
+                textColor={Colors.text_primary}
+                onChangeText={handleChange("title")}
+                error={errors.title ? true : false}
+                label={"Judul Dokumen *"}
+                mode="outlined"
+                outlineColor={Colors.border_primary}
+                activeOutlineColor={Colors.border_input_active}
+                style={{ backgroundColor: "white" }}
+              />
 
-        <TextInput
-          textColor={Colors.text_primary}
-          value={dataLampiran.keterangan}
-          onChangeText={(text) =>
-            setDataLampiran({ ...dataLampiran, keterangan: text })
-          }
-          label={"Keterangan *"}
-          mode="outlined"
-          outlineColor={Colors.border_primary}
-          activeOutlineColor={Colors.border_input_active}
-          style={{ backgroundColor: "white" }}
-        />
+              {errors.title && (
+                <Text style={{ color: "salmon", fontWeight: "bold" }}>
+                  {errors.title}
+                </Text>
+              )}
 
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            gap: moderateScale(25),
-          }}
-        ></View>
+              <TextInput
+                value={values.keterangan}
+                onChangeText={handleChange("keterangan")}
+                error={errors.keterangan ? true : false}
+                textColor={Colors.text_primary}
+                label={"Keterangan *"}
+                mode="outlined"
+                outlineColor={Colors.border_primary}
+                activeOutlineColor={Colors.border_input_active}
+                style={{ backgroundColor: "white" }}
+              />
 
-        <View
-          style={{
-            flexDirection: "row",
-            gap: 10,
-            alignItems: "center",
-          }}
-        >
-          <Button
-            loading={mutationEdit.isPending}
-            disabled={mutationEdit.isPending}
-            onPress={handleEditLampiran}
-            icon={"content-save-outline"}
-            mode="contained"
-            textColor="white"
-            style={{
-              backgroundColor: Colors.button_primary,
-              borderRadius: 7,
-              paddingVertical: 7,
-              flex: 1,
-            }}
-          >
-            Simpan
-          </Button>
-        </View>
-      </View>
+              {errors.keterangan && (
+                <Text style={{ color: "salmon", fontWeight: "bold" }}>
+                  {errors.keterangan}
+                </Text>
+              )}
+
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  gap: moderateScale(25),
+                }}
+              ></View>
+
+              <View
+                style={{
+                  flexDirection: "row",
+                  gap: 10,
+                  alignItems: "center",
+                }}
+              >
+                <Button
+                  loading={mutationEdit.isPending}
+                  disabled={mutationEdit.isPending}
+                  onPress={handleSubmit as any}
+                  icon={"content-save-outline"}
+                  mode="contained"
+                  textColor="white"
+                  style={{
+                    backgroundColor: Colors.button_primary,
+                    borderRadius: 7,
+                    paddingVertical: 7,
+                    flex: 1,
+                  }}
+                >
+                  Simpan
+                </Button>
+              </View>
+            </View>
+          );
+        }}
+      </Formik>
 
       <Portal>
         <Modal
