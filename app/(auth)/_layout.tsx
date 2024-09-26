@@ -31,6 +31,7 @@ import assets from "@/assets";
 import useSession from "@/hooks/useSession";
 import Loading from "@/components/elements/Loading";
 import auth from "@/services/api/auth";
+import { ALERT_TYPE, Dialog as D } from "react-native-alert-notification";
 
 interface RouteItem {
   name: string;
@@ -147,10 +148,20 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = React.memo(
 
     const keyExtractor = useCallback((item: RouteItem) => item.path, []);
 
-    const handleLogout = () => {
-      hideDialog();
-      AsyncStorage.removeItem("session");
-      router.replace("/login");
+    const handleLogout = async () => {
+      try {
+        await auth.logout();
+        hideDialog();
+        await AsyncStorage.removeItem("session");
+        router.replace("/login");
+      } catch (error) {
+        console.log(error);
+        D.show({
+          type: ALERT_TYPE.DANGER,
+          title: "Gagal",
+          textBody: "Terjadi kesalahan saat logout",
+        });
+      }
     };
 
     return (

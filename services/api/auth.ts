@@ -49,4 +49,7 @@ export default {
       password,
     });
   },
+  logout: async () => {
+    return await axiosService.post("/api/logout");
+  },
 };
