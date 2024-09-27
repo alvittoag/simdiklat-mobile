@@ -4,12 +4,12 @@ import {
   ScrollView,
   TouchableOpacity,
   RefreshControl,
+  Image,
 } from "react-native";
 import React from "react";
 import ContainerBackground from "@/components/container/ContainerBackground";
 import { moderateScale, verticalScale } from "react-native-size-matters";
 import { Colors } from "@/constants/Colors";
-import { Button, Checkbox, TextInput } from "react-native-paper";
 import ContainerIndex from "@/components/container/ContainerIndex";
 import { axiosService } from "@/services/axiosService";
 import Loading from "@/components/elements/Loading";
@@ -18,6 +18,14 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ALERT_TYPE, Dialog } from "react-native-alert-notification";
 import { router } from "expo-router";
 import * as DocumentPicker from "expo-document-picker";
+import {
+  Button,
+  Dialog as D,
+  Portal,
+  PaperProvider,
+  Checkbox,
+  TextInput,
+} from "react-native-paper";
 
 interface DataPekerjaan {
   id: number;
@@ -88,6 +96,12 @@ export default function IsianKhusus() {
   const queryClient = useQueryClient();
   const [isChecked, setIsChecked] = React.useState(false);
 
+  const [visible, setVisible] = React.useState(false);
+
+  const showDialog = () => setVisible(true);
+
+  const hideDialog = () => setVisible(false);
+
   const { data, isPending, isError, refetch } = useQuery({
     queryKey: ["isian-khusus"],
     queryFn: async () => {
@@ -148,7 +162,7 @@ export default function IsianKhusus() {
       Dialog.show({
         type: ALERT_TYPE.SUCCESS,
         title: "Berhasil",
-        textBody: "Pekerjaan Berhasil Di Edit",
+        textBody: "Isian Khusus Berhasil Di Update",
         button: "Tutup",
       });
       setIsChecked(false);
@@ -159,7 +173,7 @@ export default function IsianKhusus() {
       Dialog.show({
         type: ALERT_TYPE.DANGER,
         title: "Gagal",
-        textBody: "Pekerjaan Gagal Di Edit",
+        textBody: "Isian Khusus Gagal Di Update",
         button: "Tutup",
       });
     },
@@ -247,8 +261,6 @@ export default function IsianKhusus() {
     }`;
   }
 
-  console.log("isian khussu");
-
   if (isPending) {
     return <Loading />;
   }
@@ -287,21 +299,35 @@ export default function IsianKhusus() {
             title="Gambarkan Struktur Organisasi tempat Saudara bekerja, dan dimana posisi jabatan saudara saat ini
      Upload File"
           >
-            <TouchableOpacity
-              style={{
-                backgroundColor: "#F0E9F5",
-                height: verticalScale(100),
-                borderRadius: 10,
-                justifyContent: "center",
-                alignItems: "center",
-                borderWidth: 1,
-                borderColor: Colors.border_primary,
-              }}
-            >
-              <Text style={{ fontWeight: "bold" }}>
-                {data.pekerjaanData.data.file.title}
-              </Text>
-            </TouchableOpacity>
+            {file ? (
+              <Image
+                source={file}
+                resizeMode="stretch"
+                style={{
+                  width: "100%",
+                  height: 200,
+                  borderRadius: 7,
+                  borderWidth: 1,
+                  borderColor: Colors.border_primary,
+                }}
+              />
+            ) : (
+              <Image
+                resizeMode="stretch"
+                source={{
+                  uri: `http://10.15.43.236:8080/api/file/${
+                    data.pekerjaanData.data.file.file_name ?? ""
+                  }`,
+                }}
+                style={{
+                  width: "100%",
+                  height: 200,
+                  borderRadius: 7,
+                  borderWidth: 1,
+                  borderColor: Colors.border_primary,
+                }}
+              />
+            )}
 
             <View
               style={{
@@ -311,6 +337,7 @@ export default function IsianKhusus() {
               }}
             >
               <Button
+                onPress={showDialog}
                 mode="outlined"
                 icon={"eye"}
                 style={{
@@ -557,6 +584,40 @@ export default function IsianKhusus() {
           </Button>
         </View>
       </ScrollView>
+
+      <Portal>
+        <D
+          visible={visible}
+          onDismiss={hideDialog}
+          style={{ backgroundColor: "white" }}
+        >
+          <D.Content>
+            <Image
+              source={{
+                uri: `http://10.15.43.236:8080/api/file/${
+                  data.pekerjaanData.data.file.file_name ?? ""
+                }`,
+              }}
+              resizeMode="stretch"
+              style={{ width: "100%", height: 500, borderRadius: 30 }}
+            />
+          </D.Content>
+          <D.Actions>
+            <Button
+              icon={"close"}
+              textColor="white"
+              onPress={hideDialog}
+              style={{
+                backgroundColor: Colors.button_primary,
+                flex: 1,
+                paddingVertical: moderateScale(7),
+              }}
+            >
+              Tutup
+            </Button>
+          </D.Actions>
+        </D>
+      </Portal>
     </ContainerBackground>
   );
 }
