@@ -266,8 +266,7 @@ export default function KotakKeluar() {
           style={{ backgroundColor: "transparent" }}
           activeOutlineColor={Colors.border_primary}
           outlineStyle={{ borderRadius: 30 }}
-          contentStyle={{ color: Colors.text_primary }}
-          placeholder="Search"
+          placeholder="Cari Data..."
           placeholderTextColor={Colors.text_secondary}
           outlineColor={Colors.border_primary}
           left={<TextInput.Icon icon="magnify" color={Colors.text_secondary} />}

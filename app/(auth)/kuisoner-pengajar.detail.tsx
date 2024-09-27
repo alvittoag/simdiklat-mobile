@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   View,
   Text,
@@ -39,12 +39,18 @@ interface KuisResponse {
 interface Selection {
   pertanyaan_id: number;
   nilai: string;
+  peserta_id: string;
+  jadwal_diklat_id: number;
+  pengajar_id: number;
+  tanggal: Date;
+  mata_diklat_id: number;
+  jadwal_pengajar_id: number;
 }
 
 export default function KuisonerPengajarDetail() {
   const params = useLocalSearchParams<any>();
 
-  const dataParams: IKuisonerPenyelenggarList = React.useMemo(() => {
+  const dataParams: IKuisonerPenyelenggarList = useMemo(() => {
     try {
       return JSON.parse(params?.data as string);
     } catch (error) {
@@ -57,11 +63,10 @@ export default function KuisonerPengajarDetail() {
   const [saran, setSaran] = useState("");
 
   const { data, isPending, error } = useQuery<KuisResponse>({
-    queryKey: ["kuisoner-penyelenggara"],
-
+    queryKey: ["kuisoner-pengajar"],
     queryFn: async () => {
       const res = await axiosService.get<KuisResponse>(
-        `/api/kuisoner/pengajar/lembar/397`
+        `/api/kuisoner/pengajar/lembar/${dataParams.jadwal_diklat.diklat_id}`
       );
       return res.data;
     },
@@ -84,6 +89,8 @@ export default function KuisonerPengajarDetail() {
 
       setSelections([]);
       setSaran("");
+
+      router.back();
     },
     onError: (err) => {
       console.log(err);
@@ -98,31 +105,28 @@ export default function KuisonerPengajarDetail() {
 
   const handleRadioSelect = (questionId: number, value: string) => {
     setSelections((prev) => {
-      const existingSelectionIndex = prev.findIndex(
+      const newSelection: Selection = {
+        pertanyaan_id: questionId,
+        nilai: value,
+        peserta_id: params?.peserta_id,
+        jadwal_diklat_id: dataParams.jadwal_diklat.id,
+        pengajar_id: dataParams.pengajar_id,
+        tanggal: dataParams.tanggal,
+        mata_diklat_id: dataParams.materi_id,
+        jadwal_pengajar_id: dataParams.pengajar_id,
+      };
+
+      const existingIndex = prev.findIndex(
         (s) => s.pertanyaan_id === questionId
       );
-      if (existingSelectionIndex !== -1) {
-        if (prev[existingSelectionIndex].nilai === value) {
-          return prev.filter((s) => s.pertanyaan_id !== questionId);
-        } else {
-          return prev.map((s) =>
-            s.pertanyaan_id === questionId ? { ...s, value } : s
-          );
-        }
+      if (existingIndex !== -1) {
+        // Replace existing selection
+        return prev.map((s) =>
+          s.pertanyaan_id === questionId ? newSelection : s
+        );
       } else {
-        return [
-          ...prev,
-          {
-            pertanyaan_id: questionId,
-            nilai: value,
-            peserta_id: params?.peserta_id,
-            jadwal_diklat_id: dataParams.jadwal_diklat.id,
-            pengajar_id: dataParams.pengajar_id,
-            tanggal: dataParams.tanggal,
-            mata_diklat_id: dataParams.materi_id,
-            jadwal_pengajar_id: dataParams.pengajar_id,
-          },
-        ];
+        // Add new selection
+        return [...prev, newSelection];
       }
     });
   };
@@ -139,9 +143,7 @@ export default function KuisonerPengajarDetail() {
   };
 
   const getSelectionForQuestion = (questionId: number) => {
-    return (
-      selections.find((s) => s.pertanyaan_id === questionId)?.nilai || null
-    );
+    return selections.find((s) => s.pertanyaan_id === questionId)?.nilai || "";
   };
 
   if (isPending) return <Loading />;
@@ -228,7 +230,8 @@ export default function KuisonerPengajarDetail() {
                     fontWeight: "bold",
                   }}
                 >
-                  {dataParams.mata_diklat.name}
+                  {dataParams.mata_diklat?.name} Angkatan{" "}
+                  {dataParams.jadwal_diklat?.name}
                 </Text>
               </View>
             )}

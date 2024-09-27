@@ -147,7 +147,7 @@ export default function FormLogin() {
                 {loading ? (
                   <ActivityIndicator size={"small"} color={"white"} />
                 ) : (
-                  "Sign In"
+                  "Masuk"
                 )}
               </ButtonOpacity>
 

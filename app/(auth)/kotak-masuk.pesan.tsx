@@ -21,7 +21,7 @@ import { Colors } from "@/constants/Colors";
 export default function KotakMasukPesan() {
   const queryClient = useQueryClient();
   const client = useApolloClient();
-  const { id, dari, pesan, subjek, read } = useLocalSearchParams();
+  const { id, user_id, dari, pesan, subjek, read } = useLocalSearchParams();
 
   const { mutate, isPending, isError } = useMutation({
     mutationFn: async (id: number) => {
@@ -59,7 +59,32 @@ export default function KotakMasukPesan() {
           gap: moderateScale(20),
         }}
       >
-        <View>
+        <View style={{ flexDirection: "row", gap: moderateScale(10) }}>
+          <Button
+            onPress={() =>
+              router.push({
+                pathname: "/kotak-masuk.create",
+                params: {
+                  user: dari,
+                  user_id: user_id,
+                  subject: subjek,
+                  message: pesan,
+                },
+              })
+            }
+            icon={"reply"}
+            textColor="white"
+            mode="contained"
+            style={{
+              backgroundColor: Colors.button_primary,
+              paddingVertical: 7,
+              borderRadius: 7,
+              flex: 1,
+            }}
+          >
+            Balas
+          </Button>
+
           <Button
             onPress={() =>
               router.push({
@@ -74,6 +99,7 @@ export default function KotakMasukPesan() {
               backgroundColor: Colors.button_secondary,
               paddingVertical: 7,
               borderRadius: 7,
+              flex: 1,
             }}
           >
             Teruskan

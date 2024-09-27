@@ -59,7 +59,7 @@ export default function KuisonerPengajarList() {
     queryKey: ["getKuisonerPengajar"],
     queryFn: async () => {
       const res = await axiosService.get<KuisonerResponse>(
-        `/api/kuisoner/pengajar/${dataParams.jadwal_diklat.id}?page=${page}&limit=${limit}&order=desc&search=${debouncedSearch}`
+        `/api/kuisoner/pengajar/3627?page=${page}&limit=${limit}&order=desc&search=${debouncedSearch}`
       );
 
       return res.data;

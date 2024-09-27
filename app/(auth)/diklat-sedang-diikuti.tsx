@@ -310,6 +310,15 @@ export default function DiklatSedangDiikuti() {
                   }}
                 >
                   <TouchableOpacity
+                    onPress={() =>
+                      router.push({
+                        pathname: "/diklat-sedang-diikuti.kurikulum",
+                        params: {
+                          id: item.jadwal_diklat.id,
+                          diklat: JSON.stringify(item.jadwal_diklat.diklat),
+                        },
+                      })
+                    }
                     style={{
                       backgroundColor: "#7AC52E",
                       borderRadius: 50,

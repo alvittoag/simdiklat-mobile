@@ -172,6 +172,14 @@ export const routers = [
             title: "Detail Diklat Sedang Diikuti",
             path: "/diklat-sedang-diikuti.detail",
           },
+          {
+            title: "Kurikulum Diklat",
+            path: "/diklat-sedang-diikuti.kurikulum",
+          },
+          {
+            title: "File Materi Diklat",
+            path: "/diklat-sedang-diikuti.file",
+          },
         ],
       },
       {

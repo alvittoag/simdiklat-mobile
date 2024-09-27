@@ -200,7 +200,7 @@ export default function KotakMasuk() {
             activeOutlineColor={Colors.border_primary}
             outlineStyle={{ borderRadius: 30 }}
             contentStyle={{ color: Colors.text_primary }}
-            placeholder="Search"
+            placeholder="Cari Data..."
             placeholderTextColor={Colors.text_secondary}
             outlineColor={Colors.border_primary}
             left={
@@ -237,6 +237,7 @@ export default function KotakMasuk() {
                       pathname: "/kotak-masuk.pesan",
                       params: {
                         id: item.id,
+                        user_id: item.sender.id,
                         dari: item.sender.full_name,
                         subjek: item.subject,
                         pesan: item.message,

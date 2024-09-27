@@ -51,7 +51,7 @@ const messageSchema = Yup.object().shape({
 });
 
 export default function KotakMasukCreate() {
-  const { subject, message }: any = useLocalSearchParams();
+  const { user, user_id, subject, message }: any = useLocalSearchParams();
 
   const queryClient = useQueryClient();
   const [searchUsers, setsearchUsers] = React.useState("");
@@ -69,6 +69,8 @@ export default function KotakMasukCreate() {
     label: null,
     value: null,
   });
+
+  console.log(selectValue);
   const { data, isPending, error } = useQuery({
     queryKey: ["users", search, page],
     queryFn: async () => {
@@ -162,8 +164,9 @@ export default function KotakMasukCreate() {
         >
           {({ handleChange, handleSubmit, values, errors, setValues }) => {
             React.useEffect(() => {
+              setSelectValue({ label: user, value: user_id });
               setValues({ subject: subject, message: message });
-            }, [message, subject]);
+            }, [message, subject, user, user_id]);
             return (
               <>
                 <View style={{ gap: moderateScale(15) }}>

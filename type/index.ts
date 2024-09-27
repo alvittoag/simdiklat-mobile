@@ -58,7 +58,11 @@ export interface IKalenderDiklatList {
   approval: number | null;
 }
 
-interface IDiklat {
+interface IJenisDiklat {
+  name: "Diklat Dinas Pendidikan - PAUDNI";
+}
+
+export interface IDiklat {
   id: number;
   jenis_diklat_id: number;
   name: string;
@@ -78,6 +82,7 @@ interface IDiklat {
   template_transkrip: string;
   rumpun_id: number;
   sijule_course_id: number;
+  jenis_diklat: IJenisDiklat;
 }
 
 export interface IUserPeserta {
@@ -788,4 +793,60 @@ export interface IKalenderPublic {
   status_registrasi: string;
   diklat: IDiklat;
   lokasi_diklat: ILokasiDiklat;
+}
+
+export interface IMataDiklat {
+  id: number;
+  name: string;
+  deskripsi: string;
+  kompetensi_dasar: string;
+  indikator_keberhasilan: string;
+  petunjuk_pengajar: string;
+  petunjuk_peserta: string;
+  evaluasi_kbm: string;
+  referensi: string;
+  keterangan_modul: string;
+  created_at: string;
+  updated_at: string;
+  elearning_id: number;
+  elearning_enable: number;
+  kbm: IKBM;
+}
+
+interface IKBM {
+  id: number;
+  mata_diklat_id: number;
+  tahapan_kegiatan: string;
+  kegiatan_fasilitator: string;
+  kegiatan_peserta: string;
+  metode: string;
+  media: string;
+  alokasi_waktu: number;
+  urutan: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface IKurikulum {
+  id: number;
+  diklat_id: number;
+  mata_diklat_id: number;
+  created_at: string;
+  updated_at: string;
+  mata_diklat: IMataDiklat;
+  diklat: IDiklat;
+}
+
+export interface IFileMateri {
+  id: number;
+  materi_id: number;
+  file_path: string;
+  file_name: string;
+  file_size: number;
+  mime_type: string;
+  file_extension: string;
+  keterangan: string;
+  file_checksum: string;
+  created_at: string;
+  updated_at: string;
 }

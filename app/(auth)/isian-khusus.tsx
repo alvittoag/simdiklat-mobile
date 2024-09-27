@@ -247,6 +247,8 @@ export default function IsianKhusus() {
     }`;
   }
 
+  console.log("isian khussu");
+
   if (isPending) {
     return <Loading />;
   }

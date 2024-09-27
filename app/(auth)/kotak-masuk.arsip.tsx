@@ -98,6 +98,13 @@ export default function KotakMasuk() {
       });
 
       refetch();
+
+      Dialog.show({
+        type: ALERT_TYPE.SUCCESS,
+        title: "Berhasil",
+        textBody: "Pesan Berhasil Dihapus",
+        button: "Tutup",
+      });
     } catch (error) {
       console.log(error);
       Dialog.show({
@@ -185,7 +192,7 @@ export default function KotakMasuk() {
             activeOutlineColor={Colors.border_primary}
             outlineStyle={{ borderRadius: 30 }}
             contentStyle={{ color: Colors.text_primary }}
-            placeholder="Search"
+            placeholder="Cari Data..."
             placeholderTextColor={Colors.text_secondary}
             outlineColor={Colors.border_primary}
             left={
