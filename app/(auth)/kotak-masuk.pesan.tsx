@@ -67,8 +67,6 @@ export default function KotakMasukPesan() {
                 params: {
                   user: dari,
                   user_id: user_id,
-                  subject: subjek,
-                  message: pesan,
                 },
               })
             }

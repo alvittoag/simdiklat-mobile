@@ -218,6 +218,7 @@ export default function IsianKhusus() {
         type: file.mimeType,
         name: file.name,
       };
+
       formData.append("image_struktur", fileToUpload as any);
       formData.append(
         "struktur_org",
@@ -245,6 +246,18 @@ export default function IsianKhusus() {
       });
 
       if (!result.canceled) {
+        if (
+          result.assets[0].mimeType !== "image/jpg" &&
+          result.assets[0].mimeType !== "image/jpeg" &&
+          result.assets[0].mimeType !== "image/png"
+        ) {
+          return Dialog.show({
+            type: ALERT_TYPE.DANGER,
+            title: "Gagal",
+            textBody: "File harus berupa gambar",
+            button: "Tutup",
+          });
+        }
         setFile(result.assets[0] as any);
       }
     } catch (err) {
