@@ -315,7 +315,7 @@ export default function IsianKhusus() {
             {file ? (
               <Image
                 source={file}
-                resizeMode="stretch"
+                resizeMode="cover"
                 style={{
                   width: "100%",
                   height: 200,
@@ -326,7 +326,7 @@ export default function IsianKhusus() {
               />
             ) : (
               <Image
-                resizeMode="stretch"
+                resizeMode="cover"
                 source={{
                   uri: `http://10.15.43.236:8080/api/file/${
                     data.pekerjaanData.data.file.file_name ?? ""
@@ -605,15 +605,23 @@ export default function IsianKhusus() {
           style={{ backgroundColor: "white" }}
         >
           <D.Content>
-            <Image
-              source={{
-                uri: `http://10.15.43.236:8080/api/file/${
-                  data.pekerjaanData.data.file.file_name ?? ""
-                }`,
-              }}
-              resizeMode="stretch"
-              style={{ width: "100%", height: 500, borderRadius: 30 }}
-            />
+            {file ? (
+              <Image
+                source={file}
+                resizeMode="cover"
+                style={{ width: "100%", height: 500, borderRadius: 30 }}
+              />
+            ) : (
+              <Image
+                source={{
+                  uri: `http://10.15.43.236:8080/api/file/${
+                    data.pekerjaanData.data.file.file_name ?? ""
+                  }`,
+                }}
+                resizeMode="cover"
+                style={{ width: "100%", height: 500, borderRadius: 30 }}
+              />
+            )}
           </D.Content>
           <D.Actions>
             <Button
