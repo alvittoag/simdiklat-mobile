@@ -43,9 +43,11 @@ export default function KalenderDiklat() {
   const [search, setSearch] = React.useState("");
   const [yearFilter, setYearFilter] = React.useState("2024");
   const [filter, setfilter] = React.useState("DESC");
+  const [status, setstatus] = React.useState("");
   const [terapkan, setTerapkan] = React.useState<any>({
     tahun: Number(yearFilter),
     sortDirection: filter,
+    qb: status,
   });
 
   const debouncedSearch = useDebounce(search, 1000);
@@ -84,6 +86,7 @@ export default function KalenderDiklat() {
       ...prev,
       tahun: Number(yearFilter),
       sortDirection: filter,
+      qb: status,
     }));
     setSearch("");
     setPage(1);
@@ -297,6 +300,9 @@ export default function KalenderDiklat() {
           </Dialog.Title>
 
           <Dialog.Content>
+            <Text style={{ fontSize: 16, fontWeight: 500, marginBottom: 8 }}>
+              Data Terbaru
+            </Text>
             <RadioButton.Group
               onValueChange={(newValue) => setfilter(newValue)}
               value={filter}
@@ -329,6 +335,51 @@ export default function KalenderDiklat() {
                   uncheckedColor="black"
                 />
                 <Text>Data Terlama</Text>
+              </View>
+            </RadioButton.Group>
+
+            <Text
+              style={{
+                fontSize: 16,
+                fontWeight: 500,
+                marginBottom: 8,
+                marginTop: 20,
+              }}
+            >
+              Status Registrasi
+            </Text>
+            <RadioButton.Group
+              onValueChange={(newValue) => setstatus(newValue)}
+              value={status}
+            >
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                }}
+              >
+                <RadioButton
+                  status={status === "buka" ? "checked" : "unchecked"}
+                  value="buka"
+                  color={Colors.border_input_active}
+                  uncheckedColor="black"
+                />
+                <Text>Status Registrasi Dibuka</Text>
+              </View>
+
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                }}
+              >
+                <RadioButton
+                  value="tutup"
+                  status={status === "tutup" ? "checked" : "unchecked"}
+                  color={Colors.border_input_active}
+                  uncheckedColor="black"
+                />
+                <Text>Status Registrasai Ditutup</Text>
               </View>
             </RadioButton.Group>
 

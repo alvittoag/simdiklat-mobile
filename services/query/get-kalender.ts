@@ -8,6 +8,7 @@ export const getKalenderDiklatList = gql`
     $tahun: Int
     $sortBy: String
     $sortDirection: String
+    $qb: String
   ) {
     kalenderDiklats(
       search: $q
@@ -16,6 +17,7 @@ export const getKalenderDiklatList = gql`
       tahun: $tahun
       sortBy: $sortBy
       sortDirection: $sortDirection
+      searchBy: $qb
     ) {
       items {
         id
@@ -28,8 +30,10 @@ export const getKalenderDiklatList = gql`
           name
         }
         lokasi_diklat {
+          id
           name
         }
+
         persyaratan
         keterangan
         approval

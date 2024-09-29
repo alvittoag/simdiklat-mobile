@@ -32,6 +32,8 @@ import useSession from "@/hooks/useSession";
 import Loading from "@/components/elements/Loading";
 import auth from "@/services/api/auth";
 import { ALERT_TYPE, Dialog as D } from "react-native-alert-notification";
+import { axiosService } from "@/services/axiosService";
+import { useQuery as UseQ, useMutation } from "@tanstack/react-query";
 
 interface RouteItem {
   name: string;
@@ -46,31 +48,29 @@ interface RouteSection {
   data: RouteItem[];
 }
 
+type response = {
+  message: string;
+  status: string;
+  data: string;
+};
+
 const DrawerContent: React.FC<DrawerContentComponentProps> = React.memo(
   ({ state, navigation }) => {
     const { data, loading } = useQuery<{
       profilPesertaDiklat: IProfilePeserta;
     }>(getProfilePeserta);
 
+    const { data: photo, isPending } = UseQ({
+      queryKey: ["poto-profile"],
+      queryFn: async () => {
+        const { data } = await axiosService.get<response>(
+          "/api/change-profile/photo"
+        );
+        return data;
+      },
+    });
+
     const [visible, setVisible] = React.useState(false);
-
-    const [photo, setPhoto] = React.useState("#");
-
-    React.useEffect(() => {
-      const getData = async () => {
-        try {
-          const { data } = await auth.getSession();
-
-          setPhoto(
-            `https://simdiklat-bpsdm.jakarta.go.id/sim-diklat/image/photos/${data.user.image}`
-          );
-        } catch (error) {
-          console.log(error);
-        }
-      };
-
-      getData();
-    }, []);
 
     const showDialog = () => setVisible(true);
 
@@ -85,7 +85,11 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = React.memo(
           style={styles.profileContainer}
         >
           <Avatar.Image
-            source={{ uri: photo }}
+            source={{
+              uri: isPending
+                ? "#"
+                : `http://10.15.43.236:8080/api/file/${photo?.data}`,
+            }}
             size={120}
             style={styles.avatar}
           />

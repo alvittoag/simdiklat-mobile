@@ -45,23 +45,15 @@ export default function AppHeaderAuth() {
     },
   });
 
-  const [photo, setPhoto] = React.useState("#");
-
-  React.useEffect(() => {
-    const getData = async () => {
-      try {
-        const { data } = await auth.getSession();
-
-        setPhoto(
-          `https://simdiklat-bpsdm.jakarta.go.id/sim-diklat/image/photos/${data.user.image}`
-        );
-      } catch (error) {
-        console.log(error);
-      }
-    };
-
-    getData();
-  }, []);
+  const { data: photo, isPending: isPendingPhoto } = useQ({
+    queryKey: ["poto-profile"],
+    queryFn: async () => {
+      const { data } = await axiosService.get<response>(
+        "/api/change-profile/photo"
+      );
+      return data;
+    },
+  });
 
   return (
     <Appbar.Header
@@ -90,7 +82,11 @@ export default function AppHeaderAuth() {
           >
             <Avatar.Image
               size={42}
-              source={{ uri: photo }}
+              source={{
+                uri: isPendingPhoto
+                  ? "#"
+                  : `http://10.15.43.236:8080/api/file/${photo?.data}`,
+              }}
               style={{ backgroundColor: "white" }}
             />
 

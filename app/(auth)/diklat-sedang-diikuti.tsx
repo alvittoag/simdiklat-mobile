@@ -295,7 +295,9 @@ export default function DiklatSedangDiikuti() {
                         fontSize: 16,
                       }}
                     >
-                      {item.jadwal_diklat.status_registrasi}
+                      {item.jadwal_diklat.status_registrasi === "open"
+                        ? "Buka"
+                        : "Tutup"}
                     </Text>
                   </View>
                 </View>
