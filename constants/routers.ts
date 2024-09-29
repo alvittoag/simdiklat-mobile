@@ -207,6 +207,31 @@ export const routers = [
     ],
   },
   {
+    title: "ADMINISTRASI TUGAS BELAJAR",
+    route: [
+      {
+        icon: assets.semua_diklat,
+        title: "Daftar Tubel",
+        name: "Tubel Yang Diikuti",
+        path: "/tubel",
+        other_routes: [
+          {
+            title: "Laporan Tubel",
+            path: "/tubel.laporan",
+          },
+          {
+            title: "Form Tambah Laporan Tubel",
+            path: "/tubel.add",
+          },
+          {
+            title: "Form Edit Laporan Tubel",
+            path: "/tubel.edit",
+          },
+        ],
+      },
+    ],
+  },
+  {
     title: "ADMINISTRASI PODCAST",
     route: [
       {

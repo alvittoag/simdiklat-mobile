@@ -850,3 +850,239 @@ export interface IFileMateri {
   created_at: string;
   updated_at: string;
 }
+
+export interface ITubel {
+  id: number;
+  user_id: number;
+  nrk: string;
+  prodi_id: number;
+  mulai: string;
+  selesai: string;
+  extend_mulai: Date;
+  extend_selesai: Date;
+  total_semester: number;
+  total_bulan: number;
+  tahun: number;
+  no_sk: string;
+  tgl_sk: string;
+  jenis_biaya_id: number;
+  sumber_biaya_id: number;
+  created_at: Date;
+  updated_at: Date;
+  user: User;
+  prodi: IProdi;
+  jenis_biaya: IJenisBiaya;
+  sumber_biaya: IJenisBiaya;
+  biaya: IBiaya;
+  voucher: IVoucher;
+}
+
+export interface IBiaya {
+  id: number;
+  nrk: string;
+  peserta_id: number;
+  komp_biaya_id: number;
+  qty: number;
+  satuan: string;
+  biaya: number;
+  created_at: Date;
+  updated_at: Date;
+  sumber_biaya_id: number;
+  keterangan: null;
+}
+
+export interface IJenisBiaya {
+  id: number;
+  nama: string;
+  keterangan?: null | string;
+  created_at: Date;
+  updated_at: Date;
+  jenjang?: string;
+}
+
+export interface IProdi {
+  id: number;
+  nama: string;
+  ptn_id: number;
+  jenjang_id: number;
+  created_at: Date;
+  updated_at: Date;
+  jenjang: IJenisBiaya;
+  universitas: IUniversitas;
+}
+
+export interface IUniversitas {
+  id: number;
+  nama: string;
+  singkatan: string;
+  lokasi: string;
+  alamat: string;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface User {
+  id: number;
+  eselon_id: string;
+  uke_induk_id: number;
+  uke_id: string;
+  jabatan_id: string;
+  pangkat_id: number;
+  golongan_id: string;
+  file_cv_id: number;
+  photo_id: string;
+  nip: string;
+  nrk: string;
+  full_name: string;
+  gelar_depan: string;
+  gelar_belakang: string;
+  tgl_lahir: Date;
+  pendidikan_sk: number;
+  tmt_eselon: Date;
+  tmt_pangkat: Date;
+  tmt_pns: Date;
+  tmt_cpns: Date;
+  tempat_lahir: string;
+  rumah_alamat: string;
+  rumah_kota: string;
+  rumah_propinsi: string;
+  rumah_kdpos: string;
+  rumah_telp: string;
+  ktp_rumah_alamat: string;
+  ktp_rumah_kota: string;
+  ktp_rumah_kdpos: string;
+  ktp_rumah_telp: string;
+  ktp_telp_mobile: string;
+  telp_mobile: string;
+  kantor_alamat: string;
+  kantor_kota: string;
+  kantor_propinsi: string;
+  kantor_kdpos: null;
+  kantor_telp: string;
+  kantor_fax: string;
+  status_pegawai: string;
+  agama: string;
+  gender: string;
+  ktp: string;
+  bank_account: string;
+  pemilik_rekening: string;
+  rekening: string;
+  npwp: string;
+  email: string;
+  change_password_after_login: number;
+  activation_code: null;
+  verification_code: string;
+  active: number;
+  verified: number;
+  filled: number;
+  created_at: Date;
+  updated_at: Date;
+  remember_token: string;
+  last_change_password: Date;
+  recover_password_q: string;
+  recover_password_a: string;
+  elearning_enable: number;
+  kantor_kec: string;
+  kantor_kel: string;
+  rumah_kec: string;
+  rumah_kel: string;
+  ktp_rumah_kec: string;
+  ktp_rumah_kel: string;
+  ktp_rumah_propinsi: string;
+  pendidikan_id: null;
+  jabatan_sk: string;
+  is_jabatan_sk: number;
+  password: string;
+}
+
+export interface IVoucher {
+  id: number;
+  peserta_id: number;
+  tahun: number;
+  semester: number;
+  mulai: Date;
+  selesai: Date;
+  ditransfer: number;
+  keterangan: string;
+  created_at: Date;
+  updated_at: Date;
+  status: number;
+  tgl_transfer: null;
+  konfirmasi: number;
+  tgl_konfirmasi: null;
+}
+
+export interface ITubelLaporan {
+  id: number;
+  nrk: string;
+  peserta_id: number;
+  tahun: number;
+  semester: number;
+  nilai: number;
+  tubel_file_id: number;
+  voucher_id: number;
+  submit_status: string;
+  doc_status: string;
+  keterangan: null;
+  tubel_kwitansi_id: number;
+  created_at: Date;
+  updated_at: Date;
+  tubel_file: TubelFile;
+  peserta: Peserta;
+  laporan: Laporan;
+}
+
+export interface Laporan {
+  id: number;
+  peserta_id: number;
+  jenis_file_id: number;
+  tubel_file_id: number;
+  status_validasi: string;
+  status_catatan: null;
+  nama: string;
+  keterangan: string;
+  created_at: Date;
+  updated_at: Date;
+  jenis_file: JenisFile;
+}
+
+export interface JenisFile {
+  id: number;
+  nama: string;
+  keterangan: null;
+  active: number;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface Peserta {
+  id: number;
+  user_id: number;
+  nrk: string;
+  prodi_id: number;
+  mulai: Date;
+  selesai: Date;
+  extend_mulai: Date;
+  extend_selesai: Date;
+  total_semester: number;
+  total_bulan: number;
+  tahun: number;
+  no_sk: string;
+  tgl_sk: Date;
+  jenis_biaya_id: number;
+  sumber_biaya_id: number;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface TubelFile {
+  id: number;
+  nama: string;
+  file_path: string;
+  file_name: string;
+  file_size: number;
+  mime_type: string;
+  file_extension: string;
+  created_at: string;
+  updated_at: Date;
+}

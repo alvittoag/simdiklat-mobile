@@ -60,7 +60,11 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = React.memo(
       profilPesertaDiklat: IProfilePeserta;
     }>(getProfilePeserta);
 
-    const { data: photo, isPending } = UseQ({
+    const {
+      data: photo,
+      isPending,
+      isError,
+    } = UseQ({
       queryKey: ["poto-profile"],
       queryFn: async () => {
         const { data } = await axiosService.get<response>(
@@ -135,12 +139,22 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = React.memo(
       []
     );
 
+    let isTubel = true;
+
     const routeSections: any = useMemo(
       () =>
-        routers.map((route, index) => ({
-          title: index !== 0 ? route.title : null,
-          data: route.route,
-        })),
+        isTubel
+          ? routers.map((route, index) => ({
+              title: index !== 0 ? route.title : null,
+              data: route.route,
+            }))
+          : routers
+              .filter((route) => route.title !== "ADMINISTRASI TUGAS BELAJAR")
+              .map((route, index) => ({
+                title: index !== 0 ? route.title : null,
+                data: route.route,
+              })),
+
       []
     );
 
