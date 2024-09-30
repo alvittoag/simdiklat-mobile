@@ -18,6 +18,26 @@ import { axiosService } from "@/services/axiosService";
 import { ALERT_TYPE, Dialog } from "react-native-alert-notification";
 import { router, useLocalSearchParams } from "expo-router";
 import { IRiwayatPendidikanUser } from "@/type";
+import { Formik } from "formik";
+import * as Yup from "yup";
+
+const pendidikanSchema = Yup.object().shape({
+  nama_sekolah: Yup.string()
+    .min(2, "Minimum 2 Karakter")
+    .required("Harap Masukan Nama Sekolah/Universitas"),
+  jurusan: Yup.string()
+    .min(2, "Minimum 2 Karakter")
+    .required("Harap Masukan Keterangan Jurusan/Program Studi"),
+  tempat: Yup.string()
+    .min(2, "Minimum 2 Karakter")
+    .required("Harap Masukan Tempat Pendidikan"),
+  tahun_lulus: Yup.number()
+    .integer()
+    .min(1000, "Format Tahun Lulus Tidak Benar")
+    .max(9999, "Format Tahun Lulus Tidak Benar")
+    .required("Harap Masukan Tahun Lulus")
+    .typeError("Tahun harus berupa angka"),
+});
 
 export default function RiwayaPendidikanCreate() {
   const params = useLocalSearchParams();
@@ -32,11 +52,6 @@ export default function RiwayaPendidikanCreate() {
   }, [params?.data]);
 
   const [dataInput, setDataInput] = React.useState({
-    name_sekolah: dataParams.nama_sekolah,
-    jurusan: dataParams.jurusan,
-    tempat: dataParams.tempat,
-    tahun_lulus: dataParams.tahun_lulus.toString(),
-    keterangan: dataParams.keterangan,
     ijazah_pdf: null as any,
   });
   const [selectValue, setSelectValue] = React.useState<{
@@ -50,24 +65,6 @@ export default function RiwayaPendidikanCreate() {
 
   const showModal = () => setVisible(true);
   const hideModal = () => setVisible(false);
-
-  React.useEffect(() => {
-    if (dataParams) {
-      setDataInput({
-        name_sekolah: dataParams.nama_sekolah || "",
-        jurusan: dataParams.jurusan || "",
-        tempat: dataParams.tempat || "",
-        tahun_lulus: dataParams.tahun_lulus?.toString() || "",
-        keterangan: dataParams.keterangan || "",
-        ijazah_pdf: null,
-      });
-
-      const foundSelect = dataSelect.find(
-        (item) => item.value === dataParams.jenis
-      );
-      setSelectValue(foundSelect || null);
-    }
-  }, [dataParams]);
 
   const handleSearchChange = React.useCallback((text: string) => {
     setsearch(text);
@@ -93,11 +90,6 @@ export default function RiwayaPendidikanCreate() {
         button: "Tutup",
       });
       setDataInput({
-        name_sekolah: "",
-        jurusan: "",
-        tempat: "",
-        tahun_lulus: "",
-        keterangan: "",
         ijazah_pdf: null as any,
       });
       setSelectValue(null);
@@ -117,15 +109,27 @@ export default function RiwayaPendidikanCreate() {
     },
   });
 
-  const handleEdit = async () => {
+  const handleEdit = async ({
+    nama_sekolah,
+    jurusan,
+    tempat,
+    tahun_lulus,
+    keterangan,
+  }: {
+    nama_sekolah: string;
+    jurusan: string;
+    tempat: string;
+    tahun_lulus: string;
+    keterangan: string;
+  }) => {
     const formData = new FormData();
     formData.append("id", dataParams.id.toString());
     formData.append("jenis", selectValue?.value as string);
-    formData.append("nama_sekolah", dataInput.name_sekolah);
-    formData.append("jurusan", dataInput.jurusan);
-    formData.append("tempat", dataInput.tempat);
-    formData.append("tahun_lulus", dataInput.tahun_lulus);
-    formData.append("keterangan", dataInput.keterangan);
+    formData.append("nama_sekolah", nama_sekolah);
+    formData.append("jurusan", jurusan);
+    formData.append("tempat", tempat);
+    formData.append("tahun_lulus", tahun_lulus);
+    formData.append("keterangan", keterangan);
 
     if (dataInput.ijazah_pdf) {
       const fileToUpload = {
@@ -163,164 +167,235 @@ export default function RiwayaPendidikanCreate() {
 
   return (
     <ScrollView>
-      <View
-        style={{
-          gap: moderateScale(20),
-          paddingHorizontal: moderateScale(15),
-          paddingVertical: moderateScale(20),
+      <Formik
+        validationSchema={pendidikanSchema}
+        initialValues={{
+          nama_sekolah: "",
+          jurusan: "",
+          tempat: "",
+          tahun_lulus: "",
+          keterangan: "",
+        }}
+        onSubmit={(val) => {
+          if (!selectValue) {
+            return Dialog.show({
+              type: ALERT_TYPE.WARNING,
+              title: "Peringatan",
+              textBody: "Harap Pilih Jenjang Pendidikan Terlebih Dahulu",
+              button: "Tutup",
+            });
+          }
+
+          handleEdit(val);
         }}
       >
-        <View style={{ position: "relative" }}>
-          <TouchableOpacity
-            onPress={showModal}
-            style={{
-              borderWidth: 1,
-              borderColor: Colors.border_primary,
-              paddingHorizontal: 10,
-              paddingVertical: 15,
-              borderRadius: 5,
-              flexDirection: "row",
-              backgroundColor: "white",
-            }}
-          >
-            <Text
+        {({ handleChange, values, handleSubmit, errors, setValues }) => {
+          React.useEffect(() => {
+            if (dataParams) {
+              setValues({
+                nama_sekolah: dataParams.nama_sekolah || "",
+                jurusan: dataParams.jurusan || "",
+                tempat: dataParams.tempat || "",
+                tahun_lulus: dataParams.tahun_lulus?.toString() || "",
+                keterangan: dataParams.keterangan || "",
+              });
+              setDataInput({
+                ijazah_pdf: null,
+              });
+
+              const foundSelect = dataSelect.find(
+                (item) => item.value === dataParams.jenis
+              );
+              setSelectValue(foundSelect || null);
+            }
+          }, [dataParams]);
+
+          return (
+            <View
               style={{
-                flex: 1,
-                color: "grey",
-                fontWeight: "400",
-                fontSize: 16,
+                gap: moderateScale(20),
+                paddingHorizontal: moderateScale(15),
+                paddingVertical: moderateScale(20),
               }}
             >
-              {selectValue?.label ?? "Jenjang Pendidikan"}
-            </Text>
-            <Icon size={24} source={"open-in-new"} color="gray" />
-          </TouchableOpacity>
-        </View>
+              <View style={{ position: "relative" }}>
+                <TouchableOpacity
+                  onPress={showModal}
+                  style={{
+                    borderWidth: 1,
+                    borderColor: Colors.border_primary,
+                    paddingHorizontal: 10,
+                    paddingVertical: 15,
+                    borderRadius: 5,
+                    flexDirection: "row",
+                    backgroundColor: "white",
+                  }}
+                >
+                  <Text
+                    style={{
+                      flex: 1,
+                      color: "grey",
+                      fontWeight: "400",
+                      fontSize: 16,
+                    }}
+                  >
+                    {selectValue?.label ?? "Jenjang Pendidikan"}
+                  </Text>
+                  <Icon size={24} source={"open-in-new"} color="gray" />
+                </TouchableOpacity>
+              </View>
 
-        <TextInput
-          value={dataInput.name_sekolah}
-          onChangeText={(text) =>
-            setDataInput({ ...dataInput, name_sekolah: text })
-          }
-          textColor={Colors.text_primary}
-          label={"Nama Sekolah/Universitas *"}
-          mode="outlined"
-          outlineColor={Colors.border_primary}
-          activeOutlineColor={Colors.border_input_active}
-          style={{ backgroundColor: "white" }}
-        />
+              <TextInput
+                value={values.nama_sekolah}
+                onChangeText={handleChange("nama_sekolah")}
+                error={errors.nama_sekolah ? true : false}
+                textColor={Colors.text_primary}
+                label={"Nama Sekolah/Universitas *"}
+                mode="outlined"
+                outlineColor={Colors.border_primary}
+                activeOutlineColor={Colors.border_input_active}
+                style={{ backgroundColor: "white" }}
+              />
 
-        <TextInput
-          value={dataInput.jurusan}
-          onChangeText={(text) => setDataInput({ ...dataInput, jurusan: text })}
-          textColor={Colors.text_primary}
-          label={"Jurusan/Program Studi *"}
-          mode="outlined"
-          outlineColor={Colors.border_primary}
-          activeOutlineColor={Colors.border_input_active}
-          style={{ backgroundColor: "white" }}
-        />
+              {errors.nama_sekolah && (
+                <Text style={{ color: "salmon", fontWeight: "bold" }}>
+                  {errors.nama_sekolah}
+                </Text>
+              )}
 
-        <TextInput
-          value={dataInput.tempat}
-          onChangeText={(text) => setDataInput({ ...dataInput, tempat: text })}
-          textColor={Colors.text_primary}
-          label={"Tempat Pendidikan *"}
-          mode="outlined"
-          outlineColor={Colors.border_primary}
-          activeOutlineColor={Colors.border_input_active}
-          style={{ backgroundColor: "white" }}
-        />
+              <TextInput
+                value={values.jurusan}
+                onChangeText={handleChange("jurusan")}
+                error={errors.jurusan ? true : false}
+                textColor={Colors.text_primary}
+                label={"Jurusan/Program Studi *"}
+                mode="outlined"
+                outlineColor={Colors.border_primary}
+                activeOutlineColor={Colors.border_input_active}
+                style={{ backgroundColor: "white" }}
+              />
 
-        <TextInput
-          value={dataInput.tahun_lulus}
-          onChangeText={(text) =>
-            setDataInput({ ...dataInput, tahun_lulus: text })
-          }
-          textColor={Colors.text_primary}
-          inputMode="numeric"
-          label={"Tahun Lulus *"}
-          mode="outlined"
-          outlineColor={Colors.border_primary}
-          activeOutlineColor={Colors.border_input_active}
-          style={{ backgroundColor: "white" }}
-        />
+              {errors.jurusan && (
+                <Text style={{ color: "salmon", fontWeight: "bold" }}>
+                  {errors.jurusan}
+                </Text>
+              )}
 
-        <TextInput
-          value={dataInput.keterangan}
-          onChangeText={(text) =>
-            setDataInput({ ...dataInput, keterangan: text })
-          }
-          textColor={Colors.text_primary}
-          label={"Keterangan *"}
-          mode="outlined"
-          outlineColor={Colors.border_primary}
-          activeOutlineColor={Colors.border_input_active}
-          style={{ backgroundColor: "white" }}
-        />
+              <TextInput
+                value={values.tempat}
+                onChangeText={handleChange("tempat")}
+                error={errors.tempat ? true : false}
+                textColor={Colors.text_primary}
+                label={"Tempat Pendidikan *"}
+                mode="outlined"
+                outlineColor={Colors.border_primary}
+                activeOutlineColor={Colors.border_input_active}
+                style={{ backgroundColor: "white" }}
+              />
 
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            gap: moderateScale(25),
-          }}
-        >
-          <View
-            style={{
-              borderWidth: 1,
-              borderColor: Colors.border_primary,
-              padding: 15,
-              width: "60%",
-              borderRadius: 7,
-            }}
-          >
-            <Text style={{ color: Colors.text_secondary }}>
-              {dataInput?.ijazah_pdf?.name ?? "Scan Ijazah"}
-            </Text>
-          </View>
+              {errors.tempat && (
+                <Text style={{ color: "salmon", fontWeight: "bold" }}>
+                  {errors.tempat}
+                </Text>
+              )}
 
-          <Button
-            onPress={handleDocumentPick}
-            icon={"upload"}
-            mode="contained"
-            textColor="black"
-            style={{
-              flex: 1,
-              borderRadius: 7,
-              backgroundColor: Colors.button_secondary,
-              paddingVertical: 7,
-            }}
-          >
-            Upload
-          </Button>
-        </View>
+              <TextInput
+                value={values.tahun_lulus}
+                onChangeText={handleChange("tahun_lulus")}
+                error={errors.tahun_lulus ? true : false}
+                textColor={Colors.text_primary}
+                inputMode="numeric"
+                label={"Tahun Lulus *"}
+                mode="outlined"
+                outlineColor={Colors.border_primary}
+                activeOutlineColor={Colors.border_input_active}
+                style={{ backgroundColor: "white" }}
+              />
 
-        <View
-          style={{
-            flexDirection: "row",
-            gap: 10,
-            alignItems: "center",
-          }}
-        >
-          <Button
-            loading={mutationAdd.isPending}
-            disabled={mutationAdd.isPending}
-            onPress={handleEdit}
-            icon={"content-save-outline"}
-            mode="contained"
-            textColor="white"
-            style={{
-              backgroundColor: Colors.button_primary,
-              borderRadius: 7,
-              paddingVertical: 7,
-              flex: 1,
-            }}
-          >
-            Simpan
-          </Button>
-        </View>
-      </View>
+              {errors.tahun_lulus && (
+                <Text style={{ color: "salmon", fontWeight: "bold" }}>
+                  {errors.tahun_lulus}
+                </Text>
+              )}
+
+              <TextInput
+                value={values.keterangan}
+                onChangeText={handleChange("keterangan")}
+                error={errors.keterangan ? true : false}
+                textColor={Colors.text_primary}
+                label={"Keterangan *"}
+                mode="outlined"
+                outlineColor={Colors.border_primary}
+                activeOutlineColor={Colors.border_input_active}
+                style={{ backgroundColor: "white" }}
+              />
+
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  gap: moderateScale(25),
+                }}
+              >
+                <View
+                  style={{
+                    borderWidth: 1,
+                    borderColor: Colors.border_primary,
+                    padding: 15,
+                    width: "60%",
+                    borderRadius: 7,
+                    backgroundColor: "white",
+                  }}
+                >
+                  <Text style={{ color: Colors.text_secondary }}>
+                    {dataInput?.ijazah_pdf?.name ?? "Scan Ijazah"}
+                  </Text>
+                </View>
+
+                <Button
+                  onPress={handleDocumentPick}
+                  icon={"upload"}
+                  mode="contained"
+                  textColor="black"
+                  style={{
+                    flex: 1,
+                    borderRadius: 7,
+                    backgroundColor: Colors.button_secondary,
+                    paddingVertical: 7,
+                  }}
+                >
+                  Upload
+                </Button>
+              </View>
+
+              <View
+                style={{
+                  flexDirection: "row",
+                  gap: 10,
+                  alignItems: "center",
+                }}
+              >
+                <Button
+                  loading={mutationAdd.isPending}
+                  disabled={mutationAdd.isPending}
+                  onPress={handleSubmit as any}
+                  icon={"content-save-outline"}
+                  mode="contained"
+                  textColor="white"
+                  style={{
+                    backgroundColor: Colors.button_primary,
+                    borderRadius: 7,
+                    paddingVertical: 7,
+                    flex: 1,
+                  }}
+                >
+                  Simpan
+                </Button>
+              </View>
+            </View>
+          );
+        }}
+      </Formik>
 
       <Portal>
         <Modal

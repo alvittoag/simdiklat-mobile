@@ -98,6 +98,15 @@ export default function TubelEdit() {
   console.log(dataInput);
 
   const handleAdd = async () => {
+    if (dataInput.title === "") {
+      return Dialog.show({
+        type: ALERT_TYPE.WARNING,
+        title: "Peringatan",
+        textBody: "Judul/Nama File harus diisi",
+        button: "Tutup",
+      });
+    }
+
     const formData = new FormData();
 
     formData.append("laporan_id", dataParse.id as any);

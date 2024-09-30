@@ -22,6 +22,7 @@ import Error from "@/components/elements/Error";
 import Pagination from "@/components/sections/pagination";
 import NotFoundScreen from "../+not-found";
 import { IRiwayatPekerjaanUser } from "@/type";
+import NotFoundSearch from "@/components/sections/NotFoundSearch";
 
 type Uke = {
   code: string;
@@ -217,12 +218,51 @@ export default function RiwayaPekerjaanEdit() {
   });
 
   const handleAdd = async () => {
+    if (!selectValue?.uke?.value) {
+      return Dialog.show({
+        type: ALERT_TYPE.WARNING,
+        title: "Peringatan",
+        textBody: "Instansi harus dipilih",
+        button: "Tutup",
+      });
+    }
+
+    if (!selectValue?.jenis.value) {
+      return Dialog.show({
+        type: ALERT_TYPE.WARNING,
+        title: "Peringatan",
+        textBody: "Jenis Jabatan harus dipilih",
+        button: "Tutup",
+      });
+    }
+
+    if (!selectValue?.jabatan?.value) {
+      return Dialog.show({
+        type: ALERT_TYPE.WARNING,
+        title: "Peringatan",
+        textBody: "Jabatan harus dipilih",
+        button: "Tutup",
+      });
+    }
+
+    if (!dataInput.tmt_jabatan) {
+      return Dialog.show({
+        type: ALERT_TYPE.WARNING,
+        title: "Peringatan",
+        textBody: "TMT Jabatan harus diisi",
+        button: "Tutup",
+      });
+    }
+
     const formData = new FormData();
     formData.append("id", dataParams?.id as any);
     formData.append("instansi", selectValue?.uke?.value as string);
     formData.append("jabatan", selectValue?.jabatan?.value as string);
     formData.append("tmt_jabatan", date.toISOString());
-    formData.append("keterangan", dataInput.keterangan);
+    formData.append(
+      "keterangan",
+      dataInput.keterangan === "" ? " " : dataInput.keterangan
+    );
 
     mutationEdit.mutate(formData);
   };
@@ -427,53 +467,57 @@ export default function RiwayaPekerjaanEdit() {
                 }}
               />
 
-              <FlashList
-                data={data?.uke.data.data}
-                keyExtractor={(item) => item.code.toString()}
-                estimatedItemSize={15}
-                renderItem={({ item, index }) => (
-                  <TouchableOpacity
-                    onPress={() => {
-                      setSelectValue({
-                        ...selectValue,
-                        uke: {
-                          label: item.name,
-                          value: item.code,
-                        },
-                        jabatan: null,
-                      });
-                      setModal({ ...modal, uke: false });
-                      setSearchUke("");
-                    }}
-                    style={{
-                      marginBottom:
-                        index === data.uke.data.data.length - 1 ? 0 : 20,
-                      borderBottomWidth: 1,
-                      paddingBottom: 15,
-                      borderBottomColor: Colors.border_primary,
-                    }}
-                  >
-                    <Text
+              {data.uke.data.data.length === 0 ? (
+                <NotFoundSearch />
+              ) : (
+                <FlashList
+                  data={data?.uke.data.data}
+                  keyExtractor={(item) => item.code.toString()}
+                  estimatedItemSize={15}
+                  renderItem={({ item, index }) => (
+                    <TouchableOpacity
+                      onPress={() => {
+                        setSelectValue({
+                          ...selectValue,
+                          uke: {
+                            label: item.name,
+                            value: item.code,
+                          },
+                          jabatan: null,
+                        });
+                        setModal({ ...modal, uke: false });
+                        setSearchUke("");
+                      }}
                       style={{
-                        color: Colors.text_primary,
-                        fontSize: 15,
-                        fontWeight: "500",
+                        marginBottom:
+                          index === data.uke.data.data.length - 1 ? 0 : 20,
+                        borderBottomWidth: 1,
+                        paddingBottom: 15,
+                        borderBottomColor: Colors.border_primary,
                       }}
                     >
-                      {item.name}
-                    </Text>
-                  </TouchableOpacity>
-                )}
-                ListFooterComponent={() => (
-                  <Pagination
-                    loading={isPending}
-                    page={page}
-                    setPage={setPage}
-                    totalPage={data.uke.data.meta.totalPages}
-                    horizontal={0}
-                  />
-                )}
-              />
+                      <Text
+                        style={{
+                          color: Colors.text_primary,
+                          fontSize: 15,
+                          fontWeight: "500",
+                        }}
+                      >
+                        {item.name}
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+                  ListFooterComponent={() => (
+                    <Pagination
+                      loading={isPending}
+                      page={page}
+                      setPage={setPage}
+                      totalPage={data.uke.data.meta.totalPages}
+                      horizontal={0}
+                    />
+                  )}
+                />
+              )}
             </>
           )}
 
@@ -518,15 +562,15 @@ export default function RiwayaPekerjaanEdit() {
             </>
           )}
 
-          {modal.jabatan && (
-            <FlashList
-              data={data?.jabatan.data.data}
-              keyExtractor={(item) => item.code.toString()}
-              estimatedItemSize={15}
-              renderItem={({ item, index }) =>
-                data.jabatan.data.data.length === 0 ? (
-                  <NotFoundScreen />
-                ) : (
+          {modal.jabatan &&
+            (data.jabatan.data.data.length === 0 ? (
+              <NotFoundSearch />
+            ) : (
+              <FlashList
+                data={data?.jabatan.data.data}
+                keyExtractor={(item) => item.code.toString()}
+                estimatedItemSize={15}
+                renderItem={({ item, index }) => (
                   <TouchableOpacity
                     onPress={() => {
                       setSelectValue({
@@ -557,19 +601,18 @@ export default function RiwayaPekerjaanEdit() {
                       {item.name}
                     </Text>
                   </TouchableOpacity>
-                )
-              }
-              ListFooterComponent={() => (
-                <Pagination
-                  loading={isPending}
-                  page={page}
-                  setPage={setPage}
-                  totalPage={data.jabatan.data.meta.totalPages}
-                  horizontal={0}
-                />
-              )}
-            />
-          )}
+                )}
+                ListFooterComponent={() => (
+                  <Pagination
+                    loading={isPending}
+                    page={page}
+                    setPage={setPage}
+                    totalPage={data.jabatan.data.meta.totalPages}
+                    horizontal={0}
+                  />
+                )}
+              />
+            ))}
         </Modal>
       </Portal>
     </View>

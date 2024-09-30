@@ -9,14 +9,29 @@ import { axiosService } from "@/services/axiosService";
 import { ALERT_TYPE, Dialog } from "react-native-alert-notification";
 import { router } from "expo-router";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import * as Yup from "yup";
+import { Formik } from "formik";
+
+const pelatihanSchema = Yup.object().shape({
+  kegiatan: Yup.string()
+    .min(2, "Minimum 2 Karakter")
+    .required("Harap Masukan Nama Kegiatan"),
+  materi: Yup.string()
+    .min(2, "Minimum 2 Karakter")
+    .required("Harap Masukan Materi"),
+  instansi: Yup.string()
+    .min(2, "Minimum 2 Karakter")
+    .required("Harap Masukan Instansi"),
+  tahun: Yup.number()
+    .integer()
+    .min(1000, "Format Tahun Tidak Benar")
+    .max(9999, "Format Tahun Tidak Benar")
+    .required("Harap Masukan Tahun")
+    .typeError("Tahun harus berupa angka"),
+});
 
 export default function pelatihanAdd() {
   const [dataInput, setDataInput] = React.useState({
-    kegiatan: "",
-    instansi: "",
-    tahun: "",
-    keterangan: "",
-    materi: "",
     expired_sertifikat: "",
     sertifikat_pdf: null as any,
   });
@@ -54,11 +69,6 @@ export default function pelatihanAdd() {
         button: "Tutup",
       });
       setDataInput({
-        kegiatan: "",
-        instansi: "",
-        tahun: "",
-        keterangan: "",
-        materi: "",
         expired_sertifikat: "",
         sertifikat_pdf: null as any,
       });
@@ -77,13 +87,25 @@ export default function pelatihanAdd() {
       });
     },
   });
-  const handleAdd = async () => {
+  const handleAdd = async ({
+    kegiatan,
+    instansi,
+    tahun,
+    keterangan,
+    materi,
+  }: {
+    kegiatan: string;
+    instansi: string;
+    tahun: number | string;
+    keterangan: string;
+    materi: string;
+  }) => {
     const formData = new FormData();
-    formData.append("kegiatan", dataInput.kegiatan);
-    formData.append("instansi", dataInput.instansi);
-    formData.append("tahun", dataInput.tahun);
-    formData.append("keterangan", dataInput.keterangan);
-    formData.append("materi", dataInput.materi);
+    formData.append("kegiatan", kegiatan);
+    formData.append("instansi", instansi);
+    formData.append("tahun", tahun.toString());
+    formData.append("keterangan", keterangan === "" ? " " : keterangan);
+    formData.append("materi", materi);
     formData.append("expired_sertifikat", dataInput.expired_sertifikat);
 
     if (dataInput.sertifikat_pdf) {
@@ -120,172 +142,231 @@ export default function pelatihanAdd() {
   console.log(dataInput);
   return (
     <ScrollView>
-      <View
-        style={{
-          gap: moderateScale(20),
-          paddingHorizontal: moderateScale(15),
-          paddingVertical: moderateScale(20),
+      <Formik
+        validationSchema={pelatihanSchema}
+        initialValues={{
+          kegiatan: "",
+          instansi: "",
+          tahun: "",
+          keterangan: "",
+          materi: "",
+        }}
+        onSubmit={(val, { resetForm }) => {
+          if (!dataInput.sertifikat_pdf) {
+            return Dialog.show({
+              type: ALERT_TYPE.WARNING,
+              title: "Peringantan",
+              textBody: "Harap Isi Sertifikat",
+              button: "Tutup",
+            });
+          }
+
+          if (dataInput.expired_sertifikat === "") {
+            return Dialog.show({
+              type: ALERT_TYPE.WARNING,
+              title: "Peringatan",
+              textBody: "Harap Isi Tanggal Expired Sertifikat",
+              button: "Tutup",
+            });
+          }
+
+          handleAdd(val);
+
+          resetForm();
         }}
       >
-        <TextInput
-          value={dataInput.kegiatan}
-          onChangeText={(text) =>
-            setDataInput({ ...dataInput, kegiatan: text })
-          }
-          textColor={Colors.text_primary}
-          label={"Nama Kegiatan *"}
-          mode="outlined"
-          outlineColor={Colors.border_primary}
-          activeOutlineColor={Colors.border_input_active}
-          style={{ backgroundColor: "white" }}
-        />
-
-        <TextInput
-          value={dataInput.materi}
-          onChangeText={(text) => setDataInput({ ...dataInput, materi: text })}
-          textColor={Colors.text_primary}
-          label={"Materi *"}
-          mode="outlined"
-          outlineColor={Colors.border_primary}
-          activeOutlineColor={Colors.border_input_active}
-          style={{ backgroundColor: "white" }}
-        />
-
-        <TextInput
-          value={dataInput.instansi}
-          onChangeText={(text) =>
-            setDataInput({ ...dataInput, instansi: text })
-          }
-          textColor={Colors.text_primary}
-          label={"Instansi Penyelenggara *"}
-          mode="outlined"
-          outlineColor={Colors.border_primary}
-          activeOutlineColor={Colors.border_input_active}
-          style={{ backgroundColor: "white" }}
-        />
-
-        <TextInput
-          value={dataInput.tahun}
-          onChangeText={(text) => setDataInput({ ...dataInput, tahun: text })}
-          textColor={Colors.text_primary}
-          inputMode="numeric"
-          label={"Tahun *"}
-          mode="outlined"
-          outlineColor={Colors.border_primary}
-          activeOutlineColor={Colors.border_input_active}
-          style={{ backgroundColor: "white" }}
-        />
-
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            gap: moderateScale(25),
-          }}
-        >
+        {({ handleChange, values, handleSubmit, errors }) => (
           <View
             style={{
-              borderWidth: 1,
-              borderColor: Colors.border_primary,
-              padding: 15,
-              width: "60%",
-              borderRadius: 7,
+              gap: moderateScale(20),
+              paddingHorizontal: moderateScale(15),
+              paddingVertical: moderateScale(20),
             }}
           >
-            <Text style={{ color: Colors.text_secondary }}>
-              {dataInput?.sertifikat_pdf?.name ?? "Scan Sertifikat/Bukti"}
-            </Text>
+            <TextInput
+              value={values.kegiatan}
+              onChangeText={handleChange("kegiatan")}
+              error={errors.kegiatan ? true : false}
+              textColor={Colors.text_primary}
+              label={"Nama Kegiatan *"}
+              mode="outlined"
+              outlineColor={Colors.border_primary}
+              activeOutlineColor={Colors.border_input_active}
+              style={{ backgroundColor: "white" }}
+            />
+
+            {errors.kegiatan && (
+              <Text style={{ color: "salmon", fontWeight: "bold" }}>
+                {errors.kegiatan}
+              </Text>
+            )}
+
+            <TextInput
+              value={values.materi}
+              onChangeText={handleChange("materi")}
+              error={errors.materi ? true : false}
+              textColor={Colors.text_primary}
+              label={"Materi *"}
+              mode="outlined"
+              outlineColor={Colors.border_primary}
+              activeOutlineColor={Colors.border_input_active}
+              style={{ backgroundColor: "white" }}
+            />
+
+            {errors.materi && (
+              <Text style={{ color: "salmon", fontWeight: "bold" }}>
+                {errors.materi}
+              </Text>
+            )}
+
+            <TextInput
+              value={values.instansi}
+              onChangeText={handleChange("instansi")}
+              error={errors.instansi ? true : false}
+              textColor={Colors.text_primary}
+              label={"Instansi Penyelenggara *"}
+              mode="outlined"
+              outlineColor={Colors.border_primary}
+              activeOutlineColor={Colors.border_input_active}
+              style={{ backgroundColor: "white" }}
+            />
+
+            {errors.instansi && (
+              <Text style={{ color: "salmon", fontWeight: "bold" }}>
+                {errors.instansi}
+              </Text>
+            )}
+
+            <TextInput
+              value={values.tahun}
+              onChangeText={handleChange("tahun")}
+              error={errors.tahun ? true : false}
+              textColor={Colors.text_primary}
+              inputMode="numeric"
+              label={"Tahun *"}
+              mode="outlined"
+              outlineColor={Colors.border_primary}
+              activeOutlineColor={Colors.border_input_active}
+              style={{ backgroundColor: "white" }}
+            />
+
+            {errors.tahun && (
+              <Text style={{ color: "salmon", fontWeight: "bold" }}>
+                {errors.tahun}
+              </Text>
+            )}
+
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                gap: moderateScale(25),
+              }}
+            >
+              <View
+                style={{
+                  borderWidth: 1,
+                  borderColor: Colors.border_primary,
+                  padding: 15,
+                  width: "60%",
+                  borderRadius: 7,
+                  backgroundColor: "white",
+                }}
+              >
+                <Text style={{ color: Colors.text_secondary }}>
+                  {dataInput?.sertifikat_pdf?.name ?? "Scan Sertifikat/Bukti"}
+                </Text>
+              </View>
+
+              <Button
+                onPress={handleDocumentPick}
+                icon={"upload"}
+                mode="contained"
+                textColor="black"
+                style={{
+                  flex: 1,
+                  borderRadius: 7,
+                  backgroundColor: Colors.button_secondary,
+                  paddingVertical: 7,
+                }}
+              >
+                Upload
+              </Button>
+            </View>
+
+            <TouchableOpacity
+              onPress={() => setShowDatePicker(true)}
+              style={{
+                borderWidth: 1,
+                borderColor: Colors.border_primary,
+                paddingHorizontal: 10,
+                paddingVertical: 15,
+                borderRadius: 5,
+                flexDirection: "row",
+                backgroundColor: "white",
+              }}
+            >
+              <Text
+                style={{
+                  flex: 1,
+                  color: dataInput.expired_sertifikat ? "black" : "grey",
+                  fontWeight: "400",
+                  fontSize: 16,
+                }}
+              >
+                {dataInput.expired_sertifikat
+                  ? dataInput.expired_sertifikat
+                  : "Masa Berlaku Sertifikat *"}
+              </Text>
+              <Icon size={24} source={"calendar-today"} color="gray" />
+            </TouchableOpacity>
+            {showDatePicker && (
+              <DateTimePicker
+                value={date}
+                mode="date"
+                display="default"
+                onChange={onChangeDate}
+              />
+            )}
+
+            <TextInput
+              value={values.keterangan}
+              onChangeText={handleChange("keterangan")}
+              textColor={Colors.text_primary}
+              label={"Keterangan"}
+              mode="outlined"
+              outlineColor={Colors.border_primary}
+              activeOutlineColor={Colors.border_input_active}
+              style={{ backgroundColor: "white" }}
+            />
+
+            <View
+              style={{
+                flexDirection: "row",
+                gap: 10,
+                alignItems: "center",
+              }}
+            >
+              <Button
+                loading={mutationAdd.isPending}
+                disabled={mutationAdd.isPending}
+                onPress={handleSubmit as any}
+                icon={"content-save-outline"}
+                mode="contained"
+                textColor="white"
+                style={{
+                  backgroundColor: Colors.button_primary,
+                  borderRadius: 7,
+                  paddingVertical: 7,
+                  flex: 1,
+                }}
+              >
+                Simpan
+              </Button>
+            </View>
           </View>
-
-          <Button
-            onPress={handleDocumentPick}
-            icon={"upload"}
-            mode="contained"
-            textColor="black"
-            style={{
-              flex: 1,
-              borderRadius: 7,
-              backgroundColor: Colors.button_secondary,
-              paddingVertical: 7,
-            }}
-          >
-            Upload
-          </Button>
-        </View>
-
-        <TouchableOpacity
-          onPress={() => setShowDatePicker(true)}
-          style={{
-            borderWidth: 1,
-            borderColor: Colors.border_primary,
-            paddingHorizontal: 10,
-            paddingVertical: 15,
-            borderRadius: 5,
-            flexDirection: "row",
-            backgroundColor: "white",
-          }}
-        >
-          <Text
-            style={{
-              flex: 1,
-              color: dataInput.expired_sertifikat ? "black" : "grey",
-              fontWeight: "400",
-              fontSize: 16,
-            }}
-          >
-            {dataInput.expired_sertifikat
-              ? dataInput.expired_sertifikat
-              : "Masa Berlaku Sertifikat *"}
-          </Text>
-          <Icon size={24} source={"calendar-today"} color="gray" />
-        </TouchableOpacity>
-        {showDatePicker && (
-          <DateTimePicker
-            value={date}
-            mode="date"
-            display="default"
-            onChange={onChangeDate}
-          />
         )}
-
-        <TextInput
-          value={dataInput.keterangan}
-          onChangeText={(text) =>
-            setDataInput({ ...dataInput, keterangan: text })
-          }
-          textColor={Colors.text_primary}
-          label={"Keterangan *"}
-          mode="outlined"
-          outlineColor={Colors.border_primary}
-          activeOutlineColor={Colors.border_input_active}
-          style={{ backgroundColor: "white" }}
-        />
-
-        <View
-          style={{
-            flexDirection: "row",
-            gap: 10,
-            alignItems: "center",
-          }}
-        >
-          <Button
-            loading={mutationAdd.isPending}
-            disabled={mutationAdd.isPending}
-            onPress={handleAdd}
-            icon={"content-save-outline"}
-            mode="contained"
-            textColor="white"
-            style={{
-              backgroundColor: Colors.button_primary,
-              borderRadius: 7,
-              paddingVertical: 7,
-              flex: 1,
-            }}
-          >
-            Simpan
-          </Button>
-        </View>
-      </View>
+      </Formik>
     </ScrollView>
   );
 }

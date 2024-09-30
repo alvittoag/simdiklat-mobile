@@ -164,16 +164,16 @@ export default function IsianKhususAdd() {
         onSubmit={(val, { resetForm }) => {
           if (!selectValue)
             return Dialog.show({
-              type: ALERT_TYPE.DANGER,
-              title: "Gagal",
+              type: ALERT_TYPE.WARNING,
+              title: "Peringatan",
               textBody: "Harap Pilih Jenis Lampiran",
               button: "Tutup",
             });
 
           if (!dataLampiran.file)
             return Dialog.show({
-              type: ALERT_TYPE.DANGER,
-              title: "Gagal",
+              type: ALERT_TYPE.WARNING,
+              title: "Peringatan",
               textBody: "Harap Masukan Sertifikat / Dokumen Bukti",
               button: "Tutup",
             });

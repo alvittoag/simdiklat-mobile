@@ -19,6 +19,30 @@ import { ALERT_TYPE, Dialog } from "react-native-alert-notification";
 import { router, useLocalSearchParams } from "expo-router";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { IPelatihanUser } from "@/type";
+import * as Yup from "yup";
+import { Formik } from "formik";
+
+const kompetensiLainnyaSchema = Yup.object().shape({
+  keterangan: Yup.string()
+    .min(2, "Minimum 2 Karakter")
+    .required("Harap Masukan Nama Pengembangan Kompetensi"),
+  penyelenggara: Yup.string()
+    .min(2, "Minimum 2 Karakter")
+    .required("Harap Masukan Penyelenggara"),
+  tahun: Yup.number()
+    .integer()
+    .min(1000, "Format Tahun Tidak Benar")
+    .max(9999, "Format Tahun Tidak Benar")
+    .required("Harap Masukan Tahun")
+    .typeError("Tahun harus berupa angka"),
+  durasi: Yup.number()
+    .integer()
+    .required("Harap Masukan Durasi")
+    .typeError("Durasi harus berupa angka"),
+  nomor_sertifikat: Yup.string()
+    .min(2, "Minimum 2 Karakter")
+    .required("Harap Masukan Nomor Sertifikat"),
+});
 
 export default function KompetensiLainnyaEdit() {
   const params = useLocalSearchParams();
@@ -33,11 +57,6 @@ export default function KompetensiLainnyaEdit() {
   }, [params?.data]);
 
   const [dataInput, setDataInput] = React.useState({
-    keterangan: "",
-    penyelenggara: "",
-    tahun: "",
-    durasi: "",
-    nomor_sertifikat: "",
     tgl_sertifikat: "",
     sertifikat_pdf: null as any,
   });
@@ -53,26 +72,6 @@ export default function KompetensiLainnyaEdit() {
 
   const showModal = () => setVisible(true);
   const hideModal = () => setVisible(false);
-
-  React.useEffect(() => {
-    if (dataParams) {
-      setDataInput({
-        keterangan: dataParams.keterangan || "",
-        penyelenggara: dataParams.penyelenggara || "",
-        tahun: dataParams.tahun.toString() || "",
-        durasi: dataParams.durasi.toString() || "",
-        nomor_sertifikat: dataParams.nomor_sertifikat || "",
-        tgl_sertifikat:
-          new Date(dataParams.tgl_sertifikat).toLocaleDateString() || "",
-        sertifikat_pdf: null,
-      });
-
-      const foundSelect = dataSelect.find(
-        (item) => item.value === dataParams.jenis
-      );
-      setSelectValue(foundSelect || null);
-    }
-  }, [dataParams]);
 
   const onChangeDate = (event: any, selectedDate?: Date) => {
     const currentDate = selectedDate || date;
@@ -108,11 +107,6 @@ export default function KompetensiLainnyaEdit() {
         button: "Tutup",
       });
       setDataInput({
-        keterangan: "",
-        penyelenggara: "",
-        tahun: "",
-        durasi: "",
-        nomor_sertifikat: "",
         tgl_sertifikat: "",
         sertifikat_pdf: null as any,
       });
@@ -133,15 +127,27 @@ export default function KompetensiLainnyaEdit() {
     },
   });
 
-  const handleAdd = async () => {
+  const handleAdd = async ({
+    keterangan,
+    penyelenggara,
+    tahun,
+    durasi,
+    nomor_sertifikat,
+  }: {
+    keterangan: string;
+    penyelenggara: string;
+    tahun: string | number;
+    durasi: string | number;
+    nomor_sertifikat: string;
+  }) => {
     const formData = new FormData();
     formData.append("id", dataParams.id.toString());
-    formData.append("keterangan", dataInput.keterangan);
+    formData.append("keterangan", keterangan);
     formData.append("jenis", selectValue?.value as string);
-    formData.append("penyelenggara", dataInput.penyelenggara);
-    formData.append("tahun", dataInput.tahun);
-    formData.append("durasi", dataInput.durasi);
-    formData.append("nomor_sertifikat", dataInput.nomor_sertifikat);
+    formData.append("penyelenggara", penyelenggara);
+    formData.append("tahun", tahun.toString());
+    formData.append("durasi", durasi.toString());
+    formData.append("nomor_sertifikat", nomor_sertifikat);
     formData.append("tgl_sertifikat", date.toISOString());
 
     if (dataInput.sertifikat_pdf) {
@@ -182,201 +188,272 @@ export default function KompetensiLainnyaEdit() {
 
   return (
     <ScrollView>
-      <View
-        style={{
-          gap: moderateScale(20),
-          paddingHorizontal: moderateScale(15),
-          paddingVertical: moderateScale(20),
+      <Formik
+        validationSchema={kompetensiLainnyaSchema}
+        initialValues={{
+          keterangan: "",
+          penyelenggara: "",
+          tahun: "",
+          durasi: "",
+          nomor_sertifikat: "",
+        }}
+        onSubmit={(val, { resetForm }) => {
+          handleAdd(val);
+          resetForm();
         }}
       >
-        <TextInput
-          value={dataInput.keterangan}
-          onChangeText={(text) =>
-            setDataInput({ ...dataInput, keterangan: text })
-          }
-          textColor={Colors.text_primary}
-          label={"Nama Pengembangan Kompetensi *"}
-          mode="outlined"
-          outlineColor={Colors.border_primary}
-          activeOutlineColor={Colors.border_input_active}
-          style={{ backgroundColor: "white" }}
-        />
+        {({ handleChange, values, handleSubmit, errors, setValues }) => {
+          React.useEffect(() => {
+            if (dataParams) {
+              setValues({
+                keterangan: dataParams.keterangan || "",
+                penyelenggara: dataParams.penyelenggara || "",
+                tahun: dataParams.tahun.toString() || "",
+                durasi: dataParams.durasi.toString() || "",
+                nomor_sertifikat: dataParams.nomor_sertifikat || "",
+              });
+              setDataInput({
+                tgl_sertifikat:
+                  new Date(dataParams.tgl_sertifikat).toLocaleDateString() ||
+                  "",
+                sertifikat_pdf: null,
+              });
 
-        <View style={{ position: "relative" }}>
-          <TouchableOpacity
-            onPress={showModal}
-            style={{
-              borderWidth: 1,
-              borderColor: Colors.border_primary,
-              paddingHorizontal: 10,
-              paddingVertical: 15,
-              borderRadius: 5,
-              flexDirection: "row",
-              backgroundColor: "white",
-            }}
-          >
-            <Text
+              const foundSelect = dataSelect.find(
+                (item) => item.value === dataParams.jenis
+              );
+              setSelectValue(foundSelect || null);
+            }
+          }, [dataParams]);
+          return (
+            <View
               style={{
-                flex: 1,
-                color: "grey",
-                fontWeight: "400",
-                fontSize: 16,
+                gap: moderateScale(20),
+                paddingHorizontal: moderateScale(15),
+                paddingVertical: moderateScale(20),
               }}
             >
-              {selectValue?.label ?? "Kategori Pengembangan Kompetensi *"}
-            </Text>
-            <Icon size={24} source={"open-in-new"} color="gray" />
-          </TouchableOpacity>
-        </View>
+              <TextInput
+                value={values.keterangan}
+                onChangeText={handleChange("keterangan")}
+                error={errors.keterangan ? true : false}
+                textColor={Colors.text_primary}
+                label={"Nama Pengembangan Kompetensi *"}
+                mode="outlined"
+                outlineColor={Colors.border_primary}
+                activeOutlineColor={Colors.border_input_active}
+                style={{ backgroundColor: "white" }}
+              />
 
-        <TextInput
-          value={dataInput.penyelenggara}
-          onChangeText={(text) =>
-            setDataInput({ ...dataInput, penyelenggara: text })
-          }
-          textColor={Colors.text_primary}
-          label={"Penyelenggara *"}
-          mode="outlined"
-          outlineColor={Colors.border_primary}
-          activeOutlineColor={Colors.border_input_active}
-          style={{ backgroundColor: "white" }}
-        />
+              {errors.keterangan && (
+                <Text style={{ color: "salmon", fontWeight: "bold" }}>
+                  {errors.keterangan}
+                </Text>
+              )}
 
-        <TextInput
-          value={dataInput.tahun}
-          inputMode="numeric"
-          onChangeText={(text) => setDataInput({ ...dataInput, tahun: text })}
-          textColor={Colors.text_primary}
-          label={"Tahun *"}
-          mode="outlined"
-          outlineColor={Colors.border_primary}
-          activeOutlineColor={Colors.border_input_active}
-          style={{ backgroundColor: "white" }}
-        />
+              <View style={{ position: "relative" }}>
+                <TouchableOpacity
+                  onPress={showModal}
+                  style={{
+                    borderWidth: 1,
+                    borderColor: Colors.border_primary,
+                    paddingHorizontal: 10,
+                    paddingVertical: 15,
+                    borderRadius: 5,
+                    flexDirection: "row",
+                    backgroundColor: "white",
+                  }}
+                >
+                  <Text
+                    style={{
+                      flex: 1,
+                      color: "grey",
+                      fontWeight: "400",
+                      fontSize: 16,
+                    }}
+                  >
+                    {selectValue?.label ?? "Kategori Pengembangan Kompetensi *"}
+                  </Text>
+                  <Icon size={24} source={"open-in-new"} color="gray" />
+                </TouchableOpacity>
+              </View>
 
-        <TextInput
-          value={dataInput.durasi}
-          inputMode="numeric"
-          onChangeText={(text) => setDataInput({ ...dataInput, durasi: text })}
-          textColor={Colors.text_primary}
-          label={"Durasi Pengembangan Kompetensi *"}
-          mode="outlined"
-          outlineColor={Colors.border_primary}
-          activeOutlineColor={Colors.border_input_active}
-          style={{ backgroundColor: "white" }}
-        />
+              <TextInput
+                value={values.penyelenggara}
+                onChangeText={handleChange("penyelenggara")}
+                error={errors.penyelenggara ? true : false}
+                textColor={Colors.text_primary}
+                label={"Penyelenggara *"}
+                mode="outlined"
+                outlineColor={Colors.border_primary}
+                activeOutlineColor={Colors.border_input_active}
+                style={{ backgroundColor: "white" }}
+              />
 
-        <TextInput
-          value={dataInput.nomor_sertifikat}
-          onChangeText={(text) =>
-            setDataInput({ ...dataInput, nomor_sertifikat: text })
-          }
-          textColor={Colors.text_primary}
-          label={"Nomor Sertifikat/Surat Tugas *"}
-          mode="outlined"
-          outlineColor={Colors.border_primary}
-          activeOutlineColor={Colors.border_input_active}
-          style={{ backgroundColor: "white" }}
-        />
+              {errors.penyelenggara && (
+                <Text style={{ color: "salmon", fontWeight: "bold" }}>
+                  {errors.penyelenggara}
+                </Text>
+              )}
 
-        <TouchableOpacity
-          onPress={() => setShowDatePicker(true)}
-          style={{
-            borderWidth: 1,
-            borderColor: Colors.border_primary,
-            paddingHorizontal: 10,
-            paddingVertical: 15,
-            borderRadius: 5,
-            flexDirection: "row",
-            backgroundColor: "white",
-          }}
-        >
-          <Text
-            style={{
-              flex: 1,
-              color: dataInput.tgl_sertifikat ? "black" : "grey",
-              fontWeight: "400",
-              fontSize: 16,
-            }}
-          >
-            {dataInput.tgl_sertifikat
-              ? dataInput.tgl_sertifikat
-              : "Tanggal Sertifikat *"}
-          </Text>
-          <Icon size={24} source={"calendar-today"} color="gray" />
-        </TouchableOpacity>
-        {showDatePicker && (
-          <DateTimePicker
-            value={date}
-            mode="date"
-            display="default"
-            onChange={onChangeDate}
-          />
-        )}
+              <TextInput
+                value={values.tahun}
+                inputMode="numeric"
+                onChangeText={handleChange("tahun")}
+                error={errors.tahun ? true : false}
+                textColor={Colors.text_primary}
+                label={"Tahun *"}
+                mode="outlined"
+                outlineColor={Colors.border_primary}
+                activeOutlineColor={Colors.border_input_active}
+                style={{ backgroundColor: "white" }}
+              />
 
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            gap: moderateScale(25),
-          }}
-        >
-          <View
-            style={{
-              borderWidth: 1,
-              borderColor: Colors.border_primary,
-              padding: 15,
-              width: "60%",
-              borderRadius: 7,
-            }}
-          >
-            <Text style={{ color: Colors.text_secondary }}>
-              {dataInput?.sertifikat_pdf?.name ??
-                "Upload Sertifikat/Dokumen Bukti Lainnya"}
-            </Text>
-          </View>
+              {errors.tahun && (
+                <Text style={{ color: "salmon", fontWeight: "bold" }}>
+                  {errors.tahun}
+                </Text>
+              )}
 
-          <Button
-            onPress={handleDocumentPick}
-            icon={"upload"}
-            mode="contained"
-            textColor="black"
-            style={{
-              flex: 1,
-              borderRadius: 7,
-              backgroundColor: Colors.button_secondary,
-              paddingVertical: 7,
-            }}
-          >
-            Upload
-          </Button>
-        </View>
+              <TextInput
+                value={values.durasi}
+                inputMode="numeric"
+                onChangeText={handleChange("durasi")}
+                error={errors.durasi ? true : false}
+                label={"Durasi Pengembangan Kompetensi *"}
+                textColor={Colors.text_primary}
+                mode="outlined"
+                outlineColor={Colors.border_primary}
+                activeOutlineColor={Colors.border_input_active}
+                style={{ backgroundColor: "white" }}
+              />
 
-        <View
-          style={{
-            flexDirection: "row",
-            gap: 10,
-            alignItems: "center",
-          }}
-        >
-          <Button
-            loading={mutationAdd.isPending}
-            disabled={mutationAdd.isPending}
-            onPress={handleAdd}
-            icon={"content-save-outline"}
-            mode="contained"
-            textColor="white"
-            style={{
-              backgroundColor: Colors.button_primary,
-              borderRadius: 7,
-              paddingVertical: 7,
-              flex: 1,
-            }}
-          >
-            Simpan
-          </Button>
-        </View>
-      </View>
+              {errors.durasi && (
+                <Text style={{ color: "salmon", fontWeight: "bold" }}>
+                  {errors.durasi}
+                </Text>
+              )}
+
+              <TextInput
+                value={values.nomor_sertifikat}
+                onChangeText={handleChange("nomor_sertifikat")}
+                error={errors.nomor_sertifikat ? true : false}
+                textColor={Colors.text_primary}
+                label={"Nomor Sertifikat/Surat Tugas *"}
+                mode="outlined"
+                outlineColor={Colors.border_primary}
+                activeOutlineColor={Colors.border_input_active}
+                style={{ backgroundColor: "white" }}
+              />
+
+              {errors.nomor_sertifikat && (
+                <Text style={{ color: "salmon", fontWeight: "bold" }}>
+                  {errors.nomor_sertifikat}
+                </Text>
+              )}
+
+              <TouchableOpacity
+                onPress={() => setShowDatePicker(true)}
+                style={{
+                  borderWidth: 1,
+                  borderColor: Colors.border_primary,
+                  paddingHorizontal: 10,
+                  paddingVertical: 15,
+                  borderRadius: 5,
+                  flexDirection: "row",
+                  backgroundColor: "white",
+                }}
+              >
+                <Text
+                  style={{
+                    flex: 1,
+                    color: dataInput.tgl_sertifikat ? "black" : "grey",
+                    fontWeight: "400",
+                    fontSize: 16,
+                  }}
+                >
+                  {dataInput.tgl_sertifikat
+                    ? dataInput.tgl_sertifikat
+                    : "Tanggal Sertifikat *"}
+                </Text>
+                <Icon size={24} source={"calendar-today"} color="gray" />
+              </TouchableOpacity>
+              {showDatePicker && (
+                <DateTimePicker
+                  value={date}
+                  mode="date"
+                  display="default"
+                  onChange={onChangeDate}
+                />
+              )}
+
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  gap: moderateScale(25),
+                }}
+              >
+                <View
+                  style={{
+                    borderWidth: 1,
+                    borderColor: Colors.border_primary,
+                    padding: 15,
+                    width: "60%",
+                    borderRadius: 7,
+                    backgroundColor: "white",
+                  }}
+                >
+                  <Text style={{ color: Colors.text_secondary }}>
+                    {dataInput?.sertifikat_pdf?.name ??
+                      "Upload Sertifikat/Dokumen Bukti Lainnya"}
+                  </Text>
+                </View>
+
+                <Button
+                  onPress={handleDocumentPick}
+                  icon={"upload"}
+                  mode="contained"
+                  textColor="black"
+                  style={{
+                    flex: 1,
+                    borderRadius: 7,
+                    backgroundColor: Colors.button_secondary,
+                    paddingVertical: 7,
+                  }}
+                >
+                  Upload
+                </Button>
+              </View>
+
+              <View
+                style={{
+                  flexDirection: "row",
+                  gap: 10,
+                  alignItems: "center",
+                }}
+              >
+                <Button
+                  loading={mutationAdd.isPending}
+                  disabled={mutationAdd.isPending}
+                  onPress={handleSubmit as any}
+                  icon={"content-save-outline"}
+                  mode="contained"
+                  textColor="white"
+                  style={{
+                    backgroundColor: Colors.button_primary,
+                    borderRadius: 7,
+                    paddingVertical: 7,
+                    flex: 1,
+                  }}
+                >
+                  Simpan
+                </Button>
+              </View>
+            </View>
+          );
+        }}
+      </Formik>
 
       <Portal>
         <Modal

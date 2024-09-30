@@ -80,6 +80,42 @@ export default function TubelAdd() {
   });
 
   const handleAdd = async () => {
+    if (!selectValue) {
+      Dialog.show({
+        type: ALERT_TYPE.WARNING,
+        title: "Peringatan",
+        textBody: "Jenis File harus dipilih",
+        button: "Tutup",
+      });
+    }
+
+    if (dataInput.title === "") {
+      return Dialog.show({
+        type: ALERT_TYPE.WARNING,
+        title: "Peringatan",
+        textBody: "Judul/Nama File harus diisi",
+        button: "Tutup",
+      });
+    }
+
+    if (dataInput.semester === "") {
+      return Dialog.show({
+        type: ALERT_TYPE.WARNING,
+        title: "Peringatan",
+        textBody: "Semester harus dipilih",
+        button: "Tutup",
+      });
+    }
+
+    if (!dataInput.laporan) {
+      return Dialog.show({
+        type: ALERT_TYPE.WARNING,
+        title: "Peringatan",
+        textBody: "File Laporan harus dipilih",
+        button: "Tutup",
+      });
+    }
+
     const formData = new FormData();
 
     formData.append("peserta_id", peserta_id as string);
