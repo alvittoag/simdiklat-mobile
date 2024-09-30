@@ -304,36 +304,20 @@ export default function HalamanUtama() {
                   borderColor: Colors.border_primary,
                 }}
               />
-              {dataPodcast?.data.isRegisterd ? (
-                <ButtonOpacity
-                  onPress={handleRegisterPodcast}
-                  bgcolor={Colors.button_primary}
-                  textcolor={Colors.text_white}
-                  textweight="bold"
-                  vertical={15}
-                  textsize={15}
-                >
-                  {isPendingMutate ? (
-                    <ActivityIndicator
-                      size={"small"}
-                      color={Colors.text_white}
-                    />
-                  ) : (
-                    "  Tonton Di Sini"
-                  )}
-                </ButtonOpacity>
-              ) : (
-                <ButtonOpacity
-                  onPress={handleRegisterPodcast}
-                  bgcolor={Colors.button_secondary}
-                  textcolor={"black"}
-                  textweight="bold"
-                  vertical={15}
-                  textsize={14}
-                >
-                  Ikuti
-                </ButtonOpacity>
-              )}
+
+              <Button
+                mode="contained"
+                icon={"login"}
+                textColor="black"
+                style={{
+                  backgroundColor: Colors.button_secondary,
+                  paddingVertical: moderateScale(7),
+                  borderRadius: 7,
+                }}
+                onPress={handleRegisterPodcast}
+              >
+                Ikuti
+              </Button>
             </View>
           )}
         </View>
