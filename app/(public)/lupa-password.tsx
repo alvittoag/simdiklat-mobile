@@ -70,7 +70,7 @@ export default function LupaPassword() {
 
     try {
       await auth.forget_password_token({
-        email: "pusdatinbpsdmjakarta@gmail.com",
+        email: values.email,
         token,
       });
 
@@ -112,6 +112,12 @@ export default function LupaPassword() {
           button: "Tutup",
         });
       }
+      Dialog.show({
+        type: ALERT_TYPE.DANGER,
+        title: "Gagal Kirim Email",
+        textBody: "Terjadi Kesalahan Saat Mengirim Email",
+        button: "Tutup",
+      });
       console.log(error.response);
     } finally {
       setLoading(false);
