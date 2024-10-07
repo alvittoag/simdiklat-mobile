@@ -441,7 +441,7 @@ export interface IKuisonerPenyelenggarList {
     created_at: Date;
     updated_at: Date;
   };
-  status: string;
+  status: number;
 }
 
 export interface IJP {

@@ -66,7 +66,7 @@ export default function KuisonerPengajarList() {
       debouncedSearch,
       page,
       limit,
-      dataParams?.jadwal_diklat?.id,
+      params,
       terapkan.sortDirection,
     ],
     queryFn: async () => {
@@ -77,10 +77,6 @@ export default function KuisonerPengajarList() {
       return res.data;
     },
   });
-
-  React.useEffect(() => {
-    refetch();
-  }, [params?.status]);
 
   const [visible, setVisible] = React.useState(false);
 
@@ -205,10 +201,10 @@ export default function KuisonerPengajarList() {
                   style={{
                     fontWeight: "bold",
                     fontSize: 15,
-                    color: item.status === "sudah" ? "green" : "red",
+                    color: item.status !== 0 ? "green" : "red",
                   }}
                 >
-                  {item.status === "sudah" ? "Sudah Input" : "Belum Input"}
+                  {item.status !== 0 ? "Sudah Input" : "Belum Input"}
                 </Text>
               </View>
 
