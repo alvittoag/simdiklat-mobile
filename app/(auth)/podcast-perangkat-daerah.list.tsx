@@ -108,9 +108,13 @@ export default function PodcastPerangkatDaerahList() {
     [isPending, page, setPage, data?.data.meta.totalPages]
   );
 
-  const handleRegisterDiklat = async (id: number) => {
+  const handleRegisterDiklat = async (
+    jadwal_diklat_id: number,
+    diklat_id: number
+  ) => {
     const formData = new FormData();
-    formData.append("jadwal_diklat_id", id as any);
+    formData.append("jadwal_diklat_id", jadwal_diklat_id as any);
+    formData.append("diklat_id", diklat_id as any);
 
     mutate(formData);
   };
@@ -231,7 +235,12 @@ export default function PodcastPerangkatDaerahList() {
                   </Button>
                 ) : (
                   <Button
-                    onPress={() => handleRegisterDiklat(item.angkatan_id)}
+                    onPress={() =>
+                      handleRegisterDiklat(
+                        item.jadwal_diklat.id,
+                        item.jadwal_diklat.diklat_id
+                      )
+                    }
                     disabled={isPendingMutate}
                     loading={isPendingMutate}
                     icon={"login"}
