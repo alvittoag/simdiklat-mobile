@@ -18,6 +18,7 @@ import { getKotakMasuk } from "@/services/query/get-kotak-masuk";
 import { Button } from "react-native-paper";
 import { Colors } from "@/constants/Colors";
 import Loading from "@/components/elements/Loading";
+import Error from "@/components/elements/Error";
 
 export default function KotakMasukPesan() {
   const queryClient = useQueryClient();
@@ -52,6 +53,8 @@ export default function KotakMasukPesan() {
   }, [id]);
 
   if (isPending) return <Loading />;
+
+  if (isError) return <Error />;
 
   return (
     <ContainerBackground>
