@@ -42,7 +42,6 @@ export default function UpdateJpSiJule() {
 
   if (error || errorJule) return <Error />;
 
-  console.log(dataJule.data);
   return (
     <ContainerBackground>
       <View
@@ -117,6 +116,21 @@ export default function UpdateJpSiJule() {
                 {data?.profilPesertaDiklat.nrk})
               </Text>
             </View>
+          )}
+          ListFooterComponent={() => (
+            <Button
+              icon={"content-save-outline"}
+              labelStyle={{ color: "black" }}
+              style={{
+                backgroundColor: Colors.button_secondary,
+                paddingVertical: moderateScale(8),
+                flex: 1,
+                borderRadius: 7,
+              }}
+              textColor="black"
+            >
+              Simpan
+            </Button>
           )}
         />
       </View>

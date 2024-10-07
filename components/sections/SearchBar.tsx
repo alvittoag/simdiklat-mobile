@@ -2,30 +2,37 @@ import { View, Text, TouchableOpacity } from "react-native";
 import React from "react";
 import { Colors } from "@/constants/Colors";
 import { Searchbar } from "react-native-paper";
-import { Ionicons } from "@expo/vector-icons";
+import { Icon } from "react-native-paper";
 
 export default function SearchBar({
   search,
   handleSearchChange,
   showDialog,
   showFilter,
+  showSort,
+  showSortDialog,
 }: {
   search: string;
   showDialog?: () => void;
+  showSortDialog?: () => void;
   handleSearchChange: (text: string) => void;
   showFilter?: boolean;
+  showSort?: boolean;
 }) {
   return (
     <View
       style={{
+        marginHorizontal: 15,
+        marginTop: 15,
         backgroundColor: "white",
-        paddingVertical: 15,
-        paddingHorizontal: 15,
-        borderWidth: 1,
-        borderColor: Colors.border_primary,
+        paddingVertical: 8,
+        paddingLeft: 10,
+        paddingRight: 15,
         flexDirection: "row",
-        gap: 15,
+        gap: 10,
         alignItems: "center",
+        borderRadius: 7,
+        elevation: 7,
       }}
     >
       <Searchbar
@@ -42,14 +49,23 @@ export default function SearchBar({
           borderWidth: 1,
           borderColor: Colors.border_primary,
           flex: 1,
+          borderRadius: 7,
         }}
       />
 
-      {showFilter && (
-        <TouchableOpacity onPress={showDialog}>
-          <Ionicons name="filter" size={30} />
-        </TouchableOpacity>
-      )}
+      <View style={{ flexDirection: "row", gap: 20 }}>
+        {showSort && (
+          <TouchableOpacity onPress={showDialog}>
+            <Icon source="filter" color={Colors.text_primary} size={26} />
+          </TouchableOpacity>
+        )}
+
+        {showFilter && (
+          <TouchableOpacity onPress={showSortDialog}>
+            <Icon source="arrow-up" color={Colors.text_primary} size={26} />
+          </TouchableOpacity>
+        )}
+      </View>
     </View>
   );
 }

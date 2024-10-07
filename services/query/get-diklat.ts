@@ -8,6 +8,7 @@ export const getDiklat = gql`
     $tipe: String
     $sortBy: String
     $sortDirection: String
+    $searchBy: String
   ) {
     pesertaDiklats(
       search: $q
@@ -16,11 +17,13 @@ export const getDiklat = gql`
       listType: $tipe
       sortBy: $sortBy
       sortDirection: $sortDirection
+      searchBy: $searchBy
     ) {
       items {
         id
         sertifikat_totaljam
         sertifikat_signed
+        status
         jadwal_diklat {
           id
           status_registrasi

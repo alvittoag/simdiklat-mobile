@@ -94,7 +94,7 @@ export default function Kurikulum() {
         showFilter
         handleSearchChange={handleSearchChange}
         search={search}
-        showDialog={showDialog}
+        showSortDialog={showDialog}
       />
 
       {isPending ? (

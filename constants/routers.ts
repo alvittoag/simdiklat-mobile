@@ -118,11 +118,11 @@ export const routers = [
             path: "/riwayat-pekerjaan.edit",
           },
           {
-            title: "Form Tambah Pelatihan",
+            title: "Form Tambah Data",
             path: "/pelatihan.create",
           },
           {
-            title: "Form Edit Pelatihan",
+            title: "Form Edit Data",
             path: "/pelatihan.edit",
           },
           {
@@ -327,6 +327,11 @@ export const homeRouters = [
     name: "Kuisioner Pengajar",
     path: "/kuisioner-pengajar",
     icon: assets.kuisioner,
+  },
+  {
+    name: "Lupa Password",
+    path: "/lupa-password",
+    icon: assets.ganti_password,
   },
 ];
 

@@ -12,10 +12,11 @@ import NotFoundSearch from "@/components/sections/NotFoundSearch";
 import { FlashList } from "@shopify/flash-list";
 import { moderateScale } from "react-native-size-matters";
 import { Colors } from "@/constants/Colors";
-import { Button } from "react-native-paper";
+import { Button, Portal, Dialog as DL, RadioButton } from "react-native-paper";
 import Pagination from "@/components/sections/pagination";
 import useDebounce from "@/hooks/useDebounce";
 import SearchBar from "@/components/sections/SearchBar";
+import AppHeaderNav from "@/components/AppHeaderNav";
 
 type Meta = {
   page: number;
@@ -40,26 +41,37 @@ export default function KuisonerPengajarList() {
       console.error("Error parsing params data:", error);
       return {} as IKuisionerPengajar;
     }
-  }, [params?.data]);
+  }, [params]);
 
   const navigation = useNavigation();
 
-  React.useEffect(() => {
-    navigation.setOptions({ headerShown: false });
-  }, [navigation]);
-
   const [search, setSearch] = React.useState("");
+  const [filter, setfilter] = React.useState("DESC");
+  const [terapkan, setTerapkan] = React.useState<any>({
+    sortDirection: filter,
+  });
 
   const debouncedSearch = useDebounce(search, 1000);
 
   const [page, setPage] = React.useState(1);
   const [limit] = React.useState(10);
 
+  React.useEffect(() => {
+    navigation.setOptions({ headerShown: false });
+  }, [navigation]);
+
   const { data, isPending, isError, refetch } = useQuery({
-    queryKey: ["getKuisonerPengajar"],
+    queryKey: [
+      "getKuisonerPengajar",
+      debouncedSearch,
+      page,
+      limit,
+      dataParams?.jadwal_diklat?.id,
+      terapkan.sortDirection,
+    ],
     queryFn: async () => {
       const res = await axiosService.get<KuisonerResponse>(
-        `/api/kuisoner/pengajar/3627?page=${page}&limit=${limit}&order=desc&search=${debouncedSearch}`
+        `/api/kuisoner/pengajar/${dataParams.jadwal_diklat.id}?page=${page}&limit=${limit}&order=${terapkan.sortDirection}&search=${debouncedSearch}`
       );
 
       return res.data;
@@ -68,7 +80,21 @@ export default function KuisonerPengajarList() {
 
   React.useEffect(() => {
     refetch();
-  }, [debouncedSearch, page]);
+  }, [params?.status]);
+
+  const [visible, setVisible] = React.useState(false);
+
+  const showDialog = () => setVisible(true);
+
+  const hideDialog = () => {
+    setTerapkan((prev: any) => ({
+      ...prev,
+      sortDirection: filter,
+    }));
+    setSearch("");
+    setPage(1);
+    setVisible(false);
+  };
 
   const ListFooter = React.useMemo(
     () => (
@@ -79,18 +105,35 @@ export default function KuisonerPengajarList() {
         totalPage={data?.data?.meta.totalPages as number}
       />
     ),
-    [isPending, page, setPage]
+    [isPending, page, setPage, dataParams.jadwal_diklat.id]
   );
 
   if (isError) return <Error />;
   return (
     <ContainerBackground>
-      <AppHeader title={dataParams.jadwal_diklat.diklat.name} />
+      <AppHeaderNav title={dataParams.jadwal_diklat.diklat.name} />
+
+      <View style={{ paddingHorizontal: 15, paddingTop: 20 }}>
+        <View
+          style={{
+            backgroundColor: "white",
+            padding: 30,
+            borderWidth: 1,
+            borderColor: Colors.border_primary,
+            borderRadius: 7,
+          }}
+        >
+          <Text style={{ textAlign: "center", fontSize: 17, fontWeight: 500 }}>
+            Daftar Pengajar
+          </Text>
+        </View>
+      </View>
 
       <SearchBar
         handleSearchChange={setSearch}
         search={search}
-        showDialog={() => {}}
+        showSortDialog={showDialog}
+        showFilter
       />
 
       {isPending ? (
@@ -195,6 +238,64 @@ export default function KuisonerPengajarList() {
           ListFooterComponent={ListFooter}
         />
       )}
+
+      <Portal>
+        <DL
+          visible={visible}
+          onDismiss={hideDialog}
+          style={{ backgroundColor: "white" }}
+        >
+          <DL.Title style={{ color: Colors.text_primary }}>
+            Filter Berdasarkan
+          </DL.Title>
+          <DL.Content>
+            <RadioButton.Group
+              onValueChange={(newValue) => setfilter(newValue)}
+              value={filter}
+            >
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                }}
+              >
+                <RadioButton
+                  status={filter === "DESC" ? "checked" : "unchecked"}
+                  value="DESC"
+                  color={Colors.border_input_active}
+                  uncheckedColor="black"
+                />
+                <Text>Data Paling Terbaru</Text>
+              </View>
+
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                }}
+              >
+                <RadioButton
+                  value="ASC"
+                  status={filter === "ASC" ? "checked" : "unchecked"}
+                  color={Colors.border_input_active}
+                  uncheckedColor="black"
+                />
+                <Text>Data Terlama</Text>
+              </View>
+            </RadioButton.Group>
+          </DL.Content>
+          <DL.Actions>
+            <Button
+              onPress={hideDialog}
+              textColor="black"
+              mode="contained"
+              style={{ backgroundColor: Colors.button_secondary, flexGrow: 1 }}
+            >
+              Terapkan
+            </Button>
+          </DL.Actions>
+        </DL>
+      </Portal>
     </ContainerBackground>
   );
 }

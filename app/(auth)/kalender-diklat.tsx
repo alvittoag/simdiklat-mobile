@@ -43,12 +43,16 @@ export default function KalenderDiklat() {
   const [search, setSearch] = React.useState("");
   const [yearFilter, setYearFilter] = React.useState("2024");
   const [filter, setfilter] = React.useState("DESC");
-  const [status, setstatus] = React.useState("");
+  const [searchBy, setSearchBy] = React.useState("");
+
   const [terapkan, setTerapkan] = React.useState<any>({
     tahun: Number(yearFilter),
     sortDirection: filter,
-    qb: status,
+    qb: "",
   });
+  const [showFilter, setShowFilter] = React.useState(false);
+  const [showSort, setShowSort] = React.useState(false);
+  const [diklatSaved, setDiklatSaved] = React.useState("");
 
   const debouncedSearch = useDebounce(search, 1000);
 
@@ -65,8 +69,8 @@ export default function KalenderDiklat() {
     variables: {
       page: page,
       limit: limit,
-      q: debouncedSearch,
-      sortBy: "kd.registrasi_mulai",
+      q: debouncedSearch.toLocaleLowerCase(),
+      sortBy: "kd.created_at",
       ...terapkan,
     },
   });
@@ -77,20 +81,25 @@ export default function KalenderDiklat() {
     setSearch(text);
   }, []);
 
-  const [visible, setVisible] = React.useState(false);
+  const hideShowFilter = () => {
+    setTerapkan((prev: any) => ({
+      ...prev,
+      qb: searchBy,
+    }));
+    setSearch("");
+    setPage(1);
+    setShowFilter(false);
+  };
 
-  const showDialog = () => setVisible(true);
-
-  const hideDialog = () => {
+  const hideShowSort = () => {
     setTerapkan((prev: any) => ({
       ...prev,
       tahun: Number(yearFilter),
       sortDirection: filter,
-      qb: status,
     }));
     setSearch("");
     setPage(1);
-    setVisible(false);
+    setShowSort(false);
   };
 
   const ListFooter = React.useMemo(
@@ -116,7 +125,7 @@ export default function KalenderDiklat() {
       DNote.show({
         type: ALERT_TYPE.SUCCESS,
         title: "Berhasil",
-        textBody: "Berhasil Registrasi Diklat",
+        textBody: `Berhasil Mendaftar ${diklatSaved}`,
         button: "Tutup",
       });
     },
@@ -131,8 +140,9 @@ export default function KalenderDiklat() {
     },
   });
 
-  const registerDiklat = (id: number) => {
+  const registerDiklat = (id: number, diklat: string) => {
     mutationRegister.mutate(id);
+    setDiklatSaved(diklat);
   };
 
   if (error) {
@@ -143,9 +153,11 @@ export default function KalenderDiklat() {
     <ContainerBackground>
       <SearchBar
         handleSearchChange={handleSearchChange}
-        showDialog={showDialog}
+        showDialog={() => setShowFilter(true)}
+        showSortDialog={() => setShowSort(true)}
         search={search}
         showFilter
+        showSort
       />
 
       {loading ? (
@@ -221,7 +233,7 @@ export default function KalenderDiklat() {
                       fontSize: 16,
                     }}
                   >
-                    {item.status_registrasi === "open" ? "Dibuka" : "Ditutup"}
+                    {item.status_registrasi === "open" ? "Open" : "Close"}
                   </Text>
                 </View>
 
@@ -267,7 +279,9 @@ export default function KalenderDiklat() {
                   {item.approval === null &&
                     item.status_registrasi === "open" && (
                       <Button
-                        onPress={() => registerDiklat(item.id)}
+                        onPress={() =>
+                          registerDiklat(item.id, item.diklat.name)
+                        }
                         mode="contained"
                         icon={"account"}
                         textColor="white"
@@ -290,129 +304,187 @@ export default function KalenderDiklat() {
       )}
 
       <Portal>
-        <Dialog
-          visible={visible}
-          onDismiss={hideDialog}
-          style={{ backgroundColor: "white" }}
-        >
-          <Dialog.Title style={{ color: Colors.text_primary }}>
-            Filter Berdasarkan
-          </Dialog.Title>
+        {showFilter && (
+          <Dialog
+            visible={showFilter}
+            onDismiss={hideShowFilter}
+            style={{ backgroundColor: "white" }}
+          >
+            <Dialog.Title style={{ color: Colors.text_primary }}>
+              Filter Berdasarkan
+            </Dialog.Title>
 
-          <Dialog.Content>
-            <Text style={{ fontSize: 16, fontWeight: 500, marginBottom: 8 }}>
-              Data Terbaru
-            </Text>
-            <RadioButton.Group
-              onValueChange={(newValue) => setfilter(newValue)}
-              value={filter}
-            >
-              <View
+            <Dialog.Content>
+              <RadioButton.Group
+                onValueChange={(newValue) => setSearchBy(newValue)}
+                value={searchBy}
+              >
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                  }}
+                >
+                  <RadioButton
+                    status={
+                      searchBy === "kd.status_registrasi"
+                        ? "checked"
+                        : "unchecked"
+                    }
+                    value="kd.status_registrasi"
+                    color={Colors.border_input_active}
+                    uncheckedColor="black"
+                  />
+                  <Text>Status</Text>
+                </View>
+
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                  }}
+                >
+                  <RadioButton
+                    status={searchBy === "d.name" ? "checked" : "unchecked"}
+                    value="d.name"
+                    color={Colors.border_input_active}
+                    uncheckedColor="black"
+                  />
+                  <Text>Jenis Diklat</Text>
+                </View>
+
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                  }}
+                >
+                  <RadioButton
+                    status={
+                      searchBy === "kd.waktu_pelaksanaan"
+                        ? "checked"
+                        : "unchecked"
+                    }
+                    value="kd.waktu_pelaksanaan"
+                    color={Colors.border_input_active}
+                    uncheckedColor="black"
+                  />
+                  <Text>Jadwal Pelaksanaan</Text>
+                </View>
+
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                  }}
+                >
+                  <RadioButton
+                    value="ld.name"
+                    status={searchBy === "ld.name" ? "checked" : "unchecked"}
+                    color={Colors.border_input_active}
+                    uncheckedColor="black"
+                  />
+                  <Text>Lokasi Diklat</Text>
+                </View>
+              </RadioButton.Group>
+            </Dialog.Content>
+
+            <Dialog.Actions>
+              <Button
+                onPress={hideShowFilter}
+                mode="contained"
+                textColor="black"
                 style={{
-                  flexDirection: "row",
-                  alignItems: "center",
+                  backgroundColor: Colors.button_secondary,
+                  flexGrow: 1,
                 }}
               >
-                <RadioButton
-                  status={filter === "DESC" ? "checked" : "unchecked"}
-                  value="DESC"
-                  color={Colors.border_input_active}
-                  uncheckedColor="black"
-                />
-                <Text>Data Paling Terbaru</Text>
-              </View>
+                Terapkan
+              </Button>
+            </Dialog.Actions>
+          </Dialog>
+        )}
 
-              <View
+        {showSort && (
+          <Dialog
+            visible={showSort}
+            onDismiss={hideShowSort}
+            style={{ backgroundColor: "white" }}
+          >
+            <Dialog.Title style={{ color: Colors.text_primary }}>
+              Urutkan Berdasarkan
+            </Dialog.Title>
+
+            <Dialog.Content>
+              <RadioButton.Group
+                onValueChange={(newValue) => setfilter(newValue)}
+                value={filter}
+              >
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                  }}
+                >
+                  <RadioButton
+                    status={filter === "DESC" ? "checked" : "unchecked"}
+                    value="DESC"
+                    color={Colors.border_input_active}
+                    uncheckedColor="black"
+                  />
+                  <Text>Data Paling Terbaru</Text>
+                </View>
+
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                  }}
+                >
+                  <RadioButton
+                    value="ASC"
+                    status={filter === "ASC" ? "checked" : "unchecked"}
+                    color={Colors.border_input_active}
+                    uncheckedColor="black"
+                  />
+                  <Text>Data Terlama</Text>
+                </View>
+              </RadioButton.Group>
+
+              <Dropdown
+                value={yearFilter}
+                onChange={({ value }) => setYearFilter(value)}
                 style={{
-                  flexDirection: "row",
-                  alignItems: "center",
+                  backgroundColor: "white",
+                  borderWidth: 1,
+                  borderRadius: 7,
+                  borderColor: Colors.border_primary,
+                  paddingVertical: 10,
+                  paddingHorizontal: 15,
+                  marginTop: 10,
+                }}
+                placeholder="Pilih Tahun"
+                labelField="label"
+                valueField="value"
+                data={dataYear}
+              />
+            </Dialog.Content>
+
+            <Dialog.Actions>
+              <Button
+                onPress={hideShowSort}
+                mode="contained"
+                textColor="black"
+                style={{
+                  backgroundColor: Colors.button_secondary,
+                  flexGrow: 1,
                 }}
               >
-                <RadioButton
-                  value="ASC"
-                  status={filter === "ASC" ? "checked" : "unchecked"}
-                  color={Colors.border_input_active}
-                  uncheckedColor="black"
-                />
-                <Text>Data Terlama</Text>
-              </View>
-            </RadioButton.Group>
-
-            <Text
-              style={{
-                fontSize: 16,
-                fontWeight: 500,
-                marginBottom: 8,
-                marginTop: 20,
-              }}
-            >
-              Status Registrasi
-            </Text>
-            <RadioButton.Group
-              onValueChange={(newValue) => setstatus(newValue)}
-              value={status}
-            >
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                }}
-              >
-                <RadioButton
-                  status={status === "buka" ? "checked" : "unchecked"}
-                  value="buka"
-                  color={Colors.border_input_active}
-                  uncheckedColor="black"
-                />
-                <Text>Status Registrasi Dibuka</Text>
-              </View>
-
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                }}
-              >
-                <RadioButton
-                  value="tutup"
-                  status={status === "tutup" ? "checked" : "unchecked"}
-                  color={Colors.border_input_active}
-                  uncheckedColor="black"
-                />
-                <Text>Status Registrasai Ditutup</Text>
-              </View>
-            </RadioButton.Group>
-
-            <Dropdown
-              value={yearFilter}
-              onChange={({ value }) => setYearFilter(value)}
-              style={{
-                backgroundColor: "white",
-                borderWidth: 1,
-                borderRadius: 7,
-                borderColor: Colors.border_primary,
-                paddingVertical: 10,
-                paddingHorizontal: 15,
-                marginTop: 10,
-              }}
-              placeholder="Pilih Tahun"
-              labelField="label"
-              valueField="value"
-              data={dataYear}
-            />
-          </Dialog.Content>
-
-          <Dialog.Actions>
-            <Button
-              onPress={hideDialog}
-              mode="contained"
-              textColor="black"
-              style={{ backgroundColor: Colors.button_secondary, flexGrow: 1 }}
-            >
-              Terapkan
-            </Button>
-          </Dialog.Actions>
-        </Dialog>
+                Terapkan
+              </Button>
+            </Dialog.Actions>
+          </Dialog>
+        )}
       </Portal>
     </ContainerBackground>
   );

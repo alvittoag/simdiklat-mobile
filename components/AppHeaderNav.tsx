@@ -1,5 +1,5 @@
 import React from "react";
-import { Appbar, Avatar, Badge } from "react-native-paper";
+import { Appbar, Badge } from "react-native-paper";
 import { router, useNavigation } from "expo-router";
 import { Colors } from "@/constants/Colors";
 import { Image, Text, TouchableOpacity, View } from "react-native";
@@ -9,7 +9,7 @@ import { DrawerActions } from "@react-navigation/native";
 import { useQuery } from "@tanstack/react-query";
 import { axiosService } from "@/services/axiosService";
 
-type response = {
+type Response = {
   status: string;
   message: string;
   data: number;
@@ -30,11 +30,13 @@ export default function AppHeaderNav({
   } = useQuery({
     queryKey: ["count-notif"],
     queryFn: async () => {
-      const { data } = await axiosService.get<response>("/api/message/notify");
-
+      const { data } = await axiosService.get<Response>("/api/message/notify");
       return data;
     },
   });
+
+  const isLong = title?.length > 50;
+
   return (
     <Appbar.Header
       dark
@@ -44,6 +46,7 @@ export default function AppHeaderNav({
         paddingHorizontal: moderateScale(15),
         justifyContent: "space-between",
         alignItems: "center",
+        height: verticalScale(isLong ? 65 : 50),
       }}
     >
       <TouchableOpacity
@@ -52,7 +55,19 @@ export default function AppHeaderNav({
         <Image source={assets.hamburger} style={{ width: 28, height: 28 }} />
       </TouchableOpacity>
 
-      <Text style={{ color: Colors.text_white, fontSize: 16.5 }}>{title}</Text>
+      <View style={{ flex: 1, paddingHorizontal: moderateScale(20) }}>
+        <Text
+          numberOfLines={3}
+          ellipsizeMode="tail"
+          style={{
+            color: Colors.text_white,
+            fontSize: 16,
+            textAlign: isLong ? "left" : "center",
+          }}
+        >
+          {title}
+        </Text>
+      </View>
 
       <TouchableOpacity
         onPress={() => router.push("/kotak-masuk")}
@@ -66,7 +81,7 @@ export default function AppHeaderNav({
             zIndex: 1,
             backgroundColor: "red",
             color: Colors.text_white,
-            fontWeight: 500,
+            fontWeight: "500",
             fontSize: 12,
           }}
         >

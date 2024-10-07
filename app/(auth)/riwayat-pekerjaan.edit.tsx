@@ -189,7 +189,7 @@ export default function RiwayaPekerjaanEdit() {
       Dialog.show({
         type: ALERT_TYPE.SUCCESS,
         title: "Berhasil",
-        textBody: "Riwayat Pekerjaan Berhasil Di Update",
+        textBody: "Riwayat Pekerjaan Berhasil Di Diperbarui",
         button: "Tutup",
       });
       setDataInput({
@@ -211,7 +211,7 @@ export default function RiwayaPekerjaanEdit() {
       Dialog.show({
         type: ALERT_TYPE.DANGER,
         title: "Gagal",
-        textBody: error?.message || "Riwayat Pekerjaan Gagal Di Update",
+        textBody: error?.message || "Riwayat Pekerjaan Gagal Di Diperbarui",
         button: "Tutup",
       });
     },

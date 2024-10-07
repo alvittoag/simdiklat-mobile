@@ -77,7 +77,7 @@ export default function pelatihanEdit() {
       Dialog.show({
         type: ALERT_TYPE.SUCCESS,
         title: "Berhasil",
-        textBody: "Pelatihan Berhasil Di Update",
+        textBody: "Pelatihan Berhasil Di Diperbarui",
         button: "Tutup",
       });
       setDataInput({
@@ -94,7 +94,7 @@ export default function pelatihanEdit() {
       Dialog.show({
         type: ALERT_TYPE.DANGER,
         title: "Gagal",
-        textBody: error?.message || "Pelatihan Gagal Di Update",
+        textBody: error?.message || "Pelatihan Gagal Di Diperbarui",
         button: "Tutup",
       });
     },

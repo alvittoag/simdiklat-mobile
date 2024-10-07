@@ -55,7 +55,7 @@ export default function karyaAdd() {
       Dialog.show({
         type: ALERT_TYPE.SUCCESS,
         title: "Berhasil",
-        textBody: "Karya Tulis Berhasil Di Update",
+        textBody: "Karya Tulis Berhasil Di Diperbarui",
         button: "Tutup",
       });
 
@@ -69,7 +69,7 @@ export default function karyaAdd() {
       Dialog.show({
         type: ALERT_TYPE.DANGER,
         title: "Gagal",
-        textBody: error?.message || "Karya Tulis Gagal Di Update",
+        textBody: error?.message || "Karya Tulis Gagal Di Diperbarui",
         button: "Tutup",
       });
     },

@@ -70,7 +70,6 @@ export default function KotakMasukCreate() {
     value: null,
   });
 
-  console.log(selectValue);
   const { data, isPending, error } = useQuery({
     queryKey: ["users", search, page],
     queryFn: async () => {
@@ -143,17 +142,24 @@ export default function KotakMasukCreate() {
       >
         <Formik
           initialValues={{ subject: "", message: "" }}
-          validationSchema={messageSchema}
           onSubmit={({ message, subject }, { resetForm }) => {
             if (!selectValue.value) {
               return Dialog.show({
-                type: ALERT_TYPE.DANGER,
-                title: "Gagal",
+                type: ALERT_TYPE.WARNING,
+                title: "Peringatan",
                 textBody: "Harap Pilih Penerima",
                 button: "Tutup",
               });
             }
 
+            if (!message || !subject) {
+              return Dialog.show({
+                type: ALERT_TYPE.WARNING,
+                title: "Peringatan",
+                textBody: "Harap Lengkapi Subjek dan Isi Pesan",
+                button: "Tutup",
+              });
+            }
             handleSend({
               subject: message,
               message: subject,
@@ -336,15 +342,42 @@ export default function KotakMasukCreate() {
                     borderBottomColor: Colors.border_primary,
                   }}
                 >
-                  <Text
-                    style={{
-                      color: Colors.text_primary,
-                      fontSize: 15,
-                      fontWeight: "500",
-                    }}
-                  >
-                    {item.full_name}
-                  </Text>
+                  <View>
+                    <Text
+                      style={{
+                        color: Colors.text_primary,
+                        fontSize: 16,
+                        fontWeight: "bold",
+                      }}
+                    >
+                      {item.full_name}
+                    </Text>
+
+                    <View style={{ marginTop: 3 }}>
+                      <Text
+                        style={{
+                          color: Colors.text_primary,
+                          fontSize: 15,
+                          fontWeight: "500",
+                        }}
+                      >
+                        {item.nip}
+                      </Text>
+
+                      {/* Should SKPD */}
+
+                      <Text
+                        style={{
+                          color: Colors.text_primary,
+                          fontSize: 15,
+                          fontWeight: "500",
+                          fontStyle: "italic",
+                        }}
+                      >
+                        {item.uke?.skpd?.name}
+                      </Text>
+                    </View>
+                  </View>
                 </TouchableOpacity>
               )}
               ListFooterComponent={() => (

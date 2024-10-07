@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, StyleSheet } from "react-native";
+import { View, Text, ScrollView, StyleSheet, FlatList } from "react-native";
 import React from "react";
 import { Button, Checkbox } from "react-native-paper";
 import { moderateScale } from "react-native-size-matters";
@@ -54,13 +54,13 @@ export default function DataKompetensi() {
     };
   }>(getRiwayatPendidikanUser, {
     variables: {
-      limit: 3,
+      limit: 1,
       page: pagePendidikan,
     },
   });
 
   const totalPagePendidikan = pendidiakn
-    ? Math.ceil(pendidiakn?.riwayatPendidikanUser.total / 3)
+    ? Math.ceil(pendidiakn?.riwayatPendidikanUser.total / 1)
     : 1;
 
   const {
@@ -374,7 +374,6 @@ export default function DataKompetensi() {
           gap: moderateScale(20),
           borderBottomWidth: 1,
           borderBottomColor: Colors.border_primary,
-          flex: 1,
         }}
       >
         <Text style={{ fontWeight: "bold", fontSize: 17 }}>
@@ -398,91 +397,79 @@ export default function DataKompetensi() {
           {loadingPendidikan ? (
             <Loading />
           ) : (
-            <FlashList
-              keyExtractor={(item) => item.id.toString()}
-              data={pendidiakn?.riwayatPendidikanUser.items}
-              estimatedItemSize={5}
-              renderItem={({ item, index }) => {
-                const length =
-                  pendidiakn?.riwayatPendidikanUser.items.length ?? 0;
-                return (
-                  <View
-                    key={item.id}
-                    style={{
-                      borderBottomWidth: length - 1 === index ? 0 : 1,
-                      borderBottomColor: Colors.border_primary,
-                      marginBottom:
-                        length - 1 === index ? 0 : moderateScale(10),
-                    }}
-                  >
-                    <View style={{ marginBottom: moderateScale(10) }}>
-                      <Text style={{ fontSize: 15 }}>Jenjang</Text>
-                      <Text style={{ fontWeight: "bold" }}>{item.jenis}</Text>
-                    </View>
-
-                    <View style={{ marginBottom: moderateScale(10) }}>
-                      <Text style={{ fontSize: 15 }}>Nama Sekolah</Text>
-                      <Text style={{ fontWeight: "bold" }}>
-                        {item.nama_sekolah === " " ? "-" : item.nama_sekolah}
-                      </Text>
-                    </View>
-
-                    <View style={{ marginBottom: moderateScale(10) }}>
-                      <Text style={{ fontSize: 15 }}>Tempat Pendidikan</Text>
-                      <Text style={{ fontWeight: "bold" }}>{item.tempat}</Text>
-                    </View>
-
-                    <View style={{ marginBottom: moderateScale(10) }}>
-                      <Text style={{ fontSize: 15 }}>Tahun Lulus</Text>
-                      <Text style={{ fontWeight: "bold" }}>
-                        {item.tahun_lulus}
-                      </Text>
-                    </View>
-
-                    <View style={{ marginBottom: moderateScale(10) }}>
-                      <Text style={{ fontSize: 15 }}>Keterangan</Text>
-                      <Text style={{ fontWeight: "bold" }}>
-                        {item.keterangan === " " ? "-" : item.keterangan}
-                      </Text>
-                    </View>
-
-                    <View style={{ marginBottom: moderateScale(10) }}>
-                      <Text style={{ fontSize: 15 }}>Ijazah</Text>
-                      <Text style={{ fontWeight: "bold" }}>
-                        {item.ijazah_url}
-                      </Text>
-                    </View>
-
-                    <View style={styles.actionButtonsContainer}>
-                      <Button
-                        onPress={() => handleDeleteRiwayatPendidikan(item.id)}
-                        icon="delete"
-                        mode="outlined"
-                        textColor={Colors.text_primary}
-                        style={styles.deleteButton}
-                      >
-                        Hapus
-                      </Button>
-
-                      <Button
-                        onPress={() =>
-                          router.push({
-                            pathname: "/riwayat-pendidikan.edit",
-                            params: { data: JSON.stringify(item) },
-                          })
-                        }
-                        icon="content-save-edit-outline"
-                        mode="outlined"
-                        textColor={Colors.text_primary}
-                        style={styles.editButton}
-                      >
-                        Edit
-                      </Button>
-                    </View>
+            pendidiakn?.riwayatPendidikanUser.items.map((item) => (
+              <View key={item.id}>
+                <View
+                  style={{
+                    gap: moderateScale(10),
+                  }}
+                >
+                  <View style={{ marginBottom: moderateScale(10) }}>
+                    <Text style={{ fontSize: 15 }}>Jenjang</Text>
+                    <Text style={{ fontWeight: "bold" }}>{item.jenis}</Text>
                   </View>
-                );
-              }}
-              ListFooterComponent={() => (
+
+                  <View style={{ marginBottom: moderateScale(10) }}>
+                    <Text style={{ fontSize: 15 }}>Nama Sekolah</Text>
+                    <Text style={{ fontWeight: "bold" }}>
+                      {item.nama_sekolah === " " ? "-" : item.nama_sekolah}
+                    </Text>
+                  </View>
+
+                  <View style={{ marginBottom: moderateScale(10) }}>
+                    <Text style={{ fontSize: 15 }}>Tempat Pendidikan</Text>
+                    <Text style={{ fontWeight: "bold" }}>{item.tempat}</Text>
+                  </View>
+
+                  <View style={{ marginBottom: moderateScale(10) }}>
+                    <Text style={{ fontSize: 15 }}>Tahun Lulus</Text>
+                    <Text style={{ fontWeight: "bold" }}>
+                      {item.tahun_lulus}
+                    </Text>
+                  </View>
+
+                  <View style={{ marginBottom: moderateScale(10) }}>
+                    <Text style={{ fontSize: 15 }}>Keterangan</Text>
+                    <Text style={{ fontWeight: "bold" }}>
+                      {item.keterangan === " " ? "-" : item.keterangan}
+                    </Text>
+                  </View>
+
+                  <View style={{ marginBottom: moderateScale(10) }}>
+                    <Text style={{ fontSize: 15 }}>Ijazah</Text>
+                    <Text style={{ fontWeight: "bold" }}>
+                      {item.ijazah_url}
+                    </Text>
+                  </View>
+
+                  <View style={styles.actionButtonsContainer}>
+                    <Button
+                      onPress={() => handleDeleteRiwayatPendidikan(item.id)}
+                      icon="delete"
+                      mode="outlined"
+                      textColor={Colors.text_primary}
+                      style={styles.deleteButton}
+                    >
+                      Hapus
+                    </Button>
+
+                    <Button
+                      onPress={() =>
+                        router.push({
+                          pathname: "/riwayat-pendidikan.edit",
+                          params: { data: JSON.stringify(item) },
+                        })
+                      }
+                      icon="content-save-edit-outline"
+                      mode="outlined"
+                      textColor={Colors.text_primary}
+                      style={styles.editButton}
+                    >
+                      Edit
+                    </Button>
+                  </View>
+                </View>
+
                 <Pagination
                   loading={loadingPendidikan}
                   page={pagePendidikan}
@@ -491,8 +478,8 @@ export default function DataKompetensi() {
                   horizontal={0}
                   bottom={0}
                 />
-              )}
-            />
+              </View>
+            ))
           )}
         </View>
       </View>

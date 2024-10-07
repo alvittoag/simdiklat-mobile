@@ -8,6 +8,7 @@ export const getKuisonerPenyelenggara = gql`
     $status: String
     $sortBy: String
     $sortDirection: String
+    $searchBy: String
   ) {
     pesertaDiklats(
       search: $q
@@ -16,6 +17,7 @@ export const getKuisonerPenyelenggara = gql`
       status: $status
       sortBy: $sortBy
       sortDirection: $sortDirection
+      searchBy: $searchBy
     ) {
       items {
         id
@@ -55,6 +57,7 @@ export const getKuisonerPengajar = gql`
     $status: String
     $sortBy: String
     $sortDirection: String
+    $searchBy: String
   ) {
     pesertaDiklats(
       search: $q
@@ -63,6 +66,7 @@ export const getKuisonerPengajar = gql`
       status: $status
       sortBy: $sortBy
       sortDirection: $sortDirection
+      searchBy: $searchBy
     ) {
       items {
         id

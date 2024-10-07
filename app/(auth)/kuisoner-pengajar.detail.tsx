@@ -63,7 +63,7 @@ export default function KuisonerPengajarDetail() {
   const [saran, setSaran] = useState("");
 
   const { data, isPending, error } = useQuery<KuisResponse>({
-    queryKey: ["kuisoner-pengajar"],
+    queryKey: ["kuisoner-pengajar", dataParams.jadwal_diklat.diklat_id],
     queryFn: async () => {
       const res = await axiosService.get<KuisResponse>(
         `/api/kuisoner/pengajar/lembar/${dataParams.jadwal_diklat.diklat_id}`
@@ -90,7 +90,10 @@ export default function KuisonerPengajarDetail() {
       setSelections([]);
       setSaran("");
 
-      router.back();
+      router.push({
+        pathname: "/kuisoner-pengajar.list",
+        params: { status: "success" },
+      });
     },
     onError: (err) => {
       console.log(err);
@@ -132,9 +135,17 @@ export default function KuisonerPengajarDetail() {
   };
 
   const handleSumbit = () => {
+    if (selections.length !== data?.data.length) {
+      return Dialog.show({
+        type: ALERT_TYPE.WARNING,
+        title: "Perhatian",
+        textBody: "Kuisoner Pengajar Harus Diisi Semua",
+        button: "Tutup",
+      });
+    }
     const mergedData = selections.map((s) => ({
       ...s,
-      saran,
+      saran: saran === "" ? " " : saran,
     }));
 
     console.log(mergedData);
@@ -244,15 +255,14 @@ export default function KuisonerPengajarDetail() {
             <TextInput
               value={saran}
               onChangeText={(e) => setSaran(e)}
-              outlineColor="transparent"
               placeholder="Isi Saran Untuk Pengajar"
               placeholderTextColor={Colors.text_secondary}
-              activeOutlineColor="transparent"
               multiline
               mode="outlined"
               textColor="black"
               style={{
-                backgroundColor: Colors.border_primary,
+                backgroundColor: Colors.white,
+                borderColor: Colors.border_primary,
                 borderRadius: 7,
                 minHeight: 100,
                 paddingVertical: 10,

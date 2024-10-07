@@ -125,9 +125,17 @@ export default function KuisonerPengajarDetail() {
   };
 
   const handleSumbit = () => {
+    if (selections.length !== data?.data.length) {
+      return Dialog.show({
+        type: ALERT_TYPE.WARNING,
+        title: "Perhatian",
+        textBody: "Kuisoner Penyelenggara Harus Diisi Semua",
+        button: "Tutup",
+      });
+    }
     const mergedData = selections.map((s) => ({
       ...s,
-      saran,
+      saran: saran === "" ? " " : saran,
     }));
 
     mutationAdd.mutate(mergedData);
@@ -234,15 +242,14 @@ export default function KuisonerPengajarDetail() {
             <TextInput
               value={saran}
               onChangeText={(e) => setSaran(e)}
-              outlineColor="transparent"
               placeholder="Isi Saran Untuk Pengajar"
               placeholderTextColor={Colors.text_secondary}
-              activeOutlineColor="transparent"
               multiline
               mode="outlined"
               textColor="black"
               style={{
-                backgroundColor: Colors.border_primary,
+                backgroundColor: Colors.white,
+                borderColor: Colors.border_primary,
                 borderRadius: 7,
                 minHeight: 100,
                 paddingVertical: 10,

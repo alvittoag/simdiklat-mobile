@@ -5,7 +5,7 @@ import AppHeader from "@/components/AppHeader";
 import SearchBar from "@/components/sections/SearchBar";
 import { moderateScale } from "react-native-size-matters";
 import { Colors } from "@/constants/Colors";
-import { Button } from "react-native-paper";
+import { Button, Dialog as DL, Portal, RadioButton } from "react-native-paper";
 import { router } from "expo-router";
 import useDebounce from "@/hooks/useDebounce";
 import Pagination from "@/components/sections/pagination";
@@ -36,6 +36,8 @@ type response = {
 export default function PodcastPerangkatDaerahList() {
   const queryClient = useQueryClient();
   const [search, setSearch] = React.useState("");
+  const [searchBy, setSearchBy] = React.useState("");
+  const [showFilter, setShowFilter] = React.useState(false);
 
   const debouncedSearch = useDebounce(search, 1000);
 
@@ -88,6 +90,12 @@ export default function PodcastPerangkatDaerahList() {
     setSearch(text);
   }, []);
 
+  const hideShowFilter = () => {
+    setSearch("");
+    setPage(1);
+    setShowFilter(false);
+  };
+
   const ListFooter = React.useMemo(
     () => (
       <Pagination
@@ -111,7 +119,12 @@ export default function PodcastPerangkatDaerahList() {
 
   return (
     <ContainerBackground>
-      <SearchBar handleSearchChange={handleSearchChange} search={search} />
+      <SearchBar
+        handleSearchChange={handleSearchChange}
+        showDialog={() => setShowFilter(true)}
+        search={search}
+        showSort
+      />
 
       {isPending ? (
         <Loading />
@@ -257,6 +270,71 @@ export default function PodcastPerangkatDaerahList() {
           ListFooterComponent={ListFooter}
         />
       )}
+
+      <Portal>
+        {showFilter && (
+          <DL
+            visible={showFilter}
+            onDismiss={hideShowFilter}
+            style={{ backgroundColor: "white" }}
+          >
+            <DL.Title style={{ color: Colors.text_primary }}>
+              Filter Berdasarkan
+            </DL.Title>
+
+            <DL.Content>
+              <RadioButton.Group
+                onValueChange={(newValue) => setSearchBy(newValue)}
+                value={searchBy}
+              >
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                  }}
+                >
+                  <RadioButton
+                    status={searchBy === "jd.name" ? "checked" : "unchecked"}
+                    value="jd.name"
+                    color={Colors.border_input_active}
+                    uncheckedColor="black"
+                  />
+                  <Text>Tema</Text>
+                </View>
+
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                  }}
+                >
+                  <RadioButton
+                    status={searchBy === "d.name" ? "checked" : "unchecked"}
+                    value="d.name"
+                    color={Colors.border_input_active}
+                    uncheckedColor="black"
+                  />
+                  <Text>Episode</Text>
+                </View>
+              </RadioButton.Group>
+            </DL.Content>
+
+            <DL.Actions>
+              <Button
+                onPress={hideShowFilter}
+                mode="contained"
+                textColor="black"
+                style={{
+                  backgroundColor: Colors.button_secondary,
+                  flexGrow: 1,
+                }}
+              >
+                Terapkan
+              </Button>
+            </DL.Actions>
+          </DL>
+        )}
+      </Portal>
     </ContainerBackground>
   );
 }

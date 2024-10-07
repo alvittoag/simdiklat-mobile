@@ -1,6 +1,8 @@
 // ** Temp
 const logo_bpsdm = require("./images/temp/Logo BPSDM 2022.png");
 const background = require("./images/temp/background.jpeg");
+const kopi_sedap = require("./images/temp/kopi_sedap.png");
+const rabu_belajar = require("./images/temp/rabu_belajar.png");
 
 // ** Icons Before Auth
 const pengumuman = require("./images/icons/pengumuman.png");
@@ -88,4 +90,6 @@ export default {
   kuisioner,
   logout,
   tutorial,
+  kopi_sedap,
+  rabu_belajar,
 };

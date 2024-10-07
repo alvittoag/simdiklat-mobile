@@ -103,7 +103,7 @@ export default function KompetensiLainnyaEdit() {
       Dialog.show({
         type: ALERT_TYPE.SUCCESS,
         title: "Berhasil",
-        textBody: "Kompetensi Lainnya Berhasil Diupdate",
+        textBody: "Kompetensi Lainnya Berhasil Diperbarui",
         button: "Tutup",
       });
       setDataInput({
@@ -121,7 +121,7 @@ export default function KompetensiLainnyaEdit() {
       Dialog.show({
         type: ALERT_TYPE.DANGER,
         title: "Gagal",
-        textBody: error?.message || "Kompetensi Lainnya Gagal Diupdate",
+        textBody: error?.message || "Kompetensi Lainnya Gagal Diperbarui",
         button: "Tutup",
       });
     },

@@ -86,7 +86,7 @@ export default function RiwayaPendidikanCreate() {
       Dialog.show({
         type: ALERT_TYPE.SUCCESS,
         title: "Berhasil",
-        textBody: "Riwayat Pendidikan Berhasil Diupdate",
+        textBody: "Riwayat Pendidikan Berhasil Diperbarui",
         button: "Tutup",
       });
       setDataInput({
@@ -103,7 +103,7 @@ export default function RiwayaPendidikanCreate() {
       Dialog.show({
         type: ALERT_TYPE.DANGER,
         title: "Gagal",
-        textBody: error?.message || "Riwayat Pendidikan Gagal Diupdate",
+        textBody: error?.message || "Riwayat Pendidikan Gagal Diperbarui",
         button: "Tutup",
       });
     },

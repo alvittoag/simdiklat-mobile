@@ -33,6 +33,7 @@ export default function KotakMasuk() {
   const isFocused = useIsFocused();
 
   const [search, setSearch] = React.useState("");
+  const [loadingDelete, setLoadingDelete] = React.useState(false);
   const debouncedSearch = useDebounce(search, 1000);
   const [page, setPage] = React.useState(1);
   const [limit, setLimit] = React.useState(10);
@@ -92,6 +93,7 @@ export default function KotakMasuk() {
   };
 
   const deletePesan = async (id: number) => {
+    setLoadingDelete(true);
     try {
       await axiosService.delete("/api/message/delete-message", {
         data: {
@@ -117,6 +119,8 @@ export default function KotakMasuk() {
         textBody: "Pesan Gagal Dihapus",
         button: "Tutup",
       });
+    } finally {
+      setLoadingDelete(false);
     }
   };
 
@@ -342,7 +346,7 @@ export default function KotakMasuk() {
                         color: Colors.text_primary,
                       }}
                       onPress={() => deletePesan(item.id)}
-                      title="Hapus"
+                      title={loadingDelete ? "Loading..." : "Hapus"}
                     />
                   </Menu>
                 </TouchableOpacity>

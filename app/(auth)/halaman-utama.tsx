@@ -38,7 +38,7 @@ type response = {
 type responsePodcast = {
   status: string;
   message: string;
-  data: IPodcast;
+  data: IPodcast[];
 };
 
 export default function HalamanUtama() {
@@ -91,17 +91,25 @@ export default function HalamanUtama() {
     },
   });
 
-  const handleRegisterPodcast = () => {
+  const handleRegisterPodcast = ({
+    angkatan,
+    isRegisterd,
+    watch_id,
+  }: {
+    angkatan: number;
+    isRegisterd: boolean;
+    watch_id: string;
+  }) => {
     const formData = new FormData();
-    formData.append("jadwal_diklat_id", dataPodcast?.data.angkatan_id as any);
+    formData.append("jadwal_diklat_id", angkatan as any);
 
-    if (!dataPodcast?.data.isRegisterd) {
+    if (!isRegisterd) {
       mutate(formData);
     }
 
     router.push({
       pathname: "/podcast-perangkat-daerah.detail",
-      params: { id: dataPodcast?.data.watch_id },
+      params: { id: watch_id },
     });
   };
 
@@ -270,55 +278,80 @@ export default function HalamanUtama() {
           >
             Podcast Yang Akan Datang
           </Text>
-
           {isPendingPodcast ? (
             <Loading />
           ) : (
-            <View
-              style={{
-                padding: moderateScale(20),
-                backgroundColor: "#F8F8F8",
-                borderRadius: 20,
-                borderWidth: 1,
-                borderColor: Colors.button_primary,
-                gap: moderateScale(15),
+            <FlatList
+              data={dataPodcast?.data}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              renderItem={({ item, index }) => {
+                return (
+                  <View
+                    style={{
+                      padding: moderateScale(15),
+                      backgroundColor: "#F8F8F8",
+                      borderRadius: 20,
+                      borderWidth: 1,
+                      gap: moderateScale(13),
+                      borderColor: Colors.button_primary,
+                      marginRight:
+                        dataPodcast?.data?.length === index - 1 ? 0 : 25,
+                    }}
+                  >
+                    <Text
+                      style={{
+                        fontWeight: "bold",
+                        fontSize: 18,
+                        textAlign: "center",
+                      }}
+                    >
+                      {item.jenis_podcast === "kopi_sedap"
+                        ? "Podcast Kopi Sedap"
+                        : "Podcast Rabu Belajar"}
+                    </Text>
+
+                    {item.jenis_podcast === "kopi_sedap" ? (
+                      <Image
+                        source={assets.kopi_sedap}
+                        resizeMode="contain"
+                        style={{
+                          width: 230,
+                          height: 120,
+                        }}
+                      />
+                    ) : (
+                      <Image
+                        source={assets.rabu_belajar}
+                        resizeMode="contain"
+                        style={{
+                          width: 230,
+                          height: 120,
+                        }}
+                      />
+                    )}
+
+                    <Button
+                      mode="contained"
+                      icon={"play"}
+                      textColor="white"
+                      style={{
+                        backgroundColor: Colors.button_primary,
+                        paddingVertical: moderateScale(8),
+                        borderRadius: 7,
+                      }}
+                      onPress={() => {
+                        item.jenis_podcast === "kopi_sedap"
+                          ? null
+                          : router.push("/podcast-perangkat-daerah.list");
+                      }}
+                    >
+                      Tonton Disini
+                    </Button>
+                  </View>
+                );
               }}
-            >
-              <Text
-                style={{
-                  fontWeight: "bold",
-                  fontSize: 18,
-                }}
-              >
-                {dataPodcast?.data.title}
-              </Text>
-
-              <Image
-                source={{ uri: dataPodcast?.data.thumbnail }}
-                resizeMode="contain"
-                style={{
-                  height: 180,
-                  borderRadius: 7,
-                  backgroundColor: Colors.border_primary,
-                  borderWidth: 0.5,
-                  borderColor: Colors.border_primary,
-                }}
-              />
-
-              <Button
-                mode="contained"
-                icon={"login"}
-                textColor="black"
-                style={{
-                  backgroundColor: Colors.button_secondary,
-                  paddingVertical: moderateScale(7),
-                  borderRadius: 7,
-                }}
-                onPress={handleRegisterPodcast}
-              >
-                Ikuti
-              </Button>
-            </View>
+            />
           )}
         </View>
       </ScrollView>

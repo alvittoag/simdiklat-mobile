@@ -25,10 +25,15 @@ import { router } from "expo-router";
 import { parseDateLong } from "@/lib/parseDate";
 export default function DiklatSudahDiikuti() {
   const [search, setSearch] = React.useState("");
+  const [searchBy, setSearchBy] = React.useState("");
   const [filter, setfilter] = React.useState("DESC");
   const [terapkan, setTerapkan] = React.useState<any>({
     sortDirection: filter,
+    searchBy: "",
   });
+
+  const [showFilter, setShowFilter] = React.useState(false);
+  const [showSort, setShowSort] = React.useState(false);
 
   const debouncedSearch = useDebounce(search, 1000);
 
@@ -45,7 +50,7 @@ export default function DiklatSudahDiikuti() {
     variables: {
       page: page,
       limit: limit,
-      q: debouncedSearch,
+      q: debouncedSearch.toLocaleLowerCase(),
       tipe: "history",
       sortBy: "a.jadwal_mulai",
       ...terapkan,
@@ -57,8 +62,6 @@ export default function DiklatSudahDiikuti() {
   const handleSearchChange = React.useCallback((text: string) => {
     setSearch(text);
   }, []);
-
-  const [visible, setVisible] = React.useState(false);
 
   const ListFooter = React.useMemo(
     () => (
@@ -76,23 +79,34 @@ export default function DiklatSudahDiikuti() {
     return <Error />;
   }
 
-  const showDialog = () => setVisible(true);
+  const hideShowFilter = () => {
+    setTerapkan((prev: any) => ({
+      ...prev,
+      searchBy: searchBy,
+    }));
+    setSearch("");
+    setPage(1);
+    setShowFilter(false);
+  };
 
-  const hideDialog = () => {
+  const hideShowSort = () => {
     setTerapkan((prev: any) => ({
       ...prev,
       sortDirection: filter,
     }));
     setSearch("");
     setPage(1);
-    setVisible(false);
+    setShowSort(false);
   };
+
   return (
     <ContainerBackground>
       <SearchBar
         handleSearchChange={handleSearchChange}
         search={search}
-        showDialog={showDialog}
+        showDialog={() => setShowFilter(true)}
+        showSortDialog={() => setShowSort(true)}
+        showSort
         showFilter
       />
 
@@ -213,61 +227,146 @@ export default function DiklatSudahDiikuti() {
       )}
 
       <Portal>
-        <Dialog
-          visible={visible}
-          onDismiss={hideDialog}
-          style={{ backgroundColor: "white" }}
-        >
-          <Dialog.Title style={{ color: Colors.text_primary }}>
-            Filter Berdasarkan
-          </Dialog.Title>
-          <Dialog.Content>
-            <RadioButton.Group
-              onValueChange={(newValue) => setfilter(newValue)}
-              value={filter}
-            >
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                }}
-              >
-                <RadioButton
-                  status={filter === "DESC" ? "checked" : "unchecked"}
-                  value="DESC"
-                  color={Colors.border_input_active}
-                  uncheckedColor="black"
-                />
-                <Text>Data Paling Terbaru</Text>
-              </View>
+        {showFilter && (
+          <Dialog
+            visible={showFilter}
+            onDismiss={hideShowFilter}
+            style={{ backgroundColor: "white" }}
+          >
+            <Dialog.Title style={{ color: Colors.text_primary }}>
+              Filter Berdasarkan
+            </Dialog.Title>
 
-              <View
+            <Dialog.Content>
+              <RadioButton.Group
+                onValueChange={(newValue) => setSearchBy(newValue)}
+                value={searchBy}
+              >
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                  }}
+                >
+                  <RadioButton
+                    status={searchBy === "jd.name" ? "checked" : "unchecked"}
+                    value="jd.name"
+                    color={Colors.border_input_active}
+                    uncheckedColor="black"
+                  />
+                  <Text>Jenis Diklat</Text>
+                </View>
+
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                  }}
+                >
+                  <RadioButton
+                    status={searchBy === "d.name" ? "checked" : "unchecked"}
+                    value="d.name"
+                    color={Colors.border_input_active}
+                    uncheckedColor="black"
+                  />
+                  <Text>Nama Diklat</Text>
+                </View>
+
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                  }}
+                >
+                  <RadioButton
+                    value="ld.name"
+                    status={searchBy === "ld.name" ? "checked" : "unchecked"}
+                    color={Colors.border_input_active}
+                    uncheckedColor="black"
+                  />
+                  <Text>Lokasi Diklat</Text>
+                </View>
+              </RadioButton.Group>
+            </Dialog.Content>
+
+            <Dialog.Actions>
+              <Button
+                onPress={hideShowFilter}
+                mode="contained"
+                textColor="black"
                 style={{
-                  flexDirection: "row",
-                  alignItems: "center",
+                  backgroundColor: Colors.button_secondary,
+                  flexGrow: 1,
                 }}
               >
-                <RadioButton
-                  value="ASC"
-                  status={filter === "ASC" ? "checked" : "unchecked"}
-                  color={Colors.border_input_active}
-                  uncheckedColor="black"
-                />
-                <Text>Data Terlama</Text>
-              </View>
-            </RadioButton.Group>
-          </Dialog.Content>
-          <Dialog.Actions>
-            <Button
-              onPress={hideDialog}
-              textColor="black"
-              mode="contained"
-              style={{ backgroundColor: Colors.button_secondary, flexGrow: 1 }}
-            >
-              Terapkan
-            </Button>
-          </Dialog.Actions>
-        </Dialog>
+                Terapkan
+              </Button>
+            </Dialog.Actions>
+          </Dialog>
+        )}
+
+        {showSort && (
+          <Dialog
+            visible={showSort}
+            onDismiss={hideShowSort}
+            style={{ backgroundColor: "white" }}
+          >
+            <Dialog.Title style={{ color: Colors.text_primary }}>
+              Urutkan Berdasarkan
+            </Dialog.Title>
+
+            <Dialog.Content>
+              <RadioButton.Group
+                onValueChange={(newValue) => setfilter(newValue)}
+                value={filter}
+              >
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                  }}
+                >
+                  <RadioButton
+                    status={filter === "DESC" ? "checked" : "unchecked"}
+                    value="DESC"
+                    color={Colors.border_input_active}
+                    uncheckedColor="black"
+                  />
+                  <Text>Data Paling Terbaru</Text>
+                </View>
+
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                  }}
+                >
+                  <RadioButton
+                    value="ASC"
+                    status={filter === "ASC" ? "checked" : "unchecked"}
+                    color={Colors.border_input_active}
+                    uncheckedColor="black"
+                  />
+                  <Text>Data Terlama</Text>
+                </View>
+              </RadioButton.Group>
+            </Dialog.Content>
+
+            <Dialog.Actions>
+              <Button
+                onPress={hideShowSort}
+                mode="contained"
+                textColor="black"
+                style={{
+                  backgroundColor: Colors.button_secondary,
+                  flexGrow: 1,
+                }}
+              >
+                Terapkan
+              </Button>
+            </Dialog.Actions>
+          </Dialog>
+        )}
       </Portal>
     </ContainerBackground>
   );

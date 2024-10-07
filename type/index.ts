@@ -462,6 +462,9 @@ export interface IPodcast {
   angkatan_id: number;
   title: string;
   watch_id: string;
+  zoom_url: string;
+  passcode: string;
+  file_sertifikat: string;
   keterangan: string;
   clicked: number;
   created_at: Date;
@@ -511,6 +514,7 @@ export interface IPodcast {
   isRegisterd: boolean;
   thumbnail: string;
   sertifikat: string;
+  jenis_podcast: "rabu_belajar" | "kopi_sedap";
 }
 
 export interface IUsers {
@@ -621,6 +625,16 @@ export interface Pangkat {
   updated_at: Date;
 }
 
+export interface SKPD {
+  code: string;
+  uke_id: string;
+  code_old: string;
+  spmu: number;
+  name: string;
+  dki_name: string;
+  induk_id: string;
+}
+
 export interface Uke {
   code: string;
   uke_induk_id: null;
@@ -632,6 +646,7 @@ export interface Uke {
   is_active: number;
   created_at: Date;
   updated_at: Date;
+  skpd: SKPD;
 }
 
 export interface ISimpeg {

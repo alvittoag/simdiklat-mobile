@@ -34,6 +34,8 @@ export default function BiodataSimpeg() {
   const [allChecked, setAllChecked] = React.useState(false);
   const [dialog, setDialog] = React.useState(false);
 
+  console.log(dataCheck);
+
   const { data, isPending, isError, isSuccess } = useQuery({
     queryKey: ["biodata-simpeg"],
     queryFn: async () => {
@@ -59,7 +61,6 @@ export default function BiodataSimpeg() {
         textBody: "Biodata Simpeg Berhasil",
         button: "Tutup",
       });
-      setDataCheck({});
     },
     onError: (error) => {
       console.log(error);
@@ -130,6 +131,10 @@ export default function BiodataSimpeg() {
     mutate(formData);
   };
 
+  React.useEffect(() => {
+    handleAllCheckboxChange();
+  }, [data]);
+
   const renderField = (
     key: string,
     simdiklatValue: string,
@@ -169,10 +174,6 @@ export default function BiodataSimpeg() {
       </View>
     </View>
   );
-
-  React.useEffect(() => {
-    handleAllCheckboxChange();
-  }, [isSuccess]);
 
   if (isError) return <Error />;
 
@@ -367,20 +368,20 @@ export default function BiodataSimpeg() {
           {/* Submit button */}
           <View style={{ flexDirection: "row", gap: moderateScale(25) }}>
             <Button
-              icon={"send"}
+              icon={"content-save-outline"}
               disabled={isPendingUpdate}
               loading={isPendingUpdate}
               labelStyle={{ color: "black" }}
-              mode="elevated"
               style={{
                 backgroundColor: Colors.button_secondary,
                 paddingVertical: moderateScale(8),
                 flex: 1,
+                borderRadius: 7,
               }}
               textColor="black"
               onPress={() => handleUpdate()}
             >
-              Kirim
+              Simpan
             </Button>
           </View>
         </View>
