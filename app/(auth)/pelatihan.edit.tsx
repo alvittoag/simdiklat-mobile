@@ -73,6 +73,7 @@ export default function pelatihanEdit() {
         }
       );
     },
+
     onSuccess: () => {
       Dialog.show({
         type: ALERT_TYPE.SUCCESS,
