@@ -208,27 +208,29 @@ export default function KuisonerPengajarList() {
                 </Text>
               </View>
 
-              <Button
-                onPress={() =>
-                  router.push({
-                    pathname: "/kuisoner-pengajar.detail",
-                    params: {
-                      data: JSON.stringify(item),
-                      peserta_id: dataParams.id,
-                    },
-                  })
-                }
-                mode="contained"
-                icon={"login"}
-                textColor="black"
-                style={{
-                  backgroundColor: Colors.button_secondary,
-                  borderRadius: 7,
-                  paddingVertical: moderateScale(7),
-                }}
-              >
-                Input Kuisoner
-              </Button>
+              {item.status === 0 && (
+                <Button
+                  onPress={() =>
+                    router.push({
+                      pathname: "/kuisoner-pengajar.detail",
+                      params: {
+                        data: JSON.stringify(item),
+                        peserta_id: dataParams.id,
+                      },
+                    })
+                  }
+                  mode="contained"
+                  icon={"login"}
+                  textColor="black"
+                  style={{
+                    backgroundColor: Colors.button_secondary,
+                    borderRadius: 7,
+                    paddingVertical: moderateScale(7),
+                  }}
+                >
+                  Input Kuisoner
+                </Button>
+              )}
             </View>
           )}
           ListFooterComponent={ListFooter}

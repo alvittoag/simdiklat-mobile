@@ -31,8 +31,10 @@ export default function SearchBar({
         flexDirection: "row",
         gap: 10,
         alignItems: "center",
-        borderRadius: 7,
+        borderRadius: 5,
         elevation: 7,
+        borderBottomWidth: 0.5,
+        borderBottomColor: Colors.border_primary,
       }}
     >
       <Searchbar
