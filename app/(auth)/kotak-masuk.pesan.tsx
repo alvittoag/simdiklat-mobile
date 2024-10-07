@@ -17,6 +17,7 @@ import { useApolloClient } from "@apollo/client";
 import { getKotakMasuk } from "@/services/query/get-kotak-masuk";
 import { Button } from "react-native-paper";
 import { Colors } from "@/constants/Colors";
+import Loading from "@/components/elements/Loading";
 
 export default function KotakMasukPesan() {
   const queryClient = useQueryClient();
@@ -49,6 +50,8 @@ export default function KotakMasukPesan() {
       mutate(id as any);
     }
   }, [id]);
+
+  if (isPending) return <Loading />;
 
   return (
     <ContainerBackground>

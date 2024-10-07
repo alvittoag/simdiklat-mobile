@@ -55,7 +55,7 @@ export default function karyaAdd() {
       Dialog.show({
         type: ALERT_TYPE.SUCCESS,
         title: "Berhasil",
-        textBody: "Karya Tulis Berhasil Di Diperbarui",
+        textBody: "Karya Tulis Berhasil Diperbarui",
         button: "Tutup",
       });
 

@@ -72,7 +72,7 @@ export default function TubelEdit() {
       Dialog.show({
         type: ALERT_TYPE.SUCCESS,
         title: "Berhasil",
-        textBody: "Laporan Tubel Berhasil DiUpdate",
+        textBody: "Laporan Tubel Berhasil Diperbarui",
         button: "Tutup",
       });
       setDataInput({

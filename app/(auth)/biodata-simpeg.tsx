@@ -19,6 +19,7 @@ import Loading from "@/components/elements/Loading";
 import { ISimpeg, IUsers } from "@/type";
 import { parseDateLong } from "@/lib/parseDate";
 import { ALERT_TYPE, Dialog as D } from "react-native-alert-notification";
+import { router } from "expo-router";
 
 type response = {
   status: string;
@@ -58,8 +59,13 @@ export default function BiodataSimpeg() {
       D.show({
         type: ALERT_TYPE.SUCCESS,
         title: "Berhasil",
-        textBody: "Biodata Simpeg Berhasil",
+        textBody: "Biodata Simpeg Berhasil Disimpan",
         button: "Tutup",
+        onPressButton() {
+          router.push("/halaman-utama");
+
+          D.hide();
+        },
       });
     },
     onError: (error) => {

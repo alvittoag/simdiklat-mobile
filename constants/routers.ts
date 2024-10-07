@@ -149,7 +149,7 @@ export const routers = [
     ],
   },
   {
-    title: "ADMINISTRASI DIKLAT",
+    title: "ADMINISTRASI PESERTA",
     route: [
       {
         icon: assets.kalender_drawer,

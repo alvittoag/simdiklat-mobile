@@ -189,7 +189,7 @@ export default function RiwayaPekerjaanEdit() {
       Dialog.show({
         type: ALERT_TYPE.SUCCESS,
         title: "Berhasil",
-        textBody: "Riwayat Pekerjaan Berhasil Di Diperbarui",
+        textBody: "Riwayat Pekerjaan Berhasil Diperbarui",
         button: "Tutup",
       });
       setDataInput({
