@@ -14,6 +14,7 @@ import { useQuery as useQ } from "@tanstack/react-query";
 import { axiosService } from "@/services/axiosService";
 import { FlashList } from "@shopify/flash-list";
 import { parseDateLong } from "@/lib/parseDate";
+import { ALERT_TYPE, Dialog } from "react-native-alert-notification";
 
 type response = {
   status: "success" | "error";
@@ -37,6 +38,15 @@ export default function UpdateJpSiJule() {
       return res.data;
     },
   });
+
+  const handleImport = () => {
+    Dialog.show({
+      type: ALERT_TYPE.SUCCESS,
+      title: "Berhasil",
+      textBody: "Berhasil Menyimpan Data Pelatihan SiJule",
+      button: "Tutup",
+    });
+  };
 
   if (loading || isPending) return <Loading />;
 
@@ -119,6 +129,7 @@ export default function UpdateJpSiJule() {
           )}
           ListFooterComponent={() => (
             <Button
+              onPress={handleImport}
               icon={"content-save-outline"}
               labelStyle={{ color: "black" }}
               style={{
