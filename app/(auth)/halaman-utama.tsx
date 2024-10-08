@@ -272,13 +272,13 @@ export default function HalamanUtama() {
         <View
           style={{
             gap: moderateScale(20),
-            paddingHorizontal: moderateScale(15),
           }}
         >
           <Text
             style={{
               fontSize: 18,
               fontWeight: "bold",
+              paddingHorizontal: moderateScale(15),
             }}
           >
             Podcast Yang Akan Datang
@@ -302,9 +302,11 @@ export default function HalamanUtama() {
                       borderWidth: 1,
                       gap: moderateScale(20),
                       borderColor: Colors.button_primary,
+                      marginLeft: index === 0 ? 15 : 0,
+
                       marginRight:
                         index === (dataPodcast?.data?.length as number) - 1
-                          ? 10
+                          ? 15
                           : 25,
                     }}
                   >
