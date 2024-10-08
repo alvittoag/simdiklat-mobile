@@ -324,7 +324,7 @@ export default function HalamanUtama() {
                         <Text
                           style={{
                             fontWeight: 500,
-                            fontSize: 16,
+                            fontSize: 15,
                           }}
                         >
                           Episode {item.jadwal_diklat.name}
