@@ -337,7 +337,7 @@ export const homeRouters = [
     icon: assets.kuisioner,
   },
   {
-    name: "Lupa Password",
+    name: "Ganti Password",
     path: "/ganti-password",
     icon: assets.ganti_password,
   },
