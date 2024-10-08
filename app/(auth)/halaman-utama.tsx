@@ -303,7 +303,9 @@ export default function HalamanUtama() {
                       gap: moderateScale(20),
                       borderColor: Colors.button_primary,
                       marginRight:
-                        dataPodcast?.data?.length === index - 1 ? 0 : 25,
+                        index === (dataPodcast?.data?.length as number) - 1
+                          ? 10
+                          : 25,
                     }}
                   >
                     <View style={{ gap: 3 }}>
