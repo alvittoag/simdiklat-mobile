@@ -308,15 +308,9 @@ export default function HalamanUtama() {
                       style={{
                         fontWeight: "bold",
                         fontSize: 18,
-                        textAlign:
-                          item.jenis_podcast === "kopi_sedap"
-                            ? "center"
-                            : "left",
                       }}
                     >
-                      {item.jenis_podcast === "kopi_sedap"
-                        ? "Podcast Kopi Sedap"
-                        : item.title}
+                      {item.title}
                     </Text>
 
                     {item.jenis_podcast === "kopi_sedap" ? (
