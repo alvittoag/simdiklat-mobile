@@ -28,6 +28,8 @@ import {
 } from "@tanstack/react-query";
 import { axiosService } from "@/services/axiosService";
 import Loading from "@/components/elements/Loading";
+import { parseDateLong } from "@/lib/parseDate";
+import { parseDateString } from "./podcast-perangkat-daerah.list";
 
 type response = {
   status: "success" | "error";
@@ -304,14 +306,45 @@ export default function HalamanUtama() {
                         dataPodcast?.data?.length === index - 1 ? 0 : 25,
                     }}
                   >
-                    <Text
-                      style={{
-                        fontWeight: "bold",
-                        fontSize: 18,
-                      }}
-                    >
-                      {item.title}
-                    </Text>
+                    <View style={{ gap: 3 }}>
+                      <Text
+                        style={{
+                          fontWeight: "bold",
+                          fontSize: 18,
+                        }}
+                      >
+                        {item.title}
+                      </Text>
+
+                      <View>
+                        <Text
+                          style={{
+                            fontWeight: 500,
+                            fontSize: 16,
+                          }}
+                        >
+                          Episode {item.jadwal_diklat.name}
+                        </Text>
+
+                        <Text
+                          style={{
+                            fontWeight: 500,
+                            fontSize: 14,
+                          }}
+                        >
+                          {parseDateLong(item.jadwal_diklat.jadwal_mulai)}{" "}
+                          {
+                            parseDateString(item.jadwal_diklat.jadwal_mulai)
+                              .waktu
+                          }{" "}
+                          -{" "}
+                          {
+                            parseDateString(item.jadwal_diklat.jadwal_selesai)
+                              .waktu
+                          }
+                        </Text>
+                      </View>
+                    </View>
 
                     {item.jenis_podcast === "kopi_sedap" ? (
                       <Image

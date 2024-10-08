@@ -361,7 +361,7 @@ export default function PodcastPerangkatDaerahList() {
   );
 }
 
-function parseDateString(dateString: any) {
+export function parseDateString(dateString: any) {
   // Buat objek Date dari string input
   const date = new Date(dateString);
 
