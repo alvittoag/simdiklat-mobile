@@ -87,7 +87,7 @@ export default function HalamanUtama() {
 
     onError: (e) => {
       console.error(e);
-      alert("Terjadi Kesalahan Pada Server");
+      alert("Terjadi Kesalahan Pada Server Saat Melakukan Registrasi Podcast");
     },
   });
 
@@ -95,13 +95,16 @@ export default function HalamanUtama() {
     angkatan,
     isRegisterd,
     watch_id,
+    diklat_id,
   }: {
     angkatan: number;
     isRegisterd: boolean;
     watch_id: string;
+    diklat_id: number;
   }) => {
     const formData = new FormData();
     formData.append("jadwal_diklat_id", angkatan as any);
+    formData.append("diklat_id", diklat_id as any);
 
     if (!isRegisterd) {
       mutate(formData);
@@ -289,11 +292,13 @@ export default function HalamanUtama() {
                 return (
                   <View
                     style={{
-                      padding: moderateScale(15),
+                      paddingHorizontal: moderateScale(20),
+                      paddingVertical: moderateScale(15),
                       backgroundColor: "#F8F8F8",
                       borderRadius: 20,
+                      justifyContent: "space-between",
                       borderWidth: 1,
-                      gap: moderateScale(13),
+                      gap: moderateScale(20),
                       borderColor: Colors.button_primary,
                       marginRight:
                         dataPodcast?.data?.length === index - 1 ? 0 : 25,
@@ -303,30 +308,34 @@ export default function HalamanUtama() {
                       style={{
                         fontWeight: "bold",
                         fontSize: 18,
-                        textAlign: "center",
+                        textAlign:
+                          item.jenis_podcast === "kopi_sedap"
+                            ? "center"
+                            : "left",
                       }}
                     >
                       {item.jenis_podcast === "kopi_sedap"
                         ? "Podcast Kopi Sedap"
-                        : "Podcast Rabu Belajar"}
+                        : item.title}
                     </Text>
 
                     {item.jenis_podcast === "kopi_sedap" ? (
                       <Image
                         source={assets.kopi_sedap}
                         resizeMode="contain"
+                        resizeMethod="resize"
                         style={{
-                          width: 230,
-                          height: 120,
+                          width: 250,
+                          height: 140,
                         }}
                       />
                     ) : (
                       <Image
-                        source={assets.rabu_belajar}
-                        resizeMode="contain"
+                        source={{ uri: item.thumbnail }}
                         style={{
-                          width: 230,
-                          height: 120,
+                          width: 250,
+                          height: 140,
+                          borderRadius: 7,
                         }}
                       />
                     )}
@@ -342,11 +351,20 @@ export default function HalamanUtama() {
                       }}
                       onPress={() => {
                         item.jenis_podcast === "kopi_sedap"
-                          ? router.push("/podcast-perangkat-daerah.kopi-sedap")
-                          : router.push("/podcast-perangkat-daerah.list");
+                          ? router.push({
+                              pathname:
+                                "/podcast-perangkat-daerah.kopi-sedap-verif",
+                              params: { item: JSON.stringify(item) },
+                            })
+                          : handleRegisterPodcast({
+                              angkatan: item.angkatan_id,
+                              diklat_id: item.jadwal_diklat.diklat_id,
+                              isRegisterd: item.isRegisterd,
+                              watch_id: item.watch_id,
+                            });
                       }}
                     >
-                      Tonton Disini
+                      Ikuti
                     </Button>
                   </View>
                 );
