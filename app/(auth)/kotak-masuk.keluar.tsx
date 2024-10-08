@@ -13,7 +13,7 @@ import { useQuery } from "@apollo/client";
 import { getKontakKeluar } from "@/services/query/get-kotak-masuk";
 import { IKontakKeluar } from "@/type";
 import Error from "@/components/elements/Error";
-import { Avatar, Menu, TextInput } from "react-native-paper";
+import { Avatar, IconButton, Menu, TextInput } from "react-native-paper";
 import { Colors } from "@/constants/Colors";
 import Loading from "@/components/elements/Loading";
 import NotFoundSearch from "@/components/sections/NotFoundSearch";
@@ -228,7 +228,12 @@ export default function KotakKeluar() {
         }}
       >
         <View
-          style={{ flexDirection: "row", justifyContent: "center", gap: 15 }}
+          style={{
+            flexDirection: "row",
+            justifyContent: "center",
+            gap: 15,
+            alignItems: "center",
+          }}
         >
           <TouchableOpacity onPress={() => router.push("/kotak-masuk")}>
             <Image
@@ -244,18 +249,31 @@ export default function KotakKeluar() {
             />
           </TouchableOpacity>
 
-          <TouchableOpacity>
-            <Image
-              source={assets.share_kotak_masuk}
-              style={{ width: 55, height: 55 }}
-            />
+          <TouchableOpacity
+            style={{
+              backgroundColor: "#00A5CB",
+              alignItems: "center",
+              justifyContent: "center",
+              borderRadius: 100,
+              height: 47,
+              width: 47,
+            }}
+          >
+            <IconButton icon="message-text-clock-outline" iconColor={"white"} />
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={() => router.push("/kotak-masuk.arsip")}>
-            <Image
-              source={assets.hamburger_kotak_masuk}
-              style={{ width: 55, height: 55 }}
-            />
+          <TouchableOpacity
+            onPress={() => router.push("/kotak-masuk.arsip")}
+            style={{
+              backgroundColor: "#79BC33",
+              alignItems: "center",
+              justifyContent: "center",
+              borderRadius: 100,
+              height: 47,
+              width: 47,
+            }}
+          >
+            <IconButton icon="message-bookmark" iconColor={"white"} />
           </TouchableOpacity>
         </View>
 

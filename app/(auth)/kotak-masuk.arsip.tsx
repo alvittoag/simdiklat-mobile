@@ -10,7 +10,7 @@ import {
 import React from "react";
 import ContainerBackground from "@/components/container/ContainerBackground";
 import { moderateScale } from "react-native-size-matters";
-import { Avatar, Menu, TextInput } from "react-native-paper";
+import { Avatar, IconButton, Menu, TextInput } from "react-native-paper";
 import { Colors } from "@/constants/Colors";
 import assets from "@/assets";
 import { useQuery } from "@apollo/client";
@@ -152,7 +152,12 @@ export default function KotakMasuk() {
         }}
       >
         <View
-          style={{ flexDirection: "row", justifyContent: "center", gap: 15 }}
+          style={{
+            flexDirection: "row",
+            justifyContent: "center",
+            gap: 15,
+            alignItems: "center",
+          }}
         >
           <TouchableOpacity onPress={() => router.push("/kotak-masuk")}>
             <Image
@@ -168,18 +173,31 @@ export default function KotakMasuk() {
             />
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={() => router.push("/kotak-masuk.keluar")}>
-            <Image
-              source={assets.share_kotak_masuk}
-              style={{ width: 55, height: 55 }}
-            />
+          <TouchableOpacity
+            onPress={() => router.push("/kotak-masuk.keluar")}
+            style={{
+              backgroundColor: "#00A5CB",
+              alignItems: "center",
+              justifyContent: "center",
+              borderRadius: 100,
+              height: 47,
+              width: 47,
+            }}
+          >
+            <IconButton icon="message-text-clock-outline" iconColor={"white"} />
           </TouchableOpacity>
 
-          <TouchableOpacity>
-            <Image
-              source={assets.hamburger_kotak_masuk}
-              style={{ width: 55, height: 55 }}
-            />
+          <TouchableOpacity
+            style={{
+              backgroundColor: "#79BC33",
+              alignItems: "center",
+              justifyContent: "center",
+              borderRadius: 100,
+              height: 47,
+              width: 47,
+            }}
+          >
+            <IconButton icon="message-bookmark" iconColor={"white"} />
           </TouchableOpacity>
         </View>
 
