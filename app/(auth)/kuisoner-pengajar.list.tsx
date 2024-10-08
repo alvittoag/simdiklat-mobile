@@ -101,13 +101,13 @@ export default function KuisonerPengajarList() {
         totalPage={data?.data?.meta.totalPages as number}
       />
     ),
-    [isPending, page, setPage, dataParams.jadwal_diklat.id]
+    [isPending, page, setPage, dataParams?.jadwal_diklat.id]
   );
 
   if (isError) return <Error />;
   return (
     <ContainerBackground>
-      <AppHeaderNav title={dataParams.jadwal_diklat.diklat.name} />
+      <AppHeaderNav title={dataParams?.jadwal_diklat?.diklat?.name} />
 
       <View style={{ paddingHorizontal: 15, paddingTop: 20 }}>
         <View

@@ -7,7 +7,7 @@ import {
   ScrollView,
 } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button, RadioButton, TextInput } from "react-native-paper";
 import { moderateScale } from "react-native-size-matters";
 
@@ -48,6 +48,7 @@ interface Selection {
 }
 
 export default function KuisonerPengajarDetail() {
+  const queryClient = useQueryClient();
   const params = useLocalSearchParams<any>();
 
   const dataParams: IKuisonerPenyelenggarList = useMemo(() => {
@@ -83,24 +84,25 @@ export default function KuisonerPengajarDetail() {
       Dialog.show({
         type: ALERT_TYPE.SUCCESS,
         title: "Berhasil",
-        textBody: "Kuisoner Peserta Berhasil Ditambahkan",
+        textBody: "Kuisoner Pengajar Berhasil Ditambahkan",
         button: "Tutup",
       });
 
       setSelections([]);
       setSaran("");
 
-      router.push({
-        pathname: "/kuisoner-pengajar.list",
-        params: { status: "success" },
+      queryClient.invalidateQueries({
+        queryKey: ["getKuisonerPengajar"],
       });
+
+      router.back();
     },
     onError: (err) => {
       console.log(err);
       Dialog.show({
         type: ALERT_TYPE.DANGER,
         title: "Gagal",
-        textBody: "Kuisoner Peserta Gagal Ditambahkan",
+        textBody: "Kuisoner Pengajar Gagal Ditambahkan",
         button: "Tutup",
       });
     },
