@@ -342,7 +342,7 @@ export default function HalamanUtama() {
                       }}
                       onPress={() => {
                         item.jenis_podcast === "kopi_sedap"
-                          ? null
+                          ? router.push("/podcast-perangkat-daerah.kopi-sedap")
                           : router.push("/podcast-perangkat-daerah.list");
                       }}
                     >
