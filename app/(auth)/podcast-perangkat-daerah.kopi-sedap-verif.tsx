@@ -112,7 +112,7 @@ export default function KopiSedapVerif() {
       >
         <View style={{ gap: 10 }}>
           <Text style={{ fontWeight: 500, fontSize: 16 }}>
-            Interaktif Via Zoom Meeting
+            Interaktif Melalui Zoom Meeting
           </Text>
 
           <Button
@@ -132,7 +132,7 @@ export default function KopiSedapVerif() {
 
         <View style={{ gap: 10 }}>
           <Text style={{ fontWeight: 500, fontSize: 16 }}>
-            Live Via Youtube BPKD Official
+            Siaran Langsung Melalui Youtube BPKD Official
           </Text>
 
           <Button
