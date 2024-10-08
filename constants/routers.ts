@@ -338,7 +338,7 @@ export const homeRouters = [
   },
   {
     name: "Lupa Password",
-    path: "/lupa-password",
+    path: "/ganti-password",
     icon: assets.ganti_password,
   },
 ];
