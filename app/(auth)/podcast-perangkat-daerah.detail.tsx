@@ -6,6 +6,7 @@ import YoutubePlayer from "react-native-youtube-iframe";
 import Loading from "@/components/elements/Loading";
 import Error from "@/components/elements/Error";
 import { useLocalSearchParams } from "expo-router";
+import { Colors } from "react-native/Libraries/NewAppScreen";
 
 export default function PodcastPerangkatDaerahDetail() {
   const params = useLocalSearchParams<any>();
@@ -22,24 +23,24 @@ export default function PodcastPerangkatDaerahDetail() {
     <ContainerBackground>
       <View
         style={{
+          backgroundColor: "#DFEFD8",
+          paddingHorizontal: 15,
+          paddingVertical: 20,
+          borderBottomWidth: 0.5,
+          borderBottomColor: Colors.border_primary,
+        }}
+      >
+        <Text style={{ fontWeight: 400, fontSize: 15 }}>
+          Success : Anda telah terdaftar di Podcast Rabu Belajar tersebut
+        </Text>
+      </View>
+      <View
+        style={{
           paddingHorizontal: moderateScale(15),
           paddingVertical: moderateScale(20),
           gap: moderateScale(30),
         }}
       >
-        <View
-          style={{
-            backgroundColor: "#74F469",
-            paddingHorizontal: 15,
-            paddingVertical: 15,
-            borderRadius: 7,
-          }}
-        >
-          <Text style={{ fontSize: 15, lineHeight: 20 }}>
-            Success : Anda telah terdaftar di Podcast Rabu Belajar tersebut
-          </Text>
-        </View>
-
         {loading && <Loading />}
 
         <YoutubePlayer

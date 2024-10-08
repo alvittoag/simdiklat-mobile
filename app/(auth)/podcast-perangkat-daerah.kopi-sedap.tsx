@@ -12,7 +12,7 @@ import Pagination from "@/components/sections/pagination";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { axiosService } from "@/services/axiosService";
 import Error from "@/components/elements/Error";
-import { IPodcast } from "@/type";
+import { IKopiSedap, IPodcast } from "@/type";
 import { parseDateLong } from "@/lib/parseDate";
 import { FlashList } from "@shopify/flash-list";
 import Loading from "@/components/elements/Loading";
@@ -23,7 +23,7 @@ type response = {
   status: string;
   message: string;
   data: {
-    data: IPodcast[];
+    data: IKopiSedap[];
     meta: {
       page: number;
       limit: number;
@@ -33,8 +33,7 @@ type response = {
   };
 };
 
-export default function PodcastPerangkatDaerahList() {
-  const queryClient = useQueryClient();
+export default function KopiSedap() {
   const [search, setSearch] = React.useState("");
   const [searchBy, setSearchBy] = React.useState("");
   const [showFilter, setShowFilter] = React.useState(false);
@@ -49,7 +48,7 @@ export default function PodcastPerangkatDaerahList() {
 
   const { data, isPending, error } = useQuery<response>({
     queryKey: [
-      "podcastPerangkatDaerah",
+      "kopi-sedap-list",
       debouncedSearch,
       page,
       limit,
@@ -57,41 +56,10 @@ export default function PodcastPerangkatDaerahList() {
     ],
     queryFn: async () => {
       const res = await axiosService.get(
-        `/api/podcast?page=${page}&limit=${limit}&search=${debouncedSearch}&orderBy=${terapkan.searchBy}`
+        `/api/podcast/kopi-sedap?page=${page}&limit=${limit}&search=${debouncedSearch}&searchBy=${terapkan.searchBy}`
       );
 
       return res.data;
-    },
-  });
-
-  const { mutate, isPending: isPendingMutate } = useMutation({
-    mutationFn: async (formData: FormData) => {
-      return await axiosService.post("/api/podcast/register", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-    },
-    onSuccess: () => {
-      Dialog.show({
-        type: ALERT_TYPE.SUCCESS,
-        title: "Berhasil",
-        textBody: "Berhasil Mengikuti Podcast Rabu Belajar",
-        button: "Tutup",
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["podcastPerangkatDaerah"],
-      });
-    },
-
-    onError: (e) => {
-      console.error(e);
-      Dialog.show({
-        type: ALERT_TYPE.DANGER,
-        title: "Gagal",
-        textBody: "Gagal Mengikuti Podcast Rabu Belajar",
-        button: "Tutup",
-      });
     },
   });
 
@@ -121,15 +89,11 @@ export default function PodcastPerangkatDaerahList() {
     [isPending, page, setPage, data?.data.meta.totalPages]
   );
 
-  const handleRegisterDiklat = async (
-    jadwal_diklat_id: number,
-    diklat_id: number
-  ) => {
-    const formData = new FormData();
-    formData.append("jadwal_diklat_id", jadwal_diklat_id as any);
-    formData.append("diklat_id", diklat_id as any);
-
-    mutate(formData);
+  const handleRegisterDiklat = async (item: IKopiSedap) => {
+    router.push({
+      pathname: "/podcast-perangkat-daerah.kopi-sedap-verif",
+      params: { item: JSON.stringify(item) },
+    });
   };
 
   if (error) return <Error />;
@@ -208,32 +172,10 @@ export default function PodcastPerangkatDaerahList() {
                 </Text>
               </View>
 
-              <View style={{ gap: moderateScale(20) }}>
-                <Text style={{ color: Colors.text_secondary }}>Thumbnail</Text>
-
-                <Image
-                  source={{ uri: item.thumbnail }}
-                  style={{
-                    height: 180,
-                    width: "100%",
-                    borderRadius: 7,
-                    backgroundColor: Colors.border_primary,
-                    borderWidth: 0.5,
-                    borderColor: Colors.border_primary,
-                  }}
-                  resizeMode="cover"
-                />
-              </View>
-
               <View style={{ flexDirection: "row", gap: moderateScale(10) }}>
                 {item.isRegisterd ? (
                   <Button
-                    onPress={() =>
-                      router.navigate({
-                        pathname: "/podcast-perangkat-daerah.detail",
-                        params: { id: item.watch_id },
-                      })
-                    }
+                    onPress={() => handleRegisterDiklat(item)}
                     icon={"play"}
                     textColor="black"
                     mode="contained"
@@ -248,14 +190,7 @@ export default function PodcastPerangkatDaerahList() {
                   </Button>
                 ) : (
                   <Button
-                    onPress={() =>
-                      handleRegisterDiklat(
-                        item.jadwal_diklat.id,
-                        item.jadwal_diklat.diklat_id
-                      )
-                    }
-                    disabled={isPendingMutate}
-                    loading={isPendingMutate}
+                    onPress={() => handleRegisterDiklat(item)}
                     icon={"login"}
                     textColor="white"
                     mode="contained"
@@ -272,7 +207,6 @@ export default function PodcastPerangkatDaerahList() {
 
                 {item.sertifikat && (
                   <Button
-                    onPress={() => Linking.openURL(item.sertifikat)}
                     icon={"download"}
                     mode="contained"
                     textColor="white"
@@ -316,8 +250,10 @@ export default function PodcastPerangkatDaerahList() {
                   }}
                 >
                   <RadioButton
-                    status={searchBy === "jd.name" ? "checked" : "unchecked"}
-                    value="jd.name"
+                    status={
+                      searchBy === "podcast.title" ? "checked" : "unchecked"
+                    }
+                    value="podcast.title"
                     color={Colors.border_input_active}
                     uncheckedColor="black"
                   />
@@ -331,8 +267,8 @@ export default function PodcastPerangkatDaerahList() {
                   }}
                 >
                   <RadioButton
-                    status={searchBy === "d.name" ? "checked" : "unchecked"}
-                    value="d.name"
+                    status={searchBy === "jd.name" ? "checked" : "unchecked"}
+                    value="jd.name"
                     color={Colors.border_input_active}
                     uncheckedColor="black"
                   />

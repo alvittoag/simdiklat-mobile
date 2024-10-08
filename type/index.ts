@@ -1101,3 +1101,61 @@ export interface TubelFile {
   created_at: string;
   updated_at: Date;
 }
+
+export interface IKopiSedap {
+  id: number;
+  angkatan_id: number;
+  title: string;
+  watch_id: string;
+  zoom_url: string;
+  passcode: string;
+  keterangan: string;
+  clicked: 0;
+  created_at: string;
+  file_sertifikat: unknown;
+  updated_at: string;
+  jadwal_diklat: {
+    id: 5520;
+    diklat_id: 3693;
+    lokasi_diklat_id: 18;
+    ruang_id: 0;
+    name: "9089";
+    minimal_peserta: 0;
+    maksimal_peserta: 999999;
+    jadwal_mulai: "2024-09-25T09:47:00.000Z";
+    jadwal_selesai: "2024-09-25T09:51:00.000Z";
+    registrasi_mulai: "2024-09-25T09:47:00.000Z";
+    registrasi_selesai: "2024-09-25T09:51:00.000Z";
+    status_registrasi: "open";
+    keterangan: "<div><p>ew</p></div>";
+    petugas_id: 0;
+    manajer_id: 0;
+    mfd_id: 0;
+    created_at: "2024-09-25T09:47:33.000Z";
+    updated_at: "2024-09-25T09:47:33.000Z";
+    elearning_id: 0;
+    elearning_enable: 0;
+    jumlah_jam: null;
+    tgl_sertifikat: null;
+    nama_ttd_sertifikat: "Dra. BUDIHASTUTI, M.Psi";
+    nip_ttd_sertifikat: "195903151985032005";
+    jabatan_ttd_sertifikat: "KEPALA BADAN PENGEMBANGAN SUMBER DAYA MANUSIA";
+    lokasi_diklat_sertifikat: "Jakarta";
+    penyelenggara_sertifikat: "-";
+    kerjasama_sertifikat: "Badan Pengembangan Sumber Daya Manusia";
+    sertifikat_signed: 0;
+    tte_status: "none";
+    nomor_sertifikat_podcast: "321";
+    kompetensi_teknis_sertifikat: null;
+    mata_pelajaran_sertifikat: null;
+    template_sertifikat: null;
+    kabid_nrk_sertifikat: null;
+    simpegsync_status: "none";
+    simpegsync_at: "2024-09-25T09:47:33.000Z";
+    transkrip_status: "none";
+    template_transkrip: null;
+    sp_status: "none";
+  };
+  sertifikat: boolean;
+  isRegisterd: boolean;
+}

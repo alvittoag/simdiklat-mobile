@@ -241,12 +241,20 @@ export const routers = [
         path: "/podcast-perangkat-daerah",
         other_routes: [
           {
-            title: "Detail Podcast Perangkat Daerah",
+            title: "Podcast Rabu Belajar",
             path: "/podcast-perangkat-daerah.list",
           },
           {
             title: "Show Podcast",
             path: "/podcast-perangkat-daerah.detail",
+          },
+          {
+            title: "Podcast Kopi Sedap",
+            path: "/podcast-perangkat-daerah.kopi-sedap",
+          },
+          {
+            title: "Akses Podcast Kopi Sedap",
+            path: "/podcast-perangkat-daerah.kopi-sedap-verif",
           },
         ],
       },
