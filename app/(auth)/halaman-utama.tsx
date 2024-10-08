@@ -363,6 +363,7 @@ export default function HalamanUtama() {
                           width: 250,
                           height: 140,
                           borderRadius: 7,
+                          backgroundColor: "grey",
                         }}
                       />
                     )}
