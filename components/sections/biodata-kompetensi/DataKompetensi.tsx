@@ -1071,18 +1071,22 @@ export default function DataKompetensi() {
 
         <Button
           onPress={() => {
-            Dialog.show({
-              type: ALERT_TYPE.SUCCESS,
-              title: "Berhasil",
-              textBody: "Data Kompetensi Berhasil Disimpan",
-              button: "Tutup",
-            });
+            if (checked) {
+              Dialog.show({
+                type: ALERT_TYPE.SUCCESS,
+                title: "Berhasil",
+                textBody: "Data Kompetensi Berhasil Disimpan",
+                button: "Tutup",
+              });
+            }
           }}
+          disabled={!checked}
           icon={"content-save-outline"}
           mode="contained"
           textColor="black"
+          labelStyle={{ color: "black" }}
           style={{
-            backgroundColor: Colors.button_secondary,
+            backgroundColor: checked ? Colors.button_secondary : "grey",
             paddingVertical: moderateScale(5),
           }}
         >

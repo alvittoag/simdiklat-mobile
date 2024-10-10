@@ -4,6 +4,7 @@ import {
   TouchableOpacity,
   RefreshControl,
   Image,
+  ImageBackground,
 } from "react-native";
 import React from "react";
 import ContainerBackground from "@/components/container/ContainerBackground";
@@ -29,8 +30,8 @@ import * as FileSystem from "expo-file-system";
 import * as IntentLauncher from "expo-intent-launcher";
 
 import bg from "@/assets/images/temp/cetak-kartu.jpeg";
-import { axiosService } from "@/services/axiosService";
 import auth from "@/services/api/auth";
+import assets from "@/assets";
 
 export default function DiklatSedangDiikuti() {
   const [sessionUser, setSessionUser] = React.useState<ISession | null>(null);
@@ -59,6 +60,8 @@ export default function DiklatSedangDiikuti() {
 
   const [showFilter, setShowFilter] = React.useState(false);
   const [showSort, setShowSort] = React.useState(false);
+  const [showCard, setShowCard] = React.useState(false);
+  const [dataCard, setDataCard] = React.useState<ISedangDiikuti | null>(null);
   const debouncedSearch = useDebounce(search, 1000);
 
   const [page, setPage] = React.useState(1);
@@ -121,6 +124,15 @@ export default function DiklatSedangDiikuti() {
     setSearch("");
     setPage(1);
     setShowSort(false);
+  };
+
+  const showShowCard = (item: ISedangDiikuti) => {
+    setShowCard(true);
+    setDataCard(item);
+  };
+
+  const hideShowCard = () => {
+    setShowCard(false);
   };
 
   const imageUri = Image.resolveAssetSource(bg).uri;
@@ -208,6 +220,8 @@ export default function DiklatSedangDiikuti() {
       alert("Failed to open PDF");
     }
   };
+
+  console.log(dataCard?.id);
   return (
     <ContainerBackground>
       <SearchBar
@@ -377,7 +391,7 @@ export default function DiklatSedangDiikuti() {
                   </TouchableOpacity>
 
                   <TouchableOpacity
-                    onPress={() => downloadAndOpenPDF(item)}
+                    onPress={() => showShowCard(item)}
                     style={{
                       flexDirection: "row",
                       gap: 10,
@@ -582,6 +596,123 @@ export default function DiklatSedangDiikuti() {
                 }}
               >
                 Terapkan
+              </Button>
+            </Dialog.Actions>
+          </Dialog>
+        )}
+
+        {showCard && (
+          <Dialog
+            visible={showCard}
+            onDismiss={hideShowCard}
+            style={{ backgroundColor: "white" }}
+          >
+            <Dialog.Content>
+              <ImageBackground
+                source={assets.background_peserta}
+                resizeMode="contain"
+                style={{ height: 500, position: "relative" }}
+              >
+                <View style={{ position: "absolute", top: 113, width: "100%" }}>
+                  <Image
+                    resizeMode="cover"
+                    source={{
+                      uri: `http://10.15.43.236:8080/api/file/${sessionUser?.user.image}`,
+                    }}
+                    style={{
+                      height: 173,
+                      width: 158.2,
+                      margin: "auto",
+                      marginLeft: 82,
+                      borderRadius: 7,
+                    }}
+                  />
+                </View>
+
+                <View
+                  style={{ position: "absolute", bottom: 186, width: "100%" }}
+                >
+                  <Text
+                    style={{
+                      textAlign: "center",
+                      fontSize: 17,
+                      color: Colors.text_primary,
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {sessionUser?.user.name}
+                  </Text>
+                </View>
+
+                <View
+                  style={{ position: "absolute", bottom: 155, width: "100%" }}
+                >
+                  <Text
+                    style={{
+                      textAlign: "center",
+                      fontSize: 15,
+                      color: Colors.text_secondary,
+                    }}
+                  >
+                    BPSDM
+                  </Text>
+                </View>
+
+                <View
+                  style={{
+                    flex: 1,
+                    position: "absolute",
+                    width: "100%",
+                    maxHeight: 80,
+                    bottom: 65,
+                    gap: 5,
+                    paddingHorizontal: 20,
+                  }}
+                >
+                  <Text
+                    numberOfLines={2}
+                    style={{
+                      textAlign: "center",
+                      fontSize: 16,
+                      fontWeight: 600,
+                    }}
+                  >
+                    {dataCard?.jadwal_diklat.diklat.name}
+                  </Text>
+                  <Text
+                    style={{
+                      textAlign: "center",
+                      fontSize: 16,
+                      fontWeight: 600,
+                    }}
+                  >
+                    {dataCard?.jadwal_diklat.name}
+                  </Text>
+                  <Text
+                    style={{
+                      textAlign: "center",
+                      fontSize: 16,
+                      fontWeight: 600,
+                    }}
+                  >
+                    {parseDateLong(dataCard?.jadwal_diklat.jadwal_mulai as any)}
+                  </Text>
+                </View>
+              </ImageBackground>
+            </Dialog.Content>
+
+            <Dialog.Actions>
+              <Button
+                onPress={() => setShowCard(false)}
+                icon={"close"}
+                mode="contained"
+                textColor="black"
+                style={{
+                  backgroundColor: Colors.button_secondary,
+                  flexGrow: 1,
+                }}
+              >
+                Tutup
               </Button>
             </Dialog.Actions>
           </Dialog>

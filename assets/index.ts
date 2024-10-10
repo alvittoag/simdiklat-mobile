@@ -1,6 +1,7 @@
 // ** Temp
 const logo_bpsdm = require("./images/temp/Logo BPSDM 2022.png");
 const background = require("./images/temp/background.jpeg");
+const background_peserta = require("./images/temp/cetak-kartu.jpeg");
 const kopi_sedap = require("./images/temp/kopi_sedap.png");
 const rabu_belajar = require("./images/temp/rabu_belajar.png");
 
@@ -92,4 +93,5 @@ export default {
   tutorial,
   kopi_sedap,
   rabu_belajar,
+  background_peserta,
 };
