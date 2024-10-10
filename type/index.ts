@@ -758,6 +758,7 @@ export interface IPengumuman {
   seleksi_widyaiswara: IPengumumanPublic;
   lampiran: ILampiranPengumuman[] | null;
   isOpen: boolean;
+  user: IUsers;
 }
 
 interface ILampiranPengumuman {
