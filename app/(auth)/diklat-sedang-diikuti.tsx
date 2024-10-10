@@ -5,6 +5,8 @@ import {
   RefreshControl,
   Image,
   ImageBackground,
+  Alert,
+  Platform,
 } from "react-native";
 import React from "react";
 import ContainerBackground from "@/components/container/ContainerBackground";
@@ -28,6 +30,8 @@ import { router } from "expo-router";
 import * as Print from "expo-print";
 import * as FileSystem from "expo-file-system";
 import * as IntentLauncher from "expo-intent-launcher";
+import ViewShot from "react-native-view-shot";
+import * as MediaLibrary from "expo-media-library";
 
 import bg from "@/assets/images/temp/cetak-kartu.jpeg";
 import auth from "@/services/api/auth";
@@ -135,93 +139,47 @@ export default function DiklatSedangDiikuti() {
     setShowCard(false);
   };
 
-  const imageUri = Image.resolveAssetSource(bg).uri;
+  const viewShotRef = React.useRef<any>();
 
-  const downloadAndOpenPDF = async (item: ISedangDiikuti) => {
-    const newDataPdf = {
-      angkatan: item.jadwal_diklat.name,
-      diklat: item.jadwal_diklat.diklat.name,
-      jadwal: item.jadwal_diklat.jadwal_mulai,
-    };
-
-    const generateHtmlContent = (data: typeof newDataPdf) => `
-      <html>
-        <body>
-        <div
-  style=" background-image: url(${imageUri});background-size:cover;background-position:center;height:506px;width:319px;box-sizing:border-box;font-family:sans-serif;display:flex;flex-direction:column">
-  <img
-    style="border-radius:9px;object-fit:cover;margin-left:84px;margin-top:112px"
-    src="https://asset.kompas.com/crops/GQUver5Id7jVYzbXgJveT7OJ0qg=/65x0:650x390/1200x800/data/photo/2015/10/27/1658302Mark-Jadi780x390.jpg"
-    alt=""
-    width="162"
-    height="178" />
-  <div
-    style="text-align:center;color:black;margin-top:-4px;display:block;margin-left:auto;margin-right:auto;max-width:100%">
-
-    <h1 style="font-weight:bold;margin-bottom:13px;font-size:1em">
-      RIYAN ADI LESMANA
-    </h1>
-    <p style="font-size:13px;font-weight:300">BPSDM</p>
-
-    <p style="font-size:14px;margin-top:20px;word-wrap:break-word">
-    ${data.diklat}<span
-        style="display:block;margin-top:5px;margin-bottom:5px"
-        >${data.angkatan}</span
-      ><span>${parseDateLong(data.jadwal)}</span>
-    </p>
-  </div>
-</div>
-        </body>
-      </html>
-    `;
-
-    const pdfUri = await generatePDF(generateHtmlContent(newDataPdf));
-
-    if (pdfUri) {
-      const fileName = `${sessionUser?.user.name} - ${newDataPdf.diklat}.pdf`;
-      const fileUri = FileSystem.documentDirectory + fileName;
-      try {
-        await FileSystem.copyAsync({
-          from: pdfUri,
-          to: fileUri,
-        });
-        console.log("PDF saved to:", fileUri);
-        await openPDF(fileUri);
-      } catch (error) {
-        console.error("Error saving or opening PDF:", error);
-        alert("Failed to download or open PDF");
+  const captureAndSaveImage = React.useCallback(async () => {
+    try {
+      const { status } = await MediaLibrary.requestPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert(
+          "Izin diperlukan",
+          "Mohon berikan izin untuk menyimpan gambar."
+        );
+        return;
       }
-    }
-  };
 
-  const generatePDF = async (htmlContent: string) => {
-    try {
-      const { uri } = await Print.printToFileAsync({
-        html: htmlContent,
-        base64: false,
+      // Tunggu sedikit sebelum mengambil screenshot
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      const imageUri = await viewShotRef.current.capture({
+        format: "jpg",
+        quality: 0.8,
+        result: "tmpfile",
       });
-      return uri;
-    } catch (error) {
-      console.error("Error generating PDF:", error);
-      return null;
-    }
-  };
 
-  const openPDF = async (fileUri: string) => {
-    try {
-      const contentUri = await FileSystem.getContentUriAsync(fileUri);
-      await IntentLauncher.startActivityAsync("android.intent.action.VIEW", {
-        data: contentUri,
-        flags: 1,
-        type: "application/pdf",
-      });
-    } catch (error) {
-      console.error("Error opening PDF:", error);
-      alert("Failed to open PDF");
-    }
-  };
+      if (Platform.OS === "android") {
+        const asset = await MediaLibrary.createAssetAsync(imageUri);
+        await MediaLibrary.createAlbumAsync("Download", asset, false);
+      } else {
+        await MediaLibrary.saveToLibraryAsync(imageUri);
+      }
 
-  console.log(dataCard?.id);
+      // Hapus file sementara setelah disimpan
+      await FileSystem.deleteAsync(imageUri, { idempotent: true });
+
+      Alert.alert("Sukses", "Gambar berhasil disimpan ke galeri");
+
+      setShowCard(false);
+    } catch (error) {
+      console.error("Error saving image: ", error);
+      Alert.alert("Error", "Gagal menyimpan gambar. Silakan coba lagi.");
+    }
+  }, [sessionUser, dataCard, assets, Colors, parseDateLong]);
+
   return (
     <ContainerBackground>
       <SearchBar
@@ -608,103 +566,112 @@ export default function DiklatSedangDiikuti() {
             style={{ backgroundColor: "white" }}
           >
             <Dialog.Content>
-              <ImageBackground
-                source={assets.background_peserta}
-                resizeMode="contain"
-                style={{ height: 500, position: "relative" }}
+              <ViewShot
+                ref={viewShotRef as any}
+                options={{ format: "jpg", quality: 0.8 }}
               >
-                <View style={{ position: "absolute", top: 113, width: "100%" }}>
-                  <Image
-                    resizeMode="cover"
-                    source={{
-                      uri: `http://10.15.43.236:8080/api/file/${sessionUser?.user.image}`,
-                    }}
-                    style={{
-                      height: 173,
-                      width: 158.2,
-                      margin: "auto",
-                      marginLeft: 82,
-                      borderRadius: 7,
-                    }}
-                  />
-                </View>
-
-                <View
-                  style={{ position: "absolute", bottom: 186, width: "100%" }}
+                <ImageBackground
+                  source={assets.background_peserta}
+                  resizeMode="contain"
+                  style={{ height: 500, position: "relative" }}
                 >
-                  <Text
-                    style={{
-                      textAlign: "center",
-                      fontSize: 17,
-                      color: Colors.text_primary,
-                      fontWeight: "bold",
-                    }}
+                  <View
+                    style={{ position: "absolute", top: 113, width: "100%" }}
                   >
-                    {sessionUser?.user.name}
-                  </Text>
-                </View>
+                    <Image
+                      resizeMode="cover"
+                      source={{
+                        uri: `http://10.15.43.236:8080/api/file/${sessionUser?.user.image}`,
+                      }}
+                      style={{
+                        height: 172.7,
+                        width: 158.2,
+                        margin: "auto",
+                        marginLeft: 82,
+                        borderRadius: 7,
+                      }}
+                    />
+                  </View>
 
-                <View
-                  style={{ position: "absolute", bottom: 155, width: "100%" }}
-                >
-                  <Text
-                    style={{
-                      textAlign: "center",
-                      fontSize: 15,
-                      color: Colors.text_secondary,
-                    }}
+                  <View
+                    style={{ position: "absolute", bottom: 186, width: "100%" }}
                   >
-                    BPSDM
-                  </Text>
-                </View>
+                    <Text
+                      style={{
+                        textAlign: "center",
+                        fontSize: 17,
+                        color: Colors.text_primary,
+                        fontWeight: "bold",
+                      }}
+                    >
+                      {sessionUser?.user.name}
+                    </Text>
+                  </View>
 
-                <View
-                  style={{
-                    flex: 1,
-                    position: "absolute",
-                    width: "100%",
-                    maxHeight: 80,
-                    bottom: 65,
-                    gap: 5,
-                    paddingHorizontal: 20,
-                  }}
-                >
-                  <Text
-                    numberOfLines={2}
+                  <View
+                    style={{ position: "absolute", bottom: 155, width: "100%" }}
+                  >
+                    <Text
+                      style={{
+                        textAlign: "center",
+                        fontSize: 15,
+                        color: Colors.text_secondary,
+                      }}
+                    >
+                      BPSDM
+                    </Text>
+                  </View>
+
+                  <View
                     style={{
-                      textAlign: "center",
-                      fontSize: 16,
-                      fontWeight: 600,
+                      flex: 1,
+                      position: "absolute",
+                      width: "100%",
+                      maxHeight: 80,
+                      bottom: 70,
+                      gap: 5,
+                      paddingHorizontal: 20,
                     }}
                   >
-                    {dataCard?.jadwal_diklat.diklat.name}
-                  </Text>
-                  <Text
-                    style={{
-                      textAlign: "center",
-                      fontSize: 16,
-                      fontWeight: 600,
-                    }}
-                  >
-                    {dataCard?.jadwal_diklat.name}
-                  </Text>
-                  <Text
-                    style={{
-                      textAlign: "center",
-                      fontSize: 16,
-                      fontWeight: 600,
-                    }}
-                  >
-                    {parseDateLong(dataCard?.jadwal_diklat.jadwal_mulai as any)}
-                  </Text>
-                </View>
-              </ImageBackground>
+                    <Text
+                      numberOfLines={2}
+                      style={{
+                        textAlign: "center",
+                        fontSize: 16,
+                        fontWeight: 600,
+                      }}
+                    >
+                      {dataCard?.jadwal_diklat.diklat.name}
+                    </Text>
+                    <Text
+                      style={{
+                        textAlign: "center",
+                        fontSize: 16,
+                        fontWeight: 600,
+                      }}
+                    >
+                      {dataCard?.jadwal_diklat.name}
+                    </Text>
+                    <Text
+                      style={{
+                        textAlign: "center",
+                        fontSize: 16,
+                        fontWeight: 600,
+                      }}
+                    >
+                      {parseDateLong(
+                        dataCard?.jadwal_diklat.jadwal_mulai as any
+                      )}
+                    </Text>
+                  </View>
+                </ImageBackground>
+              </ViewShot>
             </Dialog.Content>
 
             <Dialog.Actions>
               <Button
-                onPress={() => setShowCard(false)}
-                icon={"close"}
+                onPress={captureAndSaveImage}
+                icon={"download"}
                 mode="contained"
                 textColor="black"
                 style={{
@@ -712,7 +679,7 @@ export default function DiklatSedangDiikuti() {
                   flexGrow: 1,
                 }}
               >
-                Tutup
+                Download
               </Button>
             </Dialog.Actions>
           </Dialog>
