@@ -51,6 +51,7 @@ export default function DiklatSedangDiikuti() {
 
     getData();
   }, []);
+  const [loadingDownload, setLoadingDownload] = React.useState(false);
 
   const [search, setSearch] = React.useState("");
   const [searchBy, setSearchBy] = React.useState("");
@@ -140,6 +141,7 @@ export default function DiklatSedangDiikuti() {
   const viewShotRef = React.useRef<any>();
 
   const captureAndSaveImage = React.useCallback(async () => {
+    setLoadingDownload(true);
     try {
       const { status } = await MediaLibrary.requestPermissionsAsync();
       if (status !== "granted") {
@@ -185,6 +187,8 @@ export default function DiklatSedangDiikuti() {
         textBody: "Gagal Menyimpan Gambar",
         button: "Tutup",
       });
+    } finally {
+      setLoadingDownload(false);
     }
   }, [sessionUser, dataCard, assets, Colors, parseDateLong]);
 
@@ -678,6 +682,8 @@ export default function DiklatSedangDiikuti() {
 
             <Dialog.Actions>
               <Button
+                loading={loadingDownload}
+                disabled={loadingDownload}
                 onPress={captureAndSaveImage}
                 icon={"download"}
                 mode="contained"
