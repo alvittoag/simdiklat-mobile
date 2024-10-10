@@ -27,15 +27,13 @@ import useDebounce from "@/hooks/useDebounce";
 import NotFoundSearch from "@/components/sections/NotFoundSearch";
 import { parseDateLong } from "@/lib/parseDate";
 import { router } from "expo-router";
-import * as Print from "expo-print";
 import * as FileSystem from "expo-file-system";
-import * as IntentLauncher from "expo-intent-launcher";
 import ViewShot from "react-native-view-shot";
 import * as MediaLibrary from "expo-media-library";
-
-import bg from "@/assets/images/temp/cetak-kartu.jpeg";
 import auth from "@/services/api/auth";
 import assets from "@/assets";
+
+import { ALERT_TYPE, Dialog as D } from "react-native-alert-notification";
 
 export default function DiklatSedangDiikuti() {
   const [sessionUser, setSessionUser] = React.useState<ISession | null>(null);
@@ -171,12 +169,22 @@ export default function DiklatSedangDiikuti() {
       // Hapus file sementara setelah disimpan
       await FileSystem.deleteAsync(imageUri, { idempotent: true });
 
-      Alert.alert("Sukses", "Gambar berhasil disimpan ke galeri");
+      D.show({
+        type: ALERT_TYPE.SUCCESS,
+        title: "Berhasil",
+        textBody: "Gambar Berhasil Disimpan Ke Galeri",
+        button: "Tutup",
+      });
 
       setShowCard(false);
     } catch (error) {
       console.error("Error saving image: ", error);
-      Alert.alert("Error", "Gagal menyimpan gambar. Silakan coba lagi.");
+      D.show({
+        type: ALERT_TYPE.DANGER,
+        title: "Gagal",
+        textBody: "Gagal Menyimpan Gambar",
+        button: "Tutup",
+      });
     }
   }, [sessionUser, dataCard, assets, Colors, parseDateLong]);
 
