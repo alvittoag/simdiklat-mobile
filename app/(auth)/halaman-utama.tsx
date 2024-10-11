@@ -294,24 +294,25 @@ export default function HalamanUtama() {
                 return (
                   <View
                     style={{
-                      paddingHorizontal: moderateScale(20),
-                      paddingVertical: moderateScale(15),
+                      width: 300,
+                      maxHeight: 400,
+                      padding: moderateScale(20),
                       backgroundColor: "#F8F8F8",
                       borderRadius: 20,
-                      justifyContent: "space-between",
                       borderWidth: 1,
-                      gap: moderateScale(20),
                       borderColor: Colors.button_primary,
                       marginLeft: index === 0 ? 15 : 0,
-
                       marginRight:
-                        index === (dataPodcast?.data?.length as number) - 1
+                        index === (dataPodcast?.data?.length ?? 0) - 1
                           ? 15
                           : 25,
+                      justifyContent: "space-between",
+                      gap: 15,
                     }}
                   >
                     <View style={{ gap: 3 }}>
                       <Text
+                        numberOfLines={2}
                         style={{
                           fontWeight: "bold",
                           fontSize: 18,
@@ -374,11 +375,13 @@ export default function HalamanUtama() {
 
                     <Button
                       mode="contained"
-                      icon={"play"}
-                      textColor="white"
+                      icon={item.isRegisterd ? "play" : "login"}
+                      textColor={item.isRegisterd ? "black" : "white"}
                       style={{
-                        backgroundColor: Colors.button_primary,
-                        paddingVertical: moderateScale(8),
+                        backgroundColor: item.isRegisterd
+                          ? Colors.button_secondary
+                          : Colors.button_primary,
+                        paddingVertical: moderateScale(7),
                         borderRadius: 7,
                       }}
                       onPress={() => {
@@ -396,7 +399,7 @@ export default function HalamanUtama() {
                             });
                       }}
                     >
-                      Ikuti
+                      {item.isRegisterd ? "Lihat" : "Ikuti"}
                     </Button>
                   </View>
                 );

@@ -54,7 +54,7 @@ export default function Profile() {
       Dialog.show({
         type: ALERT_TYPE.SUCCESS,
         title: "Berhasil",
-        textBody: "Profil Berhasil Di Update",
+        textBody: "Foto Profil Berhasil Di Perbarui",
         button: "Tutup",
       });
       refetch();
@@ -64,7 +64,7 @@ export default function Profile() {
       Dialog.show({
         type: ALERT_TYPE.DANGER,
         title: "Gagal ",
-        textBody: "Profil Gagal Di Update",
+        textBody: "Foto Profil Gagal Di Perbarui",
         button: "Tutup",
       });
     },
