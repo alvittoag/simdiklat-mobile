@@ -312,7 +312,6 @@ export default function HalamanUtama() {
                   >
                     <View style={{ gap: 3 }}>
                       <Text
-                        numberOfLines={2}
                         style={{
                           fontWeight: "bold",
                           fontSize: 18,
