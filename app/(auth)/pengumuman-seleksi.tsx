@@ -27,7 +27,7 @@ import * as FileSystem from "expo-file-system";
 import ViewShot from "react-native-view-shot";
 import * as MediaLibrary from "expo-media-library";
 import { ALERT_TYPE, Dialog as D } from "react-native-alert-notification";
-import auth from "@/services/api/auth";
+import { useQuery as useQ } from "@tanstack/react-query";
 
 type response = {
   status: string;
@@ -43,6 +43,12 @@ type response = {
   };
 };
 
+type responsePhoto = {
+  message: string;
+  status: string;
+  data: string;
+};
+
 export default function PengumumanSeleksi() {
   const [page, setPage] = React.useState(1);
   const [limit] = React.useState(10);
@@ -56,6 +62,16 @@ export default function PengumumanSeleksi() {
     queryFn: async () => {
       const { data } = await axiosService.get(
         `/api/pengumuman/get?page=${page}&limit=${limit}`
+      );
+      return data;
+    },
+  });
+
+  const { data: photo, isLoading: loadingPhoto } = useQ({
+    queryKey: ["poto-profile", dataCard],
+    queryFn: async () => {
+      const { data } = await axiosService.get<responsePhoto>(
+        "/api/change-profile/photo"
       );
       return data;
     },
@@ -316,102 +332,106 @@ export default function PengumumanSeleksi() {
         style={{ backgroundColor: "white" }}
       >
         <Dialog.Content>
-          <ViewShot
-            ref={viewShotRef as any}
-            options={{ format: "jpg", quality: 0.8 }}
-          >
-            <ImageBackground
-              source={assets.background_peserta}
-              resizeMode="contain"
-              style={{ height: 500, position: "relative" }}
+          {loadingPhoto ? (
+            <Loading />
+          ) : (
+            <ViewShot
+              ref={viewShotRef as any}
+              options={{ format: "jpg", quality: 0.8 }}
             >
-              <View style={{ position: "absolute", top: 113, width: "100%" }}>
-                <Image
-                  resizeMode="cover"
-                  source={{
-                    uri: `http://10.15.43.236:8080/api/file/${dataCard?.user.photo_id}`,
-                  }}
-                  style={{
-                    height: 172.7,
-                    width: 158.2,
-                    margin: "auto",
-                    marginLeft: 82,
-                    borderRadius: 7,
-                  }}
-                />
-              </View>
-
-              <View
-                style={{ position: "absolute", bottom: 186, width: "100%" }}
+              <ImageBackground
+                source={assets.background_peserta}
+                resizeMode="contain"
+                style={{ height: 500, position: "relative" }}
               >
-                <Text
-                  style={{
-                    textAlign: "center",
-                    fontSize: 17,
-                    color: Colors.text_primary,
-                    fontWeight: "bold",
-                  }}
-                >
-                  {dataCard?.user.full_name}
-                </Text>
-              </View>
+                <View style={{ position: "absolute", top: 113, width: "100%" }}>
+                  <Image
+                    resizeMode="cover"
+                    source={{
+                      uri: `http://10.15.43.236:8080/api/file/${photo?.data}`,
+                    }}
+                    style={{
+                      height: 172.7,
+                      width: 158.2,
+                      margin: "auto",
+                      marginLeft: 82,
+                      borderRadius: 7,
+                    }}
+                  />
+                </View>
 
-              <View
-                style={{ position: "absolute", bottom: 155, width: "100%" }}
-              >
-                <Text
-                  style={{
-                    textAlign: "center",
-                    fontSize: 15,
-                    color: Colors.text_secondary,
-                  }}
+                <View
+                  style={{ position: "absolute", bottom: 186, width: "100%" }}
                 >
-                  BPSDM
-                </Text>
-              </View>
+                  <Text
+                    style={{
+                      textAlign: "center",
+                      fontSize: 17,
+                      color: Colors.text_primary,
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {dataCard?.user.full_name}
+                  </Text>
+                </View>
 
-              <View
-                style={{
-                  flex: 1,
-                  position: "absolute",
-                  width: "100%",
-                  maxHeight: 80,
-                  bottom: 70,
-                  gap: 5,
-                  paddingHorizontal: 20,
-                }}
-              >
-                <Text
-                  numberOfLines={2}
+                <View
+                  style={{ position: "absolute", bottom: 155, width: "100%" }}
+                >
+                  <Text
+                    style={{
+                      textAlign: "center",
+                      fontSize: 15,
+                      color: Colors.text_secondary,
+                    }}
+                  >
+                    BPSDM
+                  </Text>
+                </View>
+
+                <View
                   style={{
-                    textAlign: "center",
-                    fontSize: 16,
-                    fontWeight: 600,
+                    flex: 1,
+                    position: "absolute",
+                    width: "100%",
+                    maxHeight: 80,
+                    bottom: 70,
+                    gap: 5,
+                    paddingHorizontal: 20,
                   }}
                 >
-                  {dataCard?.seleksi_widyaiswara.title}
-                </Text>
-                <Text
-                  style={{
-                    textAlign: "center",
-                    fontSize: 16,
-                    fontWeight: 600,
-                  }}
-                >
-                  {dataCard?.nomor_ujian}
-                </Text>
-                <Text
-                  style={{
-                    textAlign: "center",
-                    fontSize: 16,
-                    fontWeight: 600,
-                  }}
-                >
-                  {dataCard?.seleksi_widyaiswara.tahun}
-                </Text>
-              </View>
-            </ImageBackground>
-          </ViewShot>
+                  <Text
+                    numberOfLines={2}
+                    style={{
+                      textAlign: "center",
+                      fontSize: 16,
+                      fontWeight: 600,
+                    }}
+                  >
+                    {dataCard?.seleksi_widyaiswara.title}
+                  </Text>
+                  <Text
+                    style={{
+                      textAlign: "center",
+                      fontSize: 16,
+                      fontWeight: 600,
+                    }}
+                  >
+                    {dataCard?.nomor_ujian}
+                  </Text>
+                  <Text
+                    style={{
+                      textAlign: "center",
+                      fontSize: 16,
+                      fontWeight: 600,
+                    }}
+                  >
+                    {dataCard?.seleksi_widyaiswara.tahun}
+                  </Text>
+                </View>
+              </ImageBackground>
+            </ViewShot>
+          )}
         </Dialog.Content>
 
         <Dialog.Actions>

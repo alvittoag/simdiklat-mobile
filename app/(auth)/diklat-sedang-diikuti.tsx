@@ -95,7 +95,7 @@ export default function DiklatSedangDiikuti() {
   });
 
   const { data: photo, isLoading: loadingPhoto } = useQ({
-    queryKey: ["poto-profile"],
+    queryKey: ["poto-profile", dataCard],
     queryFn: async () => {
       const { data } = await axiosService.get<response>(
         "/api/change-profile/photo"
