@@ -82,6 +82,9 @@ export default function PodcastPerangkatDaerahList() {
       queryClient.invalidateQueries({
         queryKey: ["podcastPerangkatDaerah"],
       });
+      queryClient.invalidateQueries({
+        queryKey: ["podcast-newest"],
+      });
     },
 
     onError: (e) => {

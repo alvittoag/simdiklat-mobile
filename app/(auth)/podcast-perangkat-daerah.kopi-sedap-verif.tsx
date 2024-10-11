@@ -49,7 +49,11 @@ export default function KopiSedapVerif() {
         button: "Tutup",
       });
       queryClient.invalidateQueries({
-        queryKey: ["kopi-sedap-list", "podcast-newest"],
+        queryKey: ["kopi-sedap-list"],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ["podcast-newest"],
       });
 
       setIsOpen(false);
