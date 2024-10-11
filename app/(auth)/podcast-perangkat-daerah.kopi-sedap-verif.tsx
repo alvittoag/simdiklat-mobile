@@ -45,7 +45,7 @@ export default function KopiSedapVerif() {
       Dialog.show({
         type: ALERT_TYPE.SUCCESS,
         title: "Berhasil",
-        textBody: `Berhasil Melakukan Pendaftaran Sertifkat Podcast Kopi Sedap Tersebut`,
+        textBody: `Berhasil Mendaftar Podcast ${data.title}`,
         button: "Tutup",
       });
       queryClient.invalidateQueries({
@@ -62,7 +62,7 @@ export default function KopiSedapVerif() {
       Dialog.show({
         type: ALERT_TYPE.DANGER,
         title: "Gagal",
-        textBody: "Gagal Melakukan Pendaftaran Sertifkat",
+        textBody: `Gaga Mendaftar Podcast ${data.title}`,
         button: "Tutup",
       });
     },
