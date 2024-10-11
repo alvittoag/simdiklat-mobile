@@ -32,8 +32,15 @@ import ViewShot from "react-native-view-shot";
 import * as MediaLibrary from "expo-media-library";
 import auth from "@/services/api/auth";
 import assets from "@/assets";
+import { useQuery as useQ } from "@tanstack/react-query";
 
 import { ALERT_TYPE, Dialog as D } from "react-native-alert-notification";
+import { axiosService } from "@/services/axiosService";
+type response = {
+  message: string;
+  status: string;
+  data: string;
+};
 
 export default function DiklatSedangDiikuti() {
   const [sessionUser, setSessionUser] = React.useState<ISession | null>(null);
@@ -84,6 +91,16 @@ export default function DiklatSedangDiikuti() {
       tipe: "current",
       sortBy: "a.jadwal_mulai",
       ...terapkan,
+    },
+  });
+
+  const { data: photo, isLoading: loadingPhoto } = useQ({
+    queryKey: ["poto-profile"],
+    queryFn: async () => {
+      const { data } = await axiosService.get<response>(
+        "/api/change-profile/photo"
+      );
+      return data;
     },
   });
 
@@ -578,106 +595,118 @@ export default function DiklatSedangDiikuti() {
             style={{ backgroundColor: "white" }}
           >
             <Dialog.Content>
-              <ViewShot
-                ref={viewShotRef as any}
-                options={{ format: "jpg", quality: 0.8 }}
-              >
-                <ImageBackground
-                  source={assets.background_peserta}
-                  resizeMode="contain"
-                  style={{ height: 500, position: "relative" }}
+              {loadingPhoto ? (
+                <Loading />
+              ) : (
+                <ViewShot
+                  ref={viewShotRef as any}
+                  options={{ format: "jpg", quality: 0.8 }}
                 >
-                  <View
-                    style={{ position: "absolute", top: 113, width: "100%" }}
+                  <ImageBackground
+                    source={assets.background_peserta}
+                    resizeMode="contain"
+                    style={{ height: 500, position: "relative" }}
                   >
-                    <Image
-                      resizeMode="cover"
-                      source={{
-                        uri: `http://10.15.43.236:8080/api/file/${sessionUser?.user.image}`,
-                      }}
-                      style={{
-                        height: 172.7,
-                        width: 158.2,
-                        margin: "auto",
-                        marginLeft: 82,
-                        borderRadius: 7,
-                      }}
-                    />
-                  </View>
+                    <View
+                      style={{ position: "absolute", top: 113, width: "100%" }}
+                    >
+                      <Image
+                        resizeMode="cover"
+                        source={{
+                          uri: `http://10.15.43.236:8080/api/file/${photo?.data}`,
+                        }}
+                        style={{
+                          height: 172.7,
+                          width: 158.2,
+                          margin: "auto",
+                          marginLeft: 82,
+                          borderRadius: 7,
+                        }}
+                      />
+                    </View>
 
-                  <View
-                    style={{ position: "absolute", bottom: 186, width: "100%" }}
-                  >
-                    <Text
+                    <View
                       style={{
-                        textAlign: "center",
-                        fontSize: 17,
-                        color: Colors.text_primary,
-                        fontWeight: "bold",
+                        position: "absolute",
+                        bottom: 186,
+                        width: "100%",
                       }}
                     >
-                      {sessionUser?.user.name}
-                    </Text>
-                  </View>
+                      <Text
+                        style={{
+                          textAlign: "center",
+                          fontSize: 17,
+                          color: Colors.text_primary,
+                          fontWeight: "bold",
+                        }}
+                      >
+                        {sessionUser?.user.name}
+                      </Text>
+                    </View>
 
-                  <View
-                    style={{ position: "absolute", bottom: 155, width: "100%" }}
-                  >
-                    <Text
+                    <View
                       style={{
-                        textAlign: "center",
-                        fontSize: 15,
-                        color: Colors.text_secondary,
+                        position: "absolute",
+                        bottom: 155,
+                        width: "100%",
                       }}
                     >
-                      BPSDM
-                    </Text>
-                  </View>
+                      <Text
+                        style={{
+                          textAlign: "center",
+                          fontSize: 15,
+                          color: Colors.text_secondary,
+                        }}
+                      >
+                        BPSDM
+                      </Text>
+                    </View>
 
-                  <View
-                    style={{
-                      flex: 1,
-                      position: "absolute",
-                      width: "100%",
-                      maxHeight: 80,
-                      bottom: 70,
-                      gap: 5,
-                      paddingHorizontal: 20,
-                    }}
-                  >
-                    <Text
-                      numberOfLines={2}
+                    <View
                       style={{
-                        textAlign: "center",
-                        fontSize: 16,
-                        fontWeight: 600,
+                        flex: 1,
+                        position: "absolute",
+                        width: "100%",
+                        maxHeight: 80,
+                        bottom: 70,
+                        gap: 5,
+                        paddingHorizontal: 20,
                       }}
                     >
-                      {dataCard?.jadwal_diklat.diklat.name}
-                    </Text>
-                    <Text
-                      style={{
-                        textAlign: "center",
-                        fontSize: 16,
-                        fontWeight: 600,
-                      }}
-                    >
-                      {dataCard?.jadwal_diklat.name}
-                    </Text>
-                    <Text
-                      style={{
-                        textAlign: "center",
-                        fontSize: 16,
-                        fontWeight: 600,
-                      }}
-                    >
-                      {parseDateLong(
-                        dataCard?.jadwal_diklat.jadwal_mulai as any
-                      )}
-                    </Text>
-                  </View>
-                </ImageBackground>
-              </ViewShot>
+                      <Text
+                        numberOfLines={2}
+                        style={{
+                          textAlign: "center",
+                          fontSize: 16,
+                          fontWeight: 600,
+                        }}
+                      >
+                        {dataCard?.jadwal_diklat.diklat.name}
+                      </Text>
+                      <Text
+                        style={{
+                          textAlign: "center",
+                          fontSize: 16,
+                          fontWeight: 600,
+                        }}
+                      >
+                        {dataCard?.jadwal_diklat.name}
+                      </Text>
+                      <Text
+                        style={{
+                          textAlign: "center",
+                          fontSize: 16,
+                          fontWeight: 600,
+                        }}
+                      >
+                        {parseDateLong(
+                          dataCard?.jadwal_diklat.jadwal_mulai as any
+                        )}
+                      </Text>
+                    </View>
+                  </ImageBackground>
+                </ViewShot>
+              )}
             </Dialog.Content>
 
             <Dialog.Actions>
