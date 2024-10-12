@@ -59,6 +59,19 @@ export default function KalenderDiklat() {
   const [page, setPage] = React.useState(1);
   const [limit] = React.useState(10);
 
+  const [searchValue, setSearchValue] = React.useState(debouncedSearch);
+
+  React.useEffect(() => {
+    const lowerCaseSearch = debouncedSearch.toLowerCase();
+    if (lowerCaseSearch === "buka") {
+      setSearchValue("open");
+    } else if (lowerCaseSearch === "tutup") {
+      setSearchValue("close");
+    } else {
+      setSearchValue(lowerCaseSearch);
+    }
+  }, [debouncedSearch]);
+
   const { loading, error, data, refetch } = useQuery<{
     kalenderDiklats: {
       items: IKalenderDiklatList[];
@@ -69,7 +82,7 @@ export default function KalenderDiklat() {
     variables: {
       page: page,
       limit: limit,
-      q: debouncedSearch.toLocaleLowerCase(),
+      q: searchValue,
       sortBy: "kd.created_at",
       ...terapkan,
     },
