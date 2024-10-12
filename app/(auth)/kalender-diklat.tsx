@@ -5,6 +5,7 @@ import {
   ScrollView,
   FlatList,
   RefreshControl,
+  Platform,
 } from "react-native";
 import React from "react";
 import ContainerBackground from "@/components/container/ContainerBackground";
@@ -198,6 +199,8 @@ export default function KalenderDiklat() {
                 marginHorizontal: moderateScale(15),
                 marginTop: index === 0 ? moderateScale(20) : 0,
                 marginBottom: moderateScale(25),
+                borderWidth: Platform.OS === "android" ? 0 : 0.5,
+                borderColor: Colors.border_primary,
               }}
             >
               <View style={{ gap: 15 }}>

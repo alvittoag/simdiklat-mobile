@@ -1,4 +1,4 @@
-import { View, Text } from "react-native";
+import { View, Text, Platform } from "react-native";
 import React from "react";
 import ContainerBackground from "@/components/container/ContainerBackground";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -31,7 +31,7 @@ export default function index() {
           alignItems: "center",
           gap: moderateScale(90),
           paddingHorizontal: moderateScale(15),
-          paddingVertical: moderateScale(20),
+          paddingVertical: Platform.OS === "android" ? moderateScale(20) : 0,
         }}
       >
         <Text

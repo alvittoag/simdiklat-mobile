@@ -1,6 +1,7 @@
-import { View, Text } from "react-native";
+import { View, Text, Platform } from "react-native";
 import React from "react";
 import { Divider } from "react-native-paper";
+import { Colors } from "@/constants/Colors";
 
 export default function ContainerCard({
   title,
@@ -19,6 +20,8 @@ export default function ContainerCard({
         elevation: 3,
         borderRadius: 10,
         gap: 15,
+        borderWidth: Platform.OS === "android" ? 0 : 0.5,
+        borderColor: Colors.border_primary,
       }}
     >
       <View style={{ gap: 15 }}>

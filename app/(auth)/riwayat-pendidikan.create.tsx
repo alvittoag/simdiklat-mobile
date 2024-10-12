@@ -357,6 +357,7 @@ export default function RiwayaPendidikanAdd() {
                 icon={"content-save-outline"}
                 mode="contained"
                 textColor="white"
+                labelStyle={{ color: "white" }}
                 style={{
                   backgroundColor: Colors.button_primary,
                   borderRadius: 7,

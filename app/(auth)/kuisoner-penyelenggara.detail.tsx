@@ -242,7 +242,7 @@ export default function KuisonerPengajarDetail() {
             <TextInput
               value={saran}
               onChangeText={(e) => setSaran(e)}
-              placeholder="Isi Saran Untuk Pengajar"
+              placeholder="Isi Saran Untuk Penyelenggara"
               placeholderTextColor={Colors.text_secondary}
               multiline
               mode="outlined"

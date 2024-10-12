@@ -42,7 +42,7 @@ export default function Profile() {
     },
   });
 
-  const { mutate } = useMutation({
+  const { mutate, isPending: isPendingUpload } = useMutation({
     mutationFn: async (formData: FormData) => {
       return await axiosService.put("/api/change-profile", formData, {
         headers: {
@@ -144,17 +144,19 @@ export default function Profile() {
           }}
         >
           <View style={{ alignItems: "center", gap: moderateScale(25) }}>
-            <Avatar.Image
-              size={200}
-              source={{
-                uri: isPending
-                  ? "#"
-                  : `http://10.15.43.236:8080/api/file/${photo?.data}`,
-              }}
-              style={{
-                backgroundColor: Colors.primary,
-              }}
-            />
+            {isPendingUpload || isPending ? (
+              <Loading />
+            ) : (
+              <Avatar.Image
+                size={200}
+                source={{
+                  uri: `http://10.15.43.236:8080/api/file/${photo?.data}`,
+                }}
+                style={{
+                  backgroundColor: Colors.primary,
+                }}
+              />
+            )}
 
             <Button
               onPress={handleDocumentPick}

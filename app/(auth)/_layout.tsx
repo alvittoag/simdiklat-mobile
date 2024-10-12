@@ -75,6 +75,7 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = React.memo(
     });
 
     const [visible, setVisible] = React.useState(false);
+    const [loadingLogout, setLoadingLogout] = React.useState(false);
 
     const showDialog = () => setVisible(true);
 
@@ -167,6 +168,7 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = React.memo(
     const keyExtractor = useCallback((item: RouteItem) => item.path, []);
 
     const handleLogout = async () => {
+      setLoadingLogout(true);
       try {
         await auth.logout();
         hideDialog();
@@ -179,6 +181,8 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = React.memo(
           title: "Gagal",
           textBody: "Terjadi kesalahan saat logout",
         });
+      } finally {
+        setLoadingLogout(false);
       }
     };
 
@@ -251,10 +255,13 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = React.memo(
                         </Button>
 
                         <Button
+                          loading={loadingLogout}
+                          disabled={loadingLogout}
                           onPress={handleLogout}
                           icon={"logout"}
                           mode="contained"
                           textColor="white"
+                          labelStyle={{ color: "white" }}
                           style={{
                             flex: 1,
                             paddingVertical: moderateScale(5),

@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity, Platform } from "react-native";
 import React from "react";
 import { Colors } from "@/constants/Colors";
 import { Searchbar } from "react-native-paper";
@@ -33,8 +33,10 @@ export default function SearchBar({
         alignItems: "center",
         borderRadius: 5,
         elevation: 7,
-        borderBottomWidth: 0.5,
+        borderBottomWidth: Platform.OS === "android" ? 0.5 : 0.5,
+        borderWidth: Platform.OS === "android" ? 0 : 0.5,
         borderBottomColor: Colors.border_primary,
+        borderColor: Colors.border_primary,
       }}
     >
       <Searchbar
