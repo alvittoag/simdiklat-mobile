@@ -46,6 +46,8 @@ type responsePodcast = {
 export default function HalamanUtama() {
   const queryClient = useQueryClient();
 
+  const [watchIdPush, setWatchIdPush] = React.useState<any>("");
+
   const { data, loading } = useQuery<{
     profilPesertaDiklat: IProfilePeserta;
   }>(getProfilePeserta);
@@ -63,7 +65,11 @@ export default function HalamanUtama() {
     },
   });
 
-  const { data: dataPodcast, isPending: isPendingPodcast } = useQ({
+  const {
+    data: dataPodcast,
+    isPending: isPendingPodcast,
+    refetch,
+  } = useQ({
     queryKey: ["podcast-newest"],
     queryFn: async () => {
       const res = await axiosService.get<responsePodcast>(
@@ -83,7 +89,18 @@ export default function HalamanUtama() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["podcast-newest", "podcastPerangkatDaerah"],
+        queryKey: ["podcastPerangkatDaerah"],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ["podcast-newest"],
+      });
+
+      refetch();
+
+      router.push({
+        pathname: "/podcast-perangkat-daerah.detail",
+        params: { id: watchIdPush },
       });
     },
 
@@ -109,7 +126,8 @@ export default function HalamanUtama() {
     formData.append("diklat_id", diklat_id as any);
 
     if (!isRegisterd) {
-      mutate(formData);
+      setWatchIdPush(watch_id);
+      return mutate(formData);
     }
 
     router.push({
@@ -373,6 +391,11 @@ export default function HalamanUtama() {
                     )}
 
                     <Button
+                      loading={isPendingMutate}
+                      disabled={isPendingMutate}
+                      labelStyle={{
+                        color: item.isRegisterd ? "black" : "white",
+                      }}
                       mode="contained"
                       icon={item.isRegisterd ? "play" : "login"}
                       textColor={item.isRegisterd ? "black" : "white"}
@@ -412,7 +435,7 @@ export default function HalamanUtama() {
         <Dialog
           visible={showModal.ip || showModal.jp}
           onDismiss={() => setShowModal({ ip: false, jp: false })}
-          style={styles.dialog}
+          style={[styles.dialog, { height: showModal.ip ? "62%" : "80%" }]}
         >
           <Dialog.Title style={styles.dialogTitle}>
             {showModal.jp ? "Info Detail JP Pegawai" : "Info Detail IP ASN"}
@@ -578,7 +601,6 @@ const styles = StyleSheet.create({
   dialog: {
     backgroundColor: "white",
     borderRadius: 8,
-    maxHeight: "80%",
   },
   dialogTitle: {
     textAlign: "center",

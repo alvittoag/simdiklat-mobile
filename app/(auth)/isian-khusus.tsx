@@ -567,7 +567,7 @@ export default function IsianKhusus() {
               alignItems: "center",
             }}
           >
-            <Checkbox
+            <Checkbox.Android
               status={isChecked ? "checked" : "unchecked"}
               onPress={() => setIsChecked(!isChecked)}
               color={Colors.text_primary}
