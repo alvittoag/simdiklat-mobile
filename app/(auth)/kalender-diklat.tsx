@@ -233,7 +233,7 @@ export default function KalenderDiklat() {
                       fontSize: 16,
                     }}
                   >
-                    {item.status_registrasi === "open" ? "Open" : "Close"}
+                    {item.status_registrasi === "open" ? "Buka" : "Tutup"}
                   </Text>
                 </View>
 

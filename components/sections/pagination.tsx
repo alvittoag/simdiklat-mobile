@@ -70,7 +70,7 @@ export default function Pagination({
           fontSize: 16,
         }}
       >
-        Page {totalPage === 0 ? "-" : page} of {totalPage}
+        Hal {totalPage === 0 ? "-" : page} of {totalPage}
       </Text>
 
       <View style={{ flexDirection: "row", alignItems: "center" }}>

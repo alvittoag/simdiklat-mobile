@@ -309,7 +309,7 @@ export default function DiklatSedangDiikuti() {
                         fontSize: 16,
                       }}
                     >
-                      {item.status === "accept" ? "Accept" : "Pending"}
+                      {item.status === "accept" ? "Diterima" : "Ditolak"}
                     </Text>
                   </View>
                 </View>
