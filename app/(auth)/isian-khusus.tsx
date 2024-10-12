@@ -162,7 +162,7 @@ export default function IsianKhusus() {
       Dialog.show({
         type: ALERT_TYPE.SUCCESS,
         title: "Berhasil",
-        textBody: "Isian Khusus Berhasil Di Update",
+        textBody: "Isian Khusus Berhasil Di Perbarui",
         button: "Tutup",
       });
       setIsChecked(false);
@@ -173,7 +173,7 @@ export default function IsianKhusus() {
       Dialog.show({
         type: ALERT_TYPE.DANGER,
         title: "Gagal",
-        textBody: "Isian Khusus Gagal Di Update",
+        textBody: "Isian Khusus Gagal Diperbarui",
         button: "Tutup",
       });
     },
