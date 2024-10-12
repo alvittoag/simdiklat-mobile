@@ -77,6 +77,17 @@ export default function DiklatSedangDiikuti() {
   const [page, setPage] = React.useState(1);
   const [limit] = React.useState(10);
 
+  const [searchValue, setSearchValue] = React.useState(debouncedSearch);
+
+  React.useEffect(() => {
+    const lowerCaseSearch = debouncedSearch.toLowerCase();
+    if (lowerCaseSearch === "diterima") {
+      setSearchValue("accept");
+    } else {
+      setSearchValue(lowerCaseSearch);
+    }
+  }, [debouncedSearch]);
+
   const { data, error, loading, refetch } = useQuery<{
     pesertaDiklats: {
       items: ISedangDiikuti[];
@@ -87,7 +98,7 @@ export default function DiklatSedangDiikuti() {
     variables: {
       page: page,
       limit: limit,
-      q: debouncedSearch.toLowerCase(),
+      q: searchValue,
       tipe: "current",
       sortBy: "a.jadwal_mulai",
       ...terapkan,
