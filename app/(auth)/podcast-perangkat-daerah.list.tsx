@@ -41,6 +41,7 @@ export default function PodcastPerangkatDaerahList() {
   const [terapkan, setTerapkan] = React.useState<any>({
     searchBy: "",
   });
+  const [dataShow, setDataShow] = React.useState<IPodcast | null>(null);
 
   const debouncedSearch = useDebounce(search, 1000);
 
@@ -76,7 +77,7 @@ export default function PodcastPerangkatDaerahList() {
       Dialog.show({
         type: ALERT_TYPE.SUCCESS,
         title: "Berhasil",
-        textBody: "Berhasil Mengikuti Podcast Rabu Belajar",
+        textBody: `Berhasil Mendaftar Podcast ${dataShow?.title}`,
         button: "Tutup",
       });
       queryClient.invalidateQueries({
@@ -124,15 +125,14 @@ export default function PodcastPerangkatDaerahList() {
     [isPending, page, setPage, data?.data.meta.totalPages]
   );
 
-  const handleRegisterDiklat = async (
-    jadwal_diklat_id: number,
-    diklat_id: number
-  ) => {
+  const handleRegisterDiklat = async (item: IPodcast) => {
     const formData = new FormData();
-    formData.append("jadwal_diklat_id", jadwal_diklat_id as any);
-    formData.append("diklat_id", diklat_id as any);
+    formData.append("jadwal_diklat_id", item.jadwal_diklat.id as any);
+    formData.append("diklat_id", item.jadwal_diklat.diklat_id as any);
 
     mutate(formData);
+
+    setDataShow(item);
   };
 
   if (error) return <Error />;
@@ -251,12 +251,7 @@ export default function PodcastPerangkatDaerahList() {
                   </Button>
                 ) : (
                   <Button
-                    onPress={() =>
-                      handleRegisterDiklat(
-                        item.jadwal_diklat.id,
-                        item.jadwal_diklat.diklat_id
-                      )
-                    }
+                    onPress={() => handleRegisterDiklat(item)}
                     disabled={isPendingMutate}
                     loading={isPendingMutate}
                     icon={"login"}
