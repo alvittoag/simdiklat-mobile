@@ -338,7 +338,7 @@ export default function HalamanUtama() {
                         {item.title}
                       </Text>
 
-                      <View>
+                      <View style={{ gap: 3 }}>
                         <Text
                           style={{
                             fontWeight: 500,
