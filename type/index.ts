@@ -451,10 +451,12 @@ export interface IJP {
 }
 
 export interface IJule {
-  id_pelatihan: number;
-  name: string;
-  jp: number;
-  selesai: Date;
+  user_id: string;
+  course_id: string;
+  title: string;
+  nrk: string;
+  jp: string;
+  completed_date: string;
 }
 
 export interface IPodcast {

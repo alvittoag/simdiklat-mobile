@@ -10,7 +10,7 @@ import { IJule, IProfilePeserta } from "@/type";
 import { getProfilePeserta } from "@/services/query/getProfilePeserta";
 import Loading from "@/components/elements/Loading";
 import Error from "@/components/elements/Error";
-import { useQuery as useQ } from "@tanstack/react-query";
+import { useMutation, useQuery as useQ } from "@tanstack/react-query";
 import { axiosService } from "@/services/axiosService";
 import { FlashList } from "@shopify/flash-list";
 import { parseDateLong } from "@/lib/parseDate";
@@ -34,18 +34,40 @@ export default function UpdateJpSiJule() {
   } = useQ({
     queryKey: ["jule"],
     queryFn: async () => {
-      const res = await axiosService.get<response>("/api/jp-sijule/get");
+      const res = await axiosService.get<response>(
+        "/api/jp-sijule/enrollments"
+      );
       return res.data;
     },
   });
 
+  const { mutate, isPending: isPendingMutate } = useMutation({
+    mutationFn: async () => {
+      await axiosService.post("/api/jp-sijule/import", {
+        data: dataJule?.data,
+      });
+    },
+    onSuccess: () => {
+      Dialog.show({
+        type: ALERT_TYPE.SUCCESS,
+        title: "Berhasil",
+        textBody: "Berhasil Menyimpan Data Pelatihan SiJule",
+        button: "Tutup",
+      });
+    },
+
+    onError: () => {
+      Dialog.show({
+        type: ALERT_TYPE.DANGER,
+        title: "Gagal ",
+        textBody: "Gagal Menyimpan Data Pelatihan SiJule",
+        button: "Tutup",
+      });
+    },
+  });
+
   const handleImport = () => {
-    Dialog.show({
-      type: ALERT_TYPE.SUCCESS,
-      title: "Berhasil",
-      textBody: "Berhasil Menyimpan Data Pelatihan SiJule",
-      button: "Tutup",
-    });
+    mutate();
   };
 
   if (loading || isPending) return <Loading />;
@@ -64,7 +86,7 @@ export default function UpdateJpSiJule() {
         <FlatList
           showsVerticalScrollIndicator={false}
           data={dataJule.data}
-          keyExtractor={(item) => item.id_pelatihan.toString()}
+          keyExtractor={(item) => item.course_id}
           renderItem={({ item }) => (
             <View
               style={{
@@ -78,25 +100,25 @@ export default function UpdateJpSiJule() {
               }}
             >
               <View style={{ gap: 15 }}>
-                <Text style={{ fontSize: 16, fontWeight: 500 }}>
-                  {item.name}
+                <Text style={{ fontSize: 16, fontWeight: "bold" }}>
+                  {item.title}
                 </Text>
 
-                <Text style={{ fontSize: 15, fontWeight: "bold" }}>
-                  JP : {item.jp ?? "-"}
+                <Text style={{ fontSize: 15, fontWeight: 500 }}>
+                  JP : {item.jp}
                 </Text>
               </View>
 
               <Text
                 style={{
                   fontSize: 14,
-                  fontWeight: 500,
+                  fontWeight: 400,
                   position: "absolute",
                   bottom: 19,
                   right: 20,
                 }}
               >
-                {parseDateLong(item.selesai as any)}
+                {item.completed_date ?? "-"}
               </Text>
             </View>
           )}
@@ -129,6 +151,9 @@ export default function UpdateJpSiJule() {
           )}
           ListFooterComponent={() => (
             <Button
+              loading={isPendingMutate}
+              disabled={isPendingMutate}
+              mode="contained"
               onPress={handleImport}
               icon={"content-save-outline"}
               labelStyle={{ color: "black" }}
