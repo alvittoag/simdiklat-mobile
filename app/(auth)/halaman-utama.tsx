@@ -328,11 +328,11 @@ export default function HalamanUtama() {
                       gap: 15,
                     }}
                   >
-                    <View style={{ gap: 3 }}>
+                    <View style={{ gap: 5 }}>
                       <Text
                         style={{
                           fontWeight: "bold",
-                          fontSize: 18,
+                          fontSize: 16,
                         }}
                       >
                         {item.title}
@@ -386,6 +386,8 @@ export default function HalamanUtama() {
                           height: 140,
                           borderRadius: 7,
                           backgroundColor: "grey",
+                          borderWidth: 1,
+                          borderColor: Colors.border_primary,
                         }}
                       />
                     )}
