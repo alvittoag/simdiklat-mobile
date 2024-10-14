@@ -118,7 +118,7 @@ export default function KuisonerPengajarDetail() {
         pengajar_id: dataParams.pengajar_id,
         tanggal: dataParams.tanggal,
         mata_diklat_id: dataParams.materi_id,
-        jadwal_pengajar_id: dataParams.pengajar_id,
+        jadwal_pengajar_id: dataParams.id,
       };
 
       const existingIndex = prev.findIndex(
