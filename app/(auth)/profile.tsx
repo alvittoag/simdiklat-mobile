@@ -77,6 +77,18 @@ export default function Profile() {
     },
   });
 
+  const requestPermissions = async () => {
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== "granted") {
+      alert("Sorry, we need camera permissions to make this work!");
+    }
+  };
+
+  // Panggil fungsi ini sebelum membuka ImagePicker
+  React.useEffect(() => {
+    requestPermissions();
+  }, []);
+
   const imagePick = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -87,7 +99,6 @@ export default function Profile() {
 
     if (!result.canceled) {
       const photo = result.assets[0];
-      console.log("Selected Photo:", photo); // Tambahkan ini untuk debugging
 
       // Tentukan tipe MIME berdasarkan ekstensi atau default ke 'image/jpeg'
       let mimeType = "image/jpeg";
@@ -183,17 +194,13 @@ export default function Profile() {
           }}
         >
           <View style={{ alignItems: "center", gap: moderateScale(25) }}>
-            {isPendingUpload ? (
-              <Loading />
-            ) : (
-              <Avatar.Image
-                size={200}
-                source={{ uri: photoUri }}
-                style={{
-                  backgroundColor: Colors.primary,
-                }}
-              />
-            )}
+            <Avatar.Image
+              size={200}
+              source={{ uri: photoUri }}
+              style={{
+                backgroundColor: Colors.primary,
+              }}
+            />
 
             <Button
               loading={isPendingUpload}
@@ -210,9 +217,7 @@ export default function Profile() {
                 width: scale(180),
               }}
             >
-              {isPickerBusy || isPendingUpload
-                ? "Sedang Memproses..."
-                : "Ganti Foto"}
+              Ganti Photo
             </Button>
           </View>
 
