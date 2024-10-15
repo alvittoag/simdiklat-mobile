@@ -6,6 +6,7 @@ import {
   FlatList,
   RefreshControl,
   Platform,
+  Alert,
 } from "react-native";
 import React from "react";
 import ContainerBackground from "@/components/container/ContainerBackground";
@@ -22,7 +23,7 @@ import { moderateScale } from "react-native-size-matters";
 import { Colors } from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { gql, useQuery } from "@apollo/client";
+import { gql, useLazyQuery, useQuery } from "@apollo/client";
 import { IKalenderDiklatList } from "@/type";
 import Loading from "@/components/elements/Loading";
 import Error from "@/components/elements/Error";
@@ -39,7 +40,9 @@ import parseLongText from "@/lib/parseLongText";
 import { useMutation } from "@tanstack/react-query";
 import { axiosService } from "@/services/axiosService";
 import { ALERT_TYPE, Dialog as DNote } from "react-native-alert-notification";
-
+import * as XLSX from "xlsx";
+import * as FileSystem from "expo-file-system";
+import { parseDateLong } from "@/lib/parseDate";
 export default function KalenderDiklat() {
   const [search, setSearch] = React.useState("");
   const [yearFilter, setYearFilter] = React.useState("2024");
@@ -88,6 +91,14 @@ export default function KalenderDiklat() {
       ...terapkan,
     },
   });
+
+  const [getAllKalender, { loading: loadingALlDiklat }] = useLazyQuery<{
+    kalenderDiklats: {
+      items: IKalenderDiklatList[];
+      total: number;
+      hasMore: boolean;
+    };
+  }>(getKalenderDiklatList);
 
   const totalPage = data ? Math.ceil(data?.kalenderDiklats.total / limit) : 1;
 
@@ -157,6 +168,106 @@ export default function KalenderDiklat() {
   const registerDiklat = (id: number, diklat: string) => {
     mutationRegister.mutate(id);
     setDiklatSaved(diklat);
+  };
+
+  const saveFile = async (fileUri: string, fileName: string) => {
+    try {
+      const permissions =
+        await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync();
+      if (permissions.granted) {
+        const base64 = await FileSystem.readAsStringAsync(fileUri, {
+          encoding: FileSystem.EncodingType.Base64,
+        });
+        await FileSystem.StorageAccessFramework.createFileAsync(
+          permissions.directoryUri,
+          fileName,
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+          .then(async (uri) => {
+            await FileSystem.writeAsStringAsync(uri, base64, {
+              encoding: FileSystem.EncodingType.Base64,
+            });
+            DNote.show({
+              type: ALERT_TYPE.SUCCESS,
+              title: "Berhasil",
+              textBody: "Berhasil Menyimpan File Excel",
+              button: "Tutup",
+            });
+          })
+          .catch((e) => {
+            console.error(e);
+          });
+      } else {
+        Alert.alert(
+          "Permission needed",
+          "Please grant permission to save the file"
+        );
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const exportToExcel = async (items: IKalenderDiklatList[]) => {
+    // Tambahkan baris kosong di awal untuk membuat "header" terlihat berbeda
+    const d = [
+      {
+        "Nama Diklat": "NAMA DIKLAT",
+        "Jadwal Pelaksanaan": "JADWAL PELAKSANAAN",
+        "Lokasi Diklat": "LOKASI DIKLAT",
+        Status: "STATUS",
+      },
+      {}, // Baris kosong untuk memisahkan header
+      ...items.map((item) => ({
+        "Nama Diklat": item.diklat.name,
+        "Jadwal Pelaksanaan": item.waktu_pelaksanaan,
+        "Lokasi Diklat": item.lokasi_diklat.name,
+        Status: item.status_registrasi === "open" ? "Buka" : "Tutup",
+      })),
+    ];
+
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.json_to_sheet(d as any, { skipHeader: true });
+
+    // Mengatur lebar kolom
+    const colWidths = [
+      { wch: 55 }, // Nama Diklat
+      { wch: 40 }, // Jadwal Pelaksanaan
+      { wch: 50 }, // Lokasi Diklat
+      { wch: 20 }, // Status
+    ];
+
+    ws["!cols"] = colWidths;
+
+    XLSX.utils.book_append_sheet(wb, ws, "Kalender Diklat");
+
+    const wbout = XLSX.write(wb, { type: "base64", bookType: "xlsx" });
+
+    const fileName = `Kalender Diklat_${Date.now()}.xlsx`;
+    const fileUri = FileSystem.documentDirectory + fileName;
+
+    try {
+      await FileSystem.writeAsStringAsync(fileUri, wbout, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+
+      saveFile(fileUri, fileName);
+
+      setSearch("");
+      setPage(1);
+      setShowFilter(false);
+
+      // Check if sharing is available and share the file
+    } catch (error) {
+      DNote.show({
+        type: ALERT_TYPE.DANGER,
+        title: "Gagal",
+        textBody: "Gagal Menyimpan File Excel",
+        button: "Tutup",
+      });
+
+      console.error(error);
+    }
   };
 
   if (error) {
@@ -403,6 +514,34 @@ export default function KalenderDiklat() {
                   <Text>Lokasi Diklat</Text>
                 </View>
               </RadioButton.Group>
+
+              <Button
+                disabled={loadingALlDiklat}
+                loading={loadingALlDiklat}
+                onPress={() =>
+                  getAllKalender({
+                    variables: {
+                      limit: 999999,
+                      page: 1,
+                      sortBy: "kd.created_at",
+                      sortDirection: "DESC",
+                    },
+                  }).then((res) => {
+                    exportToExcel(res.data?.kalenderDiklats.items as any);
+                  })
+                }
+                icon={"download"}
+                mode="contained"
+                textColor="white"
+                labelStyle={{ color: "white" }}
+                style={{
+                  backgroundColor: Colors.button_primary,
+                  marginTop: 15,
+                  marginBottom: -10,
+                }}
+              >
+                Download Excel
+              </Button>
             </Dialog.Content>
 
             <Dialog.Actions>

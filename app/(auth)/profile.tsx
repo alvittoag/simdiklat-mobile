@@ -1,18 +1,21 @@
-import { View, Text, ScrollView, ActivityIndicator } from "react-native";
 import React from "react";
+import { View, Text, ScrollView } from "react-native";
 import ContainerBackground from "@/components/container/ContainerBackground";
 import { moderateScale, scale } from "react-native-size-matters";
 import { Avatar, Button } from "react-native-paper";
 import { Colors } from "@/constants/Colors";
-import auth from "@/services/api/auth";
-import { gql, useQuery } from "@apollo/client";
+import { useQuery, gql } from "@apollo/client";
 import { IProfilePeserta } from "@/type";
 import { getProfilePeserta } from "@/services/query/getProfilePeserta";
 import Loading from "@/components/elements/Loading";
 import Error from "@/components/elements/Error";
 import * as DocumentPicker from "expo-document-picker";
 import { ALERT_TYPE, Dialog } from "react-native-alert-notification";
-import { useQuery as UseQ, useMutation } from "@tanstack/react-query";
+import {
+  useQuery as UseQ,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { axiosService } from "@/services/axiosService";
 
 type response = {
@@ -23,6 +26,8 @@ type response = {
 
 export default function Profile() {
   const [isPickerBusy, setIsPickerBusy] = React.useState(false);
+  const queryClient = useQueryClient();
+
   const { data, error, loading } = useQuery<{
     profilPesertaDiklat: IProfilePeserta;
   }>(getProfilePeserta);
@@ -58,67 +63,49 @@ export default function Profile() {
         button: "Tutup",
       });
       refetch();
+      queryClient.invalidateQueries({ queryKey: ["poto-profile"] });
     },
     onError: (err) => {
-      console.log(err);
+      console.error("Upload error:", err);
       Dialog.show({
         type: ALERT_TYPE.DANGER,
         title: "Gagal ",
-        textBody: "Foto Profile Gagal Diperbarui",
+        textBody: "Foto Profile Gagal Diperbarui. Silakan coba lagi.",
         button: "Tutup",
       });
     },
   });
 
   const handleDocumentPick = React.useCallback(async () => {
-    if (isPickerBusy) {
-      return;
-    }
+    if (isPickerBusy) return;
 
     setIsPickerBusy(true);
 
     try {
       const result = await DocumentPicker.getDocumentAsync({
-        type: "*/*",
-        copyToCacheDirectory: true,
+        type: ["image/*"],
+        copyToCacheDirectory: false,
       });
 
-      if (!result.canceled) {
-        if (
-          result.assets[0].mimeType !== "image/jpg" &&
-          result.assets[0].mimeType !== "image/jpeg" &&
-          result.assets[0].mimeType !== "image/png"
-        ) {
-          Dialog.show({
-            type: ALERT_TYPE.DANGER,
-            title: "Gagal",
-            textBody: "File harus berupa gambar",
-            button: "Tutup",
-          });
-          return;
-        }
-
+      if (!result.canceled && result.assets.length > 0) {
         const photo = result.assets[0];
         const formData = new FormData();
 
-        const fileToUpload = {
+        formData.append("photo", {
           uri: photo.uri,
-          type: photo.mimeType,
-          name: photo.name,
-        };
+          type: photo.mimeType || "image/jpeg",
+          name: photo.name || "photo.jpg",
+        } as any);
 
-        formData.append("photo", fileToUpload as any);
-
-        mutate(formData);
+        await mutate(formData);
       }
     } catch (err) {
-      console.log("Unknown error: ", err);
+      console.error("Document pick error:", err);
       Dialog.show({
         type: ALERT_TYPE.DANGER,
         title: "Error",
-        textBody:
-          "An error occurred while picking the document. Please try again.",
-        button: "Close",
+        textBody: "Terjadi kesalahan saat memilih foto. Silakan coba lagi.",
+        button: "Tutup",
       });
     } finally {
       setIsPickerBusy(false);
@@ -129,9 +116,13 @@ export default function Profile() {
     return <Loading />;
   }
 
-  if (error) {
+  if (error || isError) {
     return <Error />;
   }
+
+  const photoUri = photo?.data
+    ? `http://10.15.43.236:8080/api/file/${photo.data}`
+    : undefined;
 
   return (
     <ContainerBackground>
@@ -144,14 +135,12 @@ export default function Profile() {
           }}
         >
           <View style={{ alignItems: "center", gap: moderateScale(25) }}>
-            {isPendingUpload || isPending ? (
+            {isPendingUpload ? (
               <Loading />
             ) : (
               <Avatar.Image
                 size={200}
-                source={{
-                  uri: `http://10.15.43.236:8080/api/file/${photo?.data}`,
-                }}
+                source={{ uri: photoUri }}
                 style={{
                   backgroundColor: Colors.primary,
                 }}
@@ -160,8 +149,9 @@ export default function Profile() {
 
             <Button
               onPress={handleDocumentPick}
-              icon={"camera"}
+              icon="camera"
               textColor="black"
+              disabled={isPickerBusy || isPendingUpload}
               style={{
                 backgroundColor: Colors.button_secondary,
                 borderRadius: 7,
@@ -169,7 +159,9 @@ export default function Profile() {
                 width: scale(180),
               }}
             >
-              Ganti Foto
+              {isPickerBusy || isPendingUpload
+                ? "Sedang Memproses..."
+                : "Ganti Foto"}
             </Button>
           </View>
 

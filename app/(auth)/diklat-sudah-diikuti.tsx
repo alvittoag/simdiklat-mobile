@@ -1,4 +1,4 @@
-import { View, Text, RefreshControl, Linking } from "react-native";
+import { View, Text, RefreshControl, Linking, Alert } from "react-native";
 import React from "react";
 import ContainerBackground from "@/components/container/ContainerBackground";
 import {
@@ -11,7 +11,7 @@ import {
 import { moderateScale } from "react-native-size-matters";
 import { Colors } from "@/constants/Colors";
 import ContainerCard from "@/components/container/ContainerCard";
-import { useQuery } from "@apollo/client";
+import { useLazyQuery, useQuery } from "@apollo/client";
 import { getDiklat } from "@/services/query/get-diklat";
 import { ISedangDiikuti } from "@/type";
 import useDebounce from "@/hooks/useDebounce";
@@ -23,6 +23,10 @@ import NotFoundSearch from "@/components/sections/NotFoundSearch";
 import { FlashList } from "@shopify/flash-list";
 import { router } from "expo-router";
 import { parseDateLong } from "@/lib/parseDate";
+import * as XLSX from "xlsx";
+import * as FileSystem from "expo-file-system";
+import { ALERT_TYPE, Dialog as D } from "react-native-alert-notification";
+
 export default function DiklatSudahDiikuti() {
   const [search, setSearch] = React.useState("");
   const [searchBy, setSearchBy] = React.useState("");
@@ -56,6 +60,14 @@ export default function DiklatSudahDiikuti() {
       ...terapkan,
     },
   });
+
+  const [getAllDiklat, { loading: loadingALlDiklat }] = useLazyQuery<{
+    pesertaDiklats: {
+      items: ISedangDiikuti[];
+      total: number;
+      hasMore: boolean;
+    };
+  }>(getDiklat);
 
   const totalPage = data ? Math.ceil(data?.pesertaDiklats.total / limit) : 1;
 
@@ -97,6 +109,117 @@ export default function DiklatSudahDiikuti() {
     setSearch("");
     setPage(1);
     setShowSort(false);
+  };
+
+  const saveFile = async (fileUri: string, fileName: string) => {
+    try {
+      const permissions =
+        await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync();
+      if (permissions.granted) {
+        const base64 = await FileSystem.readAsStringAsync(fileUri, {
+          encoding: FileSystem.EncodingType.Base64,
+        });
+        await FileSystem.StorageAccessFramework.createFileAsync(
+          permissions.directoryUri,
+          fileName,
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+          .then(async (uri) => {
+            await FileSystem.writeAsStringAsync(uri, base64, {
+              encoding: FileSystem.EncodingType.Base64,
+            });
+            D.show({
+              type: ALERT_TYPE.SUCCESS,
+              title: "Berhasil",
+              textBody: "Berhasil Menyimpan File Excel",
+              button: "Tutup",
+            });
+          })
+          .catch((e) => {
+            console.error(e);
+          });
+      } else {
+        Alert.alert(
+          "Permission needed",
+          "Please grant permission to save the file"
+        );
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const exportToExcel = async (items: ISedangDiikuti[]) => {
+    // Tambahkan baris kosong di awal untuk membuat "header" terlihat berbeda
+    const d = [
+      {
+        "Jenis Diklat": "JENIS DIKLAT",
+        "Nama Diklat": "NAMA DIKLAT",
+        Angkatan: "ANGKATAN",
+        "Jadwal Pelaksanaan": "JADWAL PELAKSANAAN",
+        Lokasi: "LOKASI",
+        "Link Sertifikat": "LINK SERTIFIKAT",
+      },
+      {}, // Baris kosong untuk memisahkan header
+      ...items.map((item) => ({
+        "Jenis Diklat": item.jadwal_diklat.diklat.jenis_diklat.name,
+        "Nama Diklat": item.jadwal_diklat.diklat.name,
+        Angkatan: item.jadwal_diklat.name,
+        "Jadwal Pelaksanaan": `${parseDateLong(
+          item.jadwal_diklat.jadwal_mulai
+        )} - ${parseDateLong(item.jadwal_diklat.jadwal_selesai)}`,
+        Lokasi: item.jadwal_diklat.lokasi_diklat.name,
+        "Link Sertifikat":
+          item.sertifikat_signed === 0
+            ? "-"
+            : `https://simdiklat-bpsdm.jakarta.go.id/sim-diklat/sertifikat/peserta-download-tte/${item.id}`,
+      })),
+    ];
+
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.json_to_sheet(d as any, { skipHeader: true });
+
+    // Mengatur lebar kolom
+    const colWidths = [
+      { wch: 40 }, // Jenis Diklat
+      { wch: 55 }, // Nama Diklat
+      { wch: 10 }, // Angkatan
+      { wch: 40 }, // Jadwal Pelaksanaan
+      { wch: 50 }, // Lokasi
+      { wch: 70 }, // Link Sertifikat
+    ];
+
+    ws["!cols"] = colWidths;
+
+    XLSX.utils.book_append_sheet(wb, ws, "Diklat Sudah Diikuti");
+
+    const wbout = XLSX.write(wb, { type: "base64", bookType: "xlsx" });
+
+    const fileName = `Diklat Sudah Diikuti_${Date.now()}.xlsx`;
+    const fileUri = FileSystem.documentDirectory + fileName;
+
+    try {
+      await FileSystem.writeAsStringAsync(fileUri, wbout, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+
+      saveFile(fileUri, fileName);
+
+      setSearch("");
+      setPage(1);
+      setShowFilter(false);
+
+      // Check if sharing is available and share the file
+    } catch (error) {
+      D.show({
+        type: ALERT_TYPE.DANGER,
+        title: "Gagal",
+        textBody: "Gagal Menyimpan File Excel",
+        button: "Tutup",
+      });
+
+      console.error(error);
+    }
   };
 
   return (
@@ -287,6 +410,35 @@ export default function DiklatSudahDiikuti() {
                   <Text>Lokasi Diklat</Text>
                 </View>
               </RadioButton.Group>
+
+              <Button
+                disabled={loadingALlDiklat}
+                loading={loadingALlDiklat}
+                onPress={() =>
+                  getAllDiklat({
+                    variables: {
+                      limit: 999999,
+                      page: 1,
+                      tipe: "history",
+                      sortBy: "a.jadwal_mulai",
+                      sortDirection: "DESC",
+                    },
+                  }).then((res) => {
+                    exportToExcel(res.data?.pesertaDiklats.items as any);
+                  })
+                }
+                icon={"download"}
+                mode="contained"
+                textColor="white"
+                labelStyle={{ color: "white" }}
+                style={{
+                  backgroundColor: Colors.button_primary,
+                  marginTop: 15,
+                  marginBottom: -10,
+                }}
+              >
+                Download Excel
+              </Button>
             </Dialog.Content>
 
             <Dialog.Actions>

@@ -117,7 +117,7 @@ export default function KalenderDiklatPublic() {
       <SearchBar
         handleSearchChange={handleSearchChange}
         search={search}
-        showDialog={showDialog}
+        showSortDialog={() => showDialog()}
         showFilter
       />
       {isPending ? (
