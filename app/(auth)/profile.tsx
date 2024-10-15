@@ -52,6 +52,7 @@ export default function Profile() {
       return await axiosService.put("/api/change-profile", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
+          Accept: "application/json",
         },
       });
     },
@@ -94,10 +95,10 @@ export default function Profile() {
         formData.append("photo", {
           uri: photo.uri,
           type: photo.mimeType || "image/jpeg",
-          name: photo.name || "photo.jpg",
+          name: `${photo.name}-${new Date().getTime()}` || "photo.jpg",
         } as any);
 
-        await mutate(formData);
+        mutate(formData);
       }
     } catch (err) {
       console.error("Document pick error:", err);
