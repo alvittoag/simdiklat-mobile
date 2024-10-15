@@ -74,7 +74,8 @@
     "use-debounce": "^10.0.2",
     "xlsx": "^0.18.5",
     "yup": "^1.4.0",
-    "expo-image-picker": "~15.0.7"
+    "expo-image-picker": "~15.0.7",
+    "expo-updates": "~0.25.27"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

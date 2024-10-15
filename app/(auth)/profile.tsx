@@ -5,7 +5,7 @@ import { moderateScale, scale } from "react-native-size-matters";
 import { Avatar, Button } from "react-native-paper";
 import { Colors } from "@/constants/Colors";
 import { useQuery, gql } from "@apollo/client";
-import { IProfilePeserta } from "@/type";
+import { IProfilePeserta, ISession } from "@/type";
 import { getProfilePeserta } from "@/services/query/getProfilePeserta";
 import Loading from "@/components/elements/Loading";
 import Error from "@/components/elements/Error";
@@ -18,6 +18,8 @@ import {
 } from "@tanstack/react-query";
 import { axiosService } from "@/services/axiosService";
 import * as ImagePicker from "expo-image-picker";
+import axios from "axios";
+import auth from "@/services/api/auth";
 
 type response = {
   message: string;
@@ -44,6 +46,14 @@ export default function Profile() {
       const { data } = await axiosService.get<response>(
         "/api/change-profile/photo"
       );
+      return data;
+    },
+  });
+
+  const { data: session, isPending: isPendingsession } = UseQ({
+    queryKey: ["session-key"],
+    queryFn: async () => {
+      const { data }: { data: ISession } = await auth.getSession();
       return data;
     },
   });
@@ -95,41 +105,21 @@ export default function Profile() {
       base64: true,
       aspect: [4, 3],
       quality: 1,
+      allowsEditing: true,
     });
 
     if (!result.canceled) {
       const photo = result.assets[0];
 
-      // Tentukan tipe MIME berdasarkan ekstensi atau default ke 'image/jpeg'
-      let mimeType = "image/jpeg";
-      if (photo.uri) {
-        const extension = photo.uri.split(".").pop();
-        switch (extension?.toLowerCase()) {
-          case "png":
-            mimeType = "image/png";
-            break;
-          case "jpg":
-          case "jpeg":
-            mimeType = "image/jpeg";
-            break;
-          // Tambahkan tipe MIME lain jika diperlukan
-          default:
-            mimeType = "image/jpeg";
-        }
-      }
-
-      // Tentukan nama file dengan fallback jika fileName tidak tersedia
-      const fileName = photo.fileName
-        ? `${photo.fileName}-${new Date().getTime()}`
-        : `photo-${new Date().getTime()}.jpg`;
-
       const formData = new FormData();
 
       formData.append("photo", {
         uri: photo.uri,
-        type: mimeType,
-        name: fileName,
+        type: photo.mimeType,
+        name: photo.fileName,
       } as any);
+
+      formData.append("user_id", session?.user.id as string);
 
       mutate(formData);
     }
@@ -171,7 +161,7 @@ export default function Profile() {
   //   }
   // }, [isPickerBusy, mutate]);
 
-  if (loading || isPending) {
+  if (loading || isPending || isPendingsession) {
     return <Loading />;
   }
 
