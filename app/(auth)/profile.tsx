@@ -17,6 +17,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { axiosService } from "@/services/axiosService";
+import * as ImagePicker from "expo-image-picker";
 
 type response = {
   message: string;
@@ -52,7 +53,6 @@ export default function Profile() {
       return await axiosService.put("/api/change-profile", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
-          Accept: "application/json",
         },
       });
     },
@@ -77,41 +77,88 @@ export default function Profile() {
     },
   });
 
-  const handleDocumentPick = React.useCallback(async () => {
-    if (isPickerBusy) return;
+  const imagePick = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      base64: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
 
-    setIsPickerBusy(true);
+    if (!result.canceled) {
+      const photo = result.assets[0];
+      console.log("Selected Photo:", photo); // Tambahkan ini untuk debugging
 
-    try {
-      const result = await DocumentPicker.getDocumentAsync({
-        type: ["image/*"],
-        copyToCacheDirectory: false,
-      });
-
-      if (!result.canceled && result.assets.length > 0) {
-        const photo = result.assets[0];
-        const formData = new FormData();
-
-        formData.append("photo", {
-          uri: photo.uri,
-          type: photo.mimeType || "image/jpeg",
-          name: `${photo.name}-${new Date().getTime()}` || "photo.jpg",
-        } as any);
-
-        mutate(formData);
+      // Tentukan tipe MIME berdasarkan ekstensi atau default ke 'image/jpeg'
+      let mimeType = "image/jpeg";
+      if (photo.uri) {
+        const extension = photo.uri.split(".").pop();
+        switch (extension?.toLowerCase()) {
+          case "png":
+            mimeType = "image/png";
+            break;
+          case "jpg":
+          case "jpeg":
+            mimeType = "image/jpeg";
+            break;
+          // Tambahkan tipe MIME lain jika diperlukan
+          default:
+            mimeType = "image/jpeg";
+        }
       }
-    } catch (err) {
-      console.error("Document pick error:", err);
-      Dialog.show({
-        type: ALERT_TYPE.DANGER,
-        title: "Error",
-        textBody: "Terjadi kesalahan saat memilih foto. Silakan coba lagi.",
-        button: "Tutup",
-      });
-    } finally {
-      setIsPickerBusy(false);
+
+      // Tentukan nama file dengan fallback jika fileName tidak tersedia
+      const fileName = photo.fileName
+        ? `${photo.fileName}-${new Date().getTime()}`
+        : `photo-${new Date().getTime()}.jpg`;
+
+      const formData = new FormData();
+
+      formData.append("photo", {
+        uri: photo.uri,
+        type: mimeType,
+        name: fileName,
+      } as any);
+
+      mutate(formData);
     }
-  }, [isPickerBusy, mutate]);
+  };
+
+  // const handleDocumentPick = React.useCallback(async () => {
+  //   if (isPickerBusy) return;
+
+  //   setIsPickerBusy(true);
+
+  //   try {
+  //     const result = await DocumentPicker.getDocumentAsync({
+  //       type: ["image/*"],
+  //       copyToCacheDirectory: false,
+  //     });
+
+  //     if (!result.canceled && result.assets.length > 0) {
+  //       const photo = result.assets[0];
+  //       const formData = new FormData();
+
+  //       formData.append("photo", {
+  //         uri: photo.uri,
+  //         type: photo.mimeType || "image/jpeg",
+  //         name: `${photo.name}-${new Date().getTime()}` || "photo.jpg",
+  //       } as any);
+
+  //       mutate(formData);
+  //     }
+  //   } catch (err) {
+  //     console.error("Document pick error:", err);
+  //     Dialog.show({
+  //       type: ALERT_TYPE.DANGER,
+  //       title: "Error",
+  //       textBody: "Terjadi kesalahan saat memilih foto. Silakan coba lagi.",
+  //       button: "Tutup",
+  //     });
+  //   } finally {
+  //     setIsPickerBusy(false);
+  //   }
+  // }, [isPickerBusy, mutate]);
 
   if (loading || isPending) {
     return <Loading />;
@@ -149,7 +196,10 @@ export default function Profile() {
             )}
 
             <Button
-              onPress={handleDocumentPick}
+              loading={isPendingUpload}
+              mode="contained"
+              labelStyle={{ color: "black" }}
+              onPress={imagePick}
               icon="camera"
               textColor="black"
               disabled={isPickerBusy || isPendingUpload}
