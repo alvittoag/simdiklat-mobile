@@ -11,6 +11,7 @@ export default function ChipKalenderDiklat({
 }) {
   let status;
   let background;
+  let textColor;
   switch (aproval) {
     case null:
       status = "Belum Mendaftar";
@@ -25,6 +26,7 @@ export default function ChipKalenderDiklat({
     case 1:
       status = "Sudah Diverifikasi";
       background = "#F1C40E";
+      textColor = "black";
       break;
 
     case 0:
@@ -48,7 +50,7 @@ export default function ChipKalenderDiklat({
         borderRadius: 8,
         marginBottom: 10,
       }}
-      textColor="white"
+      textColor={textColor ?? "white"}
     >
       {status}
     </Button>

@@ -113,6 +113,7 @@ export default function KompetensiLainnyaAdd() {
         button: "Tutup",
       });
     },
+    retry: 10,
   });
 
   const handleAdd = async ({

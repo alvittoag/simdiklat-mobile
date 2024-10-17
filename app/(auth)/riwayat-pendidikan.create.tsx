@@ -94,6 +94,7 @@ export default function RiwayaPendidikanAdd() {
         button: "Tutup",
       });
     },
+    retry: 10,
   });
 
   const handleAdd = async ({

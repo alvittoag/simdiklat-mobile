@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { StyleSheet, FlatList, View, Text } from "react-native";
-import { Button, TextInput } from "react-native-paper";
+import { Button, Checkbox, TextInput } from "react-native-paper";
 import { moderateScale, verticalScale } from "react-native-size-matters";
 import { Colors } from "@/constants/Colors";
 import { useMutation, useQuery } from "@apollo/client";
@@ -82,8 +82,17 @@ const BiodataDiri = ({ navigation }: { navigation: any }) => {
   const [changedData, setChangedData] = React.useState<Record<string, string>>(
     {}
   );
+  const [checked, setChecked] = React.useState(false);
 
   const handleUpdate = () => {
+    if (Object.keys(changedData).length === 0) {
+      return Dialog.show({
+        type: ALERT_TYPE.WARNING,
+        title: "Peringatan",
+        textBody: "Anda belum melakukan perubahan apapun dari Biodata Diri",
+        button: "tutup",
+      });
+    }
     updateBio({
       variables: {
         input: {
@@ -176,17 +185,48 @@ const BiodataDiri = ({ navigation }: { navigation: any }) => {
       keyExtractor={(item) => item.id}
       renderItem={renderItem}
       ListFooterComponent={() => (
-        <Button
-          disabled={loadingUpdate}
-          loading={loadingUpdate}
-          mode="contained"
-          onPress={handleUpdate}
-          icon="content-save-outline"
-          labelStyle={{ color: "black" }}
-          style={styles.button}
+        <View
+          style={{
+            paddingVertical: moderateScale(10),
+            gap: moderateScale(25),
+          }}
         >
-          Selanjutnya
-        </Button>
+          <View
+            style={{
+              flexDirection: "row",
+              gap: moderateScale(10),
+              alignItems: "center",
+            }}
+          >
+            <Checkbox.Android
+              onPress={() => setChecked(!checked)}
+              status={checked ? "checked" : "unchecked"}
+              color={Colors.text_primary}
+            />
+
+            <Text style={{ paddingRight: moderateScale(40) }}>
+              Dengan ini menyatakan bahwa data yang saya isikan adalah benar
+              adanya. Jika kemudian ini diketemukan kesalahan yang disengaja/
+              pemalsuan data maka saya bersedia menerima konsekuensinya
+            </Text>
+          </View>
+
+          <Button
+            loading={loadingUpdate}
+            onPress={handleUpdate}
+            disabled={loadingUpdate || !checked}
+            icon={"content-save-outline"}
+            mode="contained"
+            textColor="black"
+            labelStyle={{ color: "black" }}
+            style={{
+              backgroundColor: checked ? Colors.button_secondary : "grey",
+              paddingVertical: moderateScale(5),
+            }}
+          >
+            Simpan
+          </Button>
+        </View>
       )}
     />
   );

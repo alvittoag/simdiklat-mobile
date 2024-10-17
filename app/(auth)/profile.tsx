@@ -58,12 +58,15 @@ export default function Profile() {
     },
   });
 
-  const { mutate, isPending: isPendingUpload } = useMutation({
+  const {
+    mutate,
+    isPending: isPendingUpload,
+    mutateAsync,
+  } = useMutation({
     mutationFn: async (formData: FormData) => {
-      return await axiosService.put("/api/change-profile", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+      await axiosService.put("/api/change-profile", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+        timeout: 10000,
       });
     },
     onSuccess: () => {
@@ -78,13 +81,15 @@ export default function Profile() {
     },
     onError: (err) => {
       console.error("Upload error:", err);
+
       Dialog.show({
         type: ALERT_TYPE.DANGER,
-        title: "Gagal ",
+        title: "Gagal",
         textBody: "Foto Profile Gagal Diperbarui. Silakan coba lagi.",
         button: "Tutup",
       });
     },
+    retry: 10,
   });
 
   const requestPermissions = async () => {
@@ -100,29 +105,38 @@ export default function Profile() {
   }, []);
 
   const imagePick = async () => {
+    const permissionResult =
+      await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (permissionResult.granted === false) {
+      alert("Izin akses media library dibutuhkan untuk memilih gambar.");
+      return;
+    }
+
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      base64: true,
       aspect: [4, 3],
       quality: 1,
       allowsEditing: true,
     });
 
-    if (!result.canceled) {
-      const photo = result.assets[0];
-
-      const formData = new FormData();
-
-      formData.append("photo", {
-        uri: photo.uri,
-        type: photo.mimeType,
-        name: photo.fileName,
-      } as any);
-
-      formData.append("user_id", session?.user.id as string);
-
-      mutate(formData);
+    if (result.canceled) {
+      return;
     }
+
+    const photo = result.assets[0];
+
+    const formData = new FormData();
+
+    formData.append("photo", {
+      uri: photo.uri,
+      type: photo.mimeType,
+      name: photo.fileName,
+    } as any);
+
+    formData.append("user_id", session?.user.id as string);
+
+    await mutateAsync(formData);
   };
 
   // const handleDocumentPick = React.useCallback(async () => {

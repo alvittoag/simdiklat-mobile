@@ -100,6 +100,7 @@ export default function IsianKhususAdd() {
         button: "Tutup",
       });
     },
+    retry: 10,
   });
 
   const handleAddLampiran = async ({

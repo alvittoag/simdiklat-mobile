@@ -99,7 +99,9 @@ export default function pelatihanEdit() {
         button: "Tutup",
       });
     },
+    retry: 10,
   });
+
   const handleEdit = async ({
     kegiatan,
     instansi,

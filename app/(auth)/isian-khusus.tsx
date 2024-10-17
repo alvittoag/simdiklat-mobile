@@ -162,7 +162,7 @@ export default function IsianKhusus() {
       Dialog.show({
         type: ALERT_TYPE.SUCCESS,
         title: "Berhasil",
-        textBody: "Isian Khusus Berhasil Di Perbarui",
+        textBody: "Isian Khusus Berhasil Diperbarui",
         button: "Tutup",
       });
       setIsChecked(false);
@@ -177,6 +177,7 @@ export default function IsianKhusus() {
         button: "Tutup",
       });
     },
+    retry: 10,
   });
 
   const [dataInput, setDataInput] = React.useState({

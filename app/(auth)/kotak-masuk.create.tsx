@@ -26,6 +26,7 @@ import auth from "@/services/api/auth";
 import { Formik, FormikProps, FormikValues } from "formik";
 import * as Yup from "yup";
 import { useApolloClient } from "@apollo/client";
+import NotFoundSearch from "@/components/sections/NotFoundSearch";
 
 type respnose = {
   status: "success" | "error";
@@ -52,6 +53,8 @@ const messageSchema = Yup.object().shape({
 
 export default function KotakMasukCreate() {
   const { user, user_id, subject, message }: any = useLocalSearchParams();
+
+  console.log(subject, message);
 
   const queryClient = useQueryClient();
   const [searchUsers, setsearchUsers] = React.useState("");
@@ -112,6 +115,7 @@ export default function KotakMasukCreate() {
         button: "Tutup",
       });
     },
+    retry: 10,
   });
 
   const handleSend = ({
@@ -171,7 +175,7 @@ export default function KotakMasukCreate() {
           {({ handleChange, handleSubmit, values, errors, setValues }) => {
             React.useEffect(() => {
               setSelectValue({ label: user, value: user_id });
-              setValues({ subject: subject, message: message });
+              setValues({ subject: subject ?? "", message: message ?? "" });
             }, [message, subject, user, user_id]);
             return (
               <>
@@ -316,7 +320,9 @@ export default function KotakMasukCreate() {
             }}
           />
 
-          {isPending ? (
+          {data?.data.data.length === 0 ? (
+            <NotFoundSearch />
+          ) : isPending ? (
             <Loading />
           ) : (
             <FlashList

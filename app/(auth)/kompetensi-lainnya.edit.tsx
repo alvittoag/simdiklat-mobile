@@ -125,6 +125,7 @@ export default function KompetensiLainnyaEdit() {
         button: "Tutup",
       });
     },
+    retry: 10,
   });
 
   const handleAdd = async ({

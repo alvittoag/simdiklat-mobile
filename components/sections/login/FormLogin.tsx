@@ -12,6 +12,9 @@ import * as Yup from "yup";
 import auth from "@/services/api/auth";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { ALERT_TYPE, Dialog } from "react-native-alert-notification";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import Loading from "@/components/elements/Loading";
+import Error from "@/components/elements/Error";
 
 const loginSchema = Yup.object().shape({
   nrk: Yup.string().min(2, "Minimum 2 Karakter").required("Harap Masukan NRK"),
@@ -20,26 +23,18 @@ const loginSchema = Yup.object().shape({
 
 export default function FormLogin() {
   const [showPassword, setShowPassword] = React.useState(false);
-  const [csrfToken, setCsrfToken] = React.useState("");
-  const [loading, setLoading] = React.useState(false);
 
-  React.useEffect(() => {
-    const getData = async () => {
-      try {
-        const res = await axiosService.get("/api/auth/csrf");
+  const { data: csrfToken } = useQuery({
+    queryKey: ["csrfToken"],
+    queryFn: async () => {
+      const res = await axiosService.get("/api/auth/csrf");
+      return res.data.csrfToken;
+    },
+    retry: 10,
+  });
 
-        setCsrfToken(res.data.csrfToken);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-
-    getData();
-  }, []);
-
-  const handleLogin = async (values: { nrk: string; password: string }) => {
-    setLoading(true);
-    try {
+  const { mutate, isPending: isPendingMutate } = useMutation({
+    mutationFn: async (values: { nrk: string; password: string }) => {
       const options = {
         method: "POST",
         headers: { "content-type": "application/x-www-form-urlencoded" },
@@ -63,14 +58,25 @@ export default function FormLogin() {
         }
 
         await AsyncStorage.setItem("session", JSON.stringify(data));
-
-        router.replace("/halaman-utama");
       });
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setLoading(false);
-    }
+    },
+    onSuccess: () => {
+      router.replace("/halaman-utama");
+    },
+    onError: (err) => {
+      console.log(err);
+      Dialog.show({
+        type: ALERT_TYPE.DANGER,
+        title: "Gagal",
+        textBody: "Terjadi Kesalahan Pada Server",
+        button: "Tutup",
+      });
+    },
+    retry: 10,
+  });
+
+  const handleLogin = async (values: { nrk: string; password: string }) => {
+    mutate(values);
   };
 
   return (
@@ -144,7 +150,7 @@ export default function FormLogin() {
                 textweight="600"
                 onPress={handleSubmit}
               >
-                {loading ? (
+                {isPendingMutate ? (
                   <ActivityIndicator size={"small"} color={"white"} />
                 ) : (
                   "Masuk"

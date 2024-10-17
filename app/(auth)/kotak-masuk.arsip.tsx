@@ -344,15 +344,6 @@ export default function KotakMasuk() {
                           : "Batalkan Arsip"
                       }
                     />
-
-                    <Menu.Item
-                      titleStyle={{
-                        fontWeight: 500,
-                        color: Colors.text_primary,
-                      }}
-                      onPress={() => deletePesan(item.id)}
-                      title="Hapus"
-                    />
                   </Menu>
                 </TouchableOpacity>
               )}

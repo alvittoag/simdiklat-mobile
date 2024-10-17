@@ -86,6 +86,7 @@ export default function pelatihanAdd() {
         button: "Tutup",
       });
     },
+    retry: 10,
   });
   const handleAdd = async ({
     kegiatan,

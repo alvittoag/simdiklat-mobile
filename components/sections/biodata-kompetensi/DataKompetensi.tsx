@@ -435,13 +435,6 @@ export default function DataKompetensi() {
                     </Text>
                   </View>
 
-                  <View style={{ marginBottom: moderateScale(10) }}>
-                    <Text style={{ fontSize: 15 }}>Ijazah</Text>
-                    <Text style={{ fontWeight: "bold" }}>
-                      {item.ijazah_url}
-                    </Text>
-                  </View>
-
                   <View style={styles.actionButtonsContainer}>
                     <Button
                       onPress={() => handleDeleteRiwayatPendidikan(item.id)}
@@ -641,15 +634,6 @@ export default function DataKompetensi() {
                   <View style={{ marginBottom: moderateScale(10) }}>
                     <Text style={{ fontSize: 15 }}>Tahun</Text>
                     <Text style={{ fontWeight: "bold" }}>{item.tahun}</Text>
-                  </View>
-
-                  <View style={{ marginBottom: moderateScale(10) }}>
-                    <Text style={{ fontSize: 15 }}>
-                      Sertifikat / Dokumen Bukti
-                    </Text>
-                    <Text style={{ fontWeight: "bold" }}>
-                      {item.sertifikat_url === " " ? "-" : item.sertifikat_url}
-                    </Text>
                   </View>
 
                   <View style={{ marginBottom: moderateScale(10) }}>
@@ -874,13 +858,6 @@ export default function DataKompetensi() {
                   <View style={{ marginBottom: moderateScale(10) }}>
                     <Text style={{ fontSize: 15 }}>Tahun</Text>
                     <Text style={{ fontWeight: "bold" }}>{item.tahun}</Text>
-                  </View>
-
-                  <View style={{ marginBottom: moderateScale(10) }}>
-                    <Text style={{ fontSize: 15 }}>Sertifikat</Text>
-                    <Text style={{ fontWeight: "bold" }}>
-                      {item.sertifikat_url}
-                    </Text>
                   </View>
 
                   <View style={{ marginBottom: moderateScale(10) }}>

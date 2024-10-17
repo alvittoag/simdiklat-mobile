@@ -167,6 +167,7 @@ export default function KopiSedapVerif() {
 
           {!data.isRegisterd && (
             <Button
+              labelStyle={{ color: "white" }}
               onPress={() => setIsOpen(true)}
               icon={"file-certificate"}
               mode="contained"
@@ -183,6 +184,7 @@ export default function KopiSedapVerif() {
           {isOpen && (
             <View style={{ marginTop: 20, gap: 20 }}>
               <TextInput
+                textColor="black"
                 onChangeText={(val) => setPasscode(val)}
                 outlineColor={Colors.border_primary}
                 activeOutlineColor={"black"}

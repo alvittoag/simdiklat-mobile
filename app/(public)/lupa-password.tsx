@@ -59,7 +59,7 @@ export default function LupaPassword() {
 
   const handleEmail = async (values: { email: string }) => {
     setLoading(true);
-    const token = Math.ceil(Math.random() * 99999).toString();
+    const token = String(Math.floor(Math.random() * 100000)).padStart(5, "0");
 
     const templateParams = {
       email: values.email,

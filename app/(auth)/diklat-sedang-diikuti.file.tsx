@@ -1,4 +1,4 @@
-import { View, Text, FlatList } from "react-native";
+import { View, Text, FlatList, Linking } from "react-native";
 import React from "react";
 import ContainerBackground from "@/components/container/ContainerBackground";
 import SearchBar from "@/components/sections/SearchBar";
@@ -206,6 +206,23 @@ export default function Kurikulum() {
                   {item.keterangan ?? "-"}
                 </Text>
               </View>
+
+              <Button
+                onPress={() =>
+                  Linking.openURL(
+                    `https://simdiklat-bpsdm.jakarta.go.id/sim-diklat/mata-diklat/file-view/${item.id}`
+                  )
+                }
+                icon={"download"}
+                style={{ backgroundColor: Colors.button_primary }}
+                labelStyle={{
+                  color: "white",
+                  paddingVertical: 6,
+                  borderRadius: 7,
+                }}
+              >
+                Download Materi
+              </Button>
             </View>
           )}
           ListFooterComponent={ListFooter}

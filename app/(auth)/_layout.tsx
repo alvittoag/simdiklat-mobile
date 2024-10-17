@@ -229,10 +229,10 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = React.memo(
                     onDismiss={hideDialog}
                   >
                     <Dialog.Title style={{ color: Colors.text_primary }}>
-                      Apakah anda ingin Logout
+                      Apakah anda ingin Keluar
                     </Dialog.Title>
                     <Dialog.Content style={{ gap: moderateScale(30) }}>
-                      <Text>Anda akan keluar penuh terkait Applikasi ini</Text>
+                      <Text>Anda akan keluar penuh dari applikasi</Text>
 
                       <View
                         style={{
@@ -269,7 +269,7 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = React.memo(
                             backgroundColor: Colors.text_red,
                           }}
                         >
-                          Logout
+                          Keluar
                         </Button>
                       </View>
                     </Dialog.Content>

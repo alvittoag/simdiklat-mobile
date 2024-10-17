@@ -113,7 +113,8 @@ export default function KuisonerPengajarList() {
         <View
           style={{
             backgroundColor: "white",
-            padding: 30,
+            paddingHorizontal: 30,
+            paddingVertical: 20,
             borderWidth: 1,
             borderColor: Colors.border_primary,
             borderRadius: 7,

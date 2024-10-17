@@ -339,9 +339,11 @@ export default function KotakMasuk() {
                           pathname: "/kotak-masuk.pesan",
                           params: {
                             id: item.id,
+                            user_id: item.sender.id,
                             dari: item.sender.full_name,
                             subjek: item.subject,
                             pesan: item.message,
+                            read: item.read_notify,
                           },
                         });
                       }}
