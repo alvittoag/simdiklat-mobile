@@ -3,7 +3,7 @@ import React from "react";
 import ContainerBackground from "@/components/container/ContainerBackground";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Colors } from "@/constants/Colors";
-import { moderateScale, verticalScale } from "react-native-size-matters";
+import { moderateScale } from "react-native-size-matters";
 import {
   Button,
   Checkbox,
@@ -12,7 +12,7 @@ import {
   Portal,
   TextInput,
 } from "react-native-paper";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { axiosService } from "@/services/axiosService";
 import Error from "@/components/elements/Error";
 import Loading from "@/components/elements/Loading";
@@ -20,6 +20,7 @@ import { ISimpeg, IUsers } from "@/type";
 import { parseDateLong } from "@/lib/parseDate";
 import { ALERT_TYPE, Dialog as D } from "react-native-alert-notification";
 import { router } from "expo-router";
+import axios from "axios";
 
 type response = {
   status: string;
@@ -31,13 +32,12 @@ type response = {
 };
 
 export default function BiodataSimpeg() {
+  const queryClient = useQueryClient();
   const [dataCheck, setDataCheck] = React.useState<Record<string, string>>({});
   const [allChecked, setAllChecked] = React.useState(false);
   const [dialog, setDialog] = React.useState(false);
 
-  console.log(dataCheck);
-
-  const { data, isPending, isError, isSuccess } = useQuery({
+  const { data, isPending, isError, isSuccess, status, refetch } = useQuery({
     queryKey: ["biodata-simpeg"],
     queryFn: async () => {
       const res = await axiosService.get<response>("/api/simpeg/get");
@@ -46,16 +46,16 @@ export default function BiodataSimpeg() {
   });
 
   const { mutate, isPending: isPendingUpdate } = useMutation({
-    mutationFn: async (formdata: FormData) => {
-      const res = await axiosService.put("/api/simpeg/put", formdata, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+    mutationFn: async (formdata: any) => {
+      const res = await axiosService.put("/api/simpeg/put", {
+        data: formdata,
       });
       return res.data;
     },
 
     onSuccess: () => {
+      refetch();
+
       D.show({
         type: ALERT_TYPE.SUCCESS,
         title: "Berhasil",
@@ -73,7 +73,7 @@ export default function BiodataSimpeg() {
       D.show({
         type: ALERT_TYPE.DANGER,
         title: "Gagal",
-        textBody: "Biodata Simpeg Gagal",
+        textBody: "Biodata Simpeg Gagal ",
         button: "Tutup",
       });
     },
@@ -93,18 +93,31 @@ export default function BiodataSimpeg() {
 
   const dataAll = {
     agama: data?.data.simpeg_data.AGAMA,
-    eselon_id: data?.data.simpeg_data.ESELON,
+    eselon: data?.data.simpeg_data.ESELON,
     full_name: data?.data.simpeg_data.NAMA,
     gelar_belakang: data?.data.simpeg_data["GELAR BELAKANG"],
     gelar_depan: data?.data.simpeg_data["GELAR DEPAN"] || " ",
-    gender: data?.data.simpeg_data.JENKEL === "P" ? "Perempuan" : "Laki-laki",
-    golongan_id: data?.data.simpeg_data.KOPANG,
-    jabatan_id: data?.data.simpeg_data.KOJAB,
+    gender: data?.data.simpeg_data.JENKEL === "P" ? "PEREMPUAN" : "LAKI-LAKI",
+    golongan: data?.data.simpeg_data.KOPANG,
+    jabatan: {
+      code: data?.data.simpeg_data.KOJAB,
+      name: data?.data.simpeg_data.JABATAN,
+      jenis: data?.data.simpeg_data.KD,
+    },
     nip: data?.data.simpeg_data.NIP18,
     npwp: data?.data.simpeg_data.NPWP,
     nrk: data?.data.simpeg_data.NRK,
-    pangkat_id: data?.data.simpeg_data.KOPANG,
-    pendidikan: "S1, INSTITUT PERTANIAN BOGOR",
+    pangkat: data?.data.simpeg_data.KOPANG,
+    pendidikan: {
+      jenis: data?.data.simpeg_data.PENDIDIKAN,
+      nama_sekolah: data?.data.simpeg_data.UNIVERSITAS,
+      jurusan: data?.data.simpeg_data["NAMA JURUSAN"],
+      tempat: data?.data.simpeg_data["LOKASI UNIVERSITAS"],
+      tahun_lulus: data?.data.simpeg_data["TGL.IJAZAH"].split("-")[2],
+      ijazah: 0,
+      nomor_ijazah: data?.data.simpeg_data["NO.IJAZAH"],
+      tgl_ijazah: data?.data.simpeg_data["TGL.IJAZAH"],
+    },
     rekening: data?.data.simpeg_data["NO.REKENING"],
     rumah_alamat: data?.data.simpeg_data.ALAMAT,
     rumah_kota: data?.data.simpeg_data.WILAYAH,
@@ -115,7 +128,40 @@ export default function BiodataSimpeg() {
     tmt_eselon: data?.data.simpeg_data["TMT ESELON"],
     tmt_pangkat: data?.data.simpeg_data["TMT PANGKAT"],
     tmt_pns: data?.data.simpeg_data["TMT PNS"],
-    uke_id: data?.data.simpeg_data["KODE UKPD"],
+    uke: data?.data.simpeg_data["KODE UKPD"],
+  };
+
+  const handleUpdate = async () => {
+    const modifiedDataCheck = Object.entries(dataCheck).reduce(
+      (acc: any, [key, value]) => {
+        let newKey = key;
+        switch (key) {
+          case "jabatan":
+            newKey = "jabatan_id";
+            break;
+          case "uke":
+            newKey = "uke_id";
+            break;
+          case "pangkat":
+            newKey = "pangkat_id";
+            break;
+          case "golongan":
+            newKey = "golongan_id";
+            break;
+          case "eselon":
+            newKey = "eselon_id";
+            break;
+          case "pendidikan":
+            newKey = "pendidikan_id";
+            break;
+        }
+        acc[newKey] = value;
+        return acc;
+      },
+      {}
+    );
+
+    mutate(modifiedDataCheck);
   };
 
   const handleAllCheckboxChange = () => {
@@ -127,25 +173,17 @@ export default function BiodataSimpeg() {
     }
   };
 
-  const handleUpdate = async () => {
-    const formData = new FormData();
-
-    Object.entries(dataCheck).forEach(([key, value]) => {
-      formData.append(key, value);
-    });
-
-    mutate(formData);
-  };
-
   React.useEffect(() => {
     handleAllCheckboxChange();
-  }, [data]);
+  }, [status]);
+
+  console.log(dataCheck);
 
   const renderField = (
     key: string,
     simdiklatValue: string,
     simpegValue: string,
-    otherValue?: string
+    otherValue?: any
   ) => (
     <View style={{ gap: moderateScale(10) }}>
       <View style={{ gap: 5 }}>
@@ -155,10 +193,16 @@ export default function BiodataSimpeg() {
         <TextInput
           value={simdiklatValue}
           disabled
-          multiline
+          multiline={simdiklatValue?.length >= 40}
           mode="outlined"
           textColor="black"
-          style={[styles.textInput, key === "rumah_alamat" && { height: 100 }]}
+          style={[
+            styles.textInput,
+            {
+              maxHeight: 100,
+              paddingVertical: simdiklatValue?.length >= 40 ? 10 : 0,
+            },
+          ]}
           outlineColor={Colors.border_primary}
           activeOutlineColor={Colors.border_input_active}
         />
@@ -317,8 +361,18 @@ export default function BiodataSimpeg() {
           )}
           {renderField(
             "pendidikan",
-            `${data.data.user.pendidikan_id}, ${data.data.user.pendidikan_sk}`,
-            `${data.data.simpeg_data.PENDIDIKAN}, ${data.data.simpeg_data.UNIVERSITAS}`
+            `${data.data.user.pendidikan.jenis}, ${data.data.user.pendidikan.nama_sekolah}`,
+            `${data.data.simpeg_data.PENDIDIKAN}, ${data.data.simpeg_data.UNIVERSITAS}`,
+            {
+              jenis: data?.data.simpeg_data.PENDIDIKAN,
+              nama_sekolah: data?.data.simpeg_data.UNIVERSITAS,
+              jurusan: data?.data.simpeg_data["NAMA JURUSAN"],
+              tempat: data?.data.simpeg_data["LOKASI UNIVERSITAS"],
+              tahun_lulus: data?.data.simpeg_data["TGL.IJAZAH"].split("-")[2],
+              ijazah: 0,
+              nomor_ijazah: data?.data.simpeg_data["NO.IJAZAH"],
+              tgl_ijazah: data?.data.simpeg_data["TGL.IJAZAH"],
+            }
           )}
           {renderField(
             "tmt_cpns",
@@ -331,22 +385,22 @@ export default function BiodataSimpeg() {
             data.data.simpeg_data["TMT PNS"]
           )}
           {renderField(
-            "uke_id",
-            data.data.user.uke.full_name,
+            "uke",
+            data.data.user.uke?.full_name,
             data.data.simpeg_data["NAMA UKPD"],
             data.data.simpeg_data["KODE UKPD"]
           )}
           {renderField(
-            "pangkat_id",
+            "pangkat",
             data.data.user.pangkat.full_name,
             data.data.simpeg_data.PANGKAT,
             data.data.simpeg_data.KOPANG
           )}
           {renderField(
-            "golongan_id",
+            "golongan",
             data.data.user.pangkat.name,
             data.data.simpeg_data.GOL,
-            data.data.simpeg_data.KOPANG
+            data.data.simpeg_data.PANGKAT
           )}
           {renderField(
             "tmt_pangkat",
@@ -354,21 +408,25 @@ export default function BiodataSimpeg() {
             data.data.simpeg_data["TMT PANGKAT"]
           )}
           {renderField(
-            "eselon_id",
+            "eselon",
             data.data.user.eselon.name,
             data.data.simpeg_data["NAMA ESELON"],
             data.data.simpeg_data.ESELON
           )}
           {renderField(
             "tmt_eselon",
-            parseDate(data.data.user.tmt_pns),
+            parseDate(data.data.user.tmt_eselon),
             data.data.simpeg_data["TMT ESELON"]
           )}
           {renderField(
-            "jabatan_id",
+            "jabatan",
             data.data.user.jabatan?.full_name,
             data.data.simpeg_data.JABATAN,
-            data.data.simpeg_data.KOJAB
+            {
+              code: data?.data.simpeg_data.KOJAB,
+              name: data?.data.simpeg_data.JABATAN,
+              jenis: data?.data.simpeg_data.KD,
+            }
           )}
 
           {/* Submit button */}
@@ -442,7 +500,6 @@ export default function BiodataSimpeg() {
 const styles = StyleSheet.create({
   textInput: {
     backgroundColor: "white",
-    height: verticalScale(45),
     borderWidth: 1,
     borderColor: Colors.border_primary,
     borderRadius: 5,

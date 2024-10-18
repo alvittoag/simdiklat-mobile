@@ -111,7 +111,7 @@ export default function PengumumanSeleksi() {
 
       if (Platform.OS === "android") {
         const asset = await MediaLibrary.createAssetAsync(imageUri);
-        await MediaLibrary.createAlbumAsync("Download", asset, false);
+        await MediaLibrary.createAlbumAsync("Download", asset, true);
       } else {
         await MediaLibrary.saveToLibraryAsync(imageUri);
       }
@@ -442,6 +442,7 @@ export default function PengumumanSeleksi() {
             icon={"download"}
             mode="contained"
             textColor="black"
+            labelStyle={{ color: "black" }}
             style={{
               backgroundColor: Colors.button_secondary,
               flexGrow: 1,

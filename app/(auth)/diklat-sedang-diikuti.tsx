@@ -147,7 +147,6 @@ export default function DiklatSedangDiikuti() {
     return <Error />;
   }
 
-
   const hideShowFilter = () => {
     setTerapkan((prev: any) => ({
       ...prev,
@@ -202,7 +201,7 @@ export default function DiklatSedangDiikuti() {
 
       if (Platform.OS === "android") {
         const asset = await MediaLibrary.createAssetAsync(imageUri);
-        await MediaLibrary.createAlbumAsync("Download", asset, false);
+        await MediaLibrary.createAlbumAsync("Download", asset, true);
       } else {
         await MediaLibrary.saveToLibraryAsync(imageUri);
       }
@@ -870,6 +869,7 @@ export default function DiklatSedangDiikuti() {
 
             <Dialog.Actions>
               <Button
+                labelStyle={{ color: "black" }}
                 loading={loadingDownload}
                 disabled={loadingDownload}
                 onPress={captureAndSaveImage}

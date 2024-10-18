@@ -135,6 +135,14 @@ export default function IsianKhususAdd() {
       });
 
       if (!result.canceled) {
+        if (result.assets[0].mimeType !== "application/pdf") {
+          return Dialog.show({
+            type: ALERT_TYPE.WARNING,
+            title: "Gagal",
+            textBody: "File harus berupa pdf",
+            button: "Tutup",
+          });
+        }
         setDataLampiran({
           ...dataLampiran,
           file: result.assets[0] as any,

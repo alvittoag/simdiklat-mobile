@@ -253,7 +253,7 @@ export default function IsianKhusus() {
           result.assets[0].mimeType !== "image/png"
         ) {
           return Dialog.show({
-            type: ALERT_TYPE.DANGER,
+            type: ALERT_TYPE.WARNING,
             title: "Gagal",
             textBody: "File harus berupa gambar",
             button: "Tutup",

@@ -593,9 +593,25 @@ export interface IUsers {
   password: string;
   jabatan: Jabatan;
   uke: Uke;
-  pendidikan: null;
+  pendidikan: IPendidikan;
   pangkat: Pangkat;
   eselon: Eselon;
+}
+
+interface IPendidikan {
+  id: number;
+  user_id: number;
+  jenis: string;
+  nama_sekolah: string;
+  jurusan: string;
+  tempat: string;
+  tahun_lulus: number;
+  keterangan: string;
+  created_at: Date;
+  updated_at: Date;
+  ijazah: number;
+  nomor_ijazah: string;
+  tgl_ijazah: Date;
 }
 
 export interface Eselon {

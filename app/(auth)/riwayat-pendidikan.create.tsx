@@ -138,6 +138,14 @@ export default function RiwayaPendidikanAdd() {
       });
 
       if (!result.canceled) {
+        if (result.assets[0].mimeType !== "application/pdf") {
+          return Dialog.show({
+            type: ALERT_TYPE.WARNING,
+            title: "Gagal",
+            textBody: "File harus berupa pdf",
+            button: "Tutup",
+          });
+        }
         setDataInput({
           ...dataInput,
           ijazah_pdf: result.assets[0] as any,
@@ -299,7 +307,7 @@ export default function RiwayaPendidikanAdd() {
               onChangeText={handleChange("keterangan")}
               error={errors.keterangan ? true : false}
               textColor={Colors.text_primary}
-              label={"Keterangan *"}
+              label={"Keterangan"}
               mode="outlined"
               outlineColor={Colors.border_primary}
               activeOutlineColor={Colors.border_input_active}

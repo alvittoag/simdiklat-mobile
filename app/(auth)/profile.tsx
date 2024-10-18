@@ -92,18 +92,6 @@ export default function Profile() {
     retry: 10,
   });
 
-  const requestPermissions = async () => {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== "granted") {
-      alert("Sorry, we need camera permissions to make this work!");
-    }
-  };
-
-  // Panggil fungsi ini sebelum membuka ImagePicker
-  React.useEffect(() => {
-    requestPermissions();
-  }, []);
-
   const imagePick = async () => {
     const permissionResult =
       await ImagePicker.requestMediaLibraryPermissionsAsync();

@@ -171,6 +171,14 @@ export default function KompetensiLainnyaEdit() {
       });
 
       if (!result.canceled) {
+        if (result.assets[0].mimeType !== "application/pdf") {
+          return Dialog.show({
+            type: ALERT_TYPE.WARNING,
+            title: "Gagal",
+            textBody: "File harus berupa pdf",
+            button: "Tutup",
+          });
+        }
         setDataInput({
           ...dataInput,
           sertifikat_pdf: result.assets[0] as any,
