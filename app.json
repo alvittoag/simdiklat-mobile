@@ -4,11 +4,11 @@
     "slug": "simdiklat-mobile",
     "version": "1.0.1",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/icon-bpsdm.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "splash": {
-      "image": "./assets/images/splash.png",
+      "image": "./assets/images/splash-2.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -58,12 +58,6 @@
     },
     "runtimeVersion": {
       "policy": "appVersion"
-    },
-    "updates": {
-      "url": "https://u.expo.dev/8778d8db-6da7-410c-b3f6-800ac0eca78a",
-      "enabled": true,
-      "checkAutomatically": "ON_LOAD",
-      "fallbackToCacheTimeout": 0
     }
   }
 }
