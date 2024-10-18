@@ -456,7 +456,7 @@ export default function DiklatSedangDiikuti() {
                       router.push({
                         pathname: "/diklat-sedang-diikuti.kurikulum",
                         params: {
-                          id: item.jadwal_diklat.id,
+                          id: item.jadwal_diklat.diklat.id,
                           diklat: JSON.stringify(item.jadwal_diklat.diklat),
                         },
                       })

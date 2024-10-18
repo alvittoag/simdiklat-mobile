@@ -49,7 +49,7 @@ export default function Kurikulum() {
 
     queryFn: async () => {
       const { data } = await axiosService.get<response>(
-        `/api/kurikulum/371?page=${page}&limit=${limit}&order=${terapkan.sortDirection}&search=${debouncedSearch}`
+        `/api/kurikulum/${id}?page=${page}&limit=${limit}&order=${terapkan.sortDirection}&search=${debouncedSearch}`
       );
 
       return data;
@@ -72,6 +72,8 @@ export default function Kurikulum() {
     setPage(1);
     setVisible(false);
   };
+
+  console.log(id);
 
   const ListFooter = React.useMemo(
     () => (
