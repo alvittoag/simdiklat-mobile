@@ -1,0 +1,37 @@
+## Tata Cara Installasi
+
+1. Install Nodejs : https://nodejs.org/en
+2. Install Android Studio : https://developer.android.com/studio?hl=id
+2. Buka terminal di folder React Native ini
+3. Ketik `npm install` pada terminal
+
+----------------------------------------------------------------
+
+## Tata Cara Menjalankan
+
+`Wajib Melakukan running emulator handphone pada Android Studio`
+
+1. Buka terminal di folder React Native ini
+2. Ketik `npm start` pada terminal
+3. Ketik `a` pada emulator untuk menjalankan applikasi nya di emulator
+
+----------------------------------------------------------------
+
+## Tata Cara Build Menjadi APK
+
+1. Buka Website : https://expo.dev/
+2. Daftar dan Login
+3. Buka terminal di folder React Native ini
+4. Ketik `npm install -g eas-cli`
+5. Ketik `eas login` login menggunakan akun yang sudah terdaftar
+6. Ketik `eas build:configure`
+7. Ketik `eas build --platform android`
+ 
+Setelah status build selesai buka kembali website https://expo.dev/ lalu ke menu Project->pilih projectnya->build->All Builds
+
+nanti terdapat beberapa list apk yang sudah dibuild, pilih yang paling terbaru nanti akan ada menu download.
+
+***Note:
+jika sudah pernah melalukan `eas login` pada terminal, jika ingin melalukan build ulang langsung mulaidari tahap ke 7
+
+Jika Ingin Explorasi lebih lanjut terkait build, bisa pergi website ini : https://docs.expo.dev/build/setup/
