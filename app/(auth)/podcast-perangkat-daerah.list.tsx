@@ -1,4 +1,11 @@
-import { View, Text, Image, Linking, FlatList } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  Linking,
+  FlatList,
+  RefreshControl,
+} from "react-native";
 import React from "react";
 import ContainerBackground from "@/components/container/ContainerBackground";
 import AppHeader from "@/components/AppHeader";
@@ -48,7 +55,7 @@ export default function PodcastPerangkatDaerahList() {
   const [page, setPage] = React.useState(1);
   const [limit] = React.useState(10);
 
-  const { data, isPending, error } = useQuery<response>({
+  const { data, isPending, error, refetch } = useQuery<response>({
     queryKey: [
       "podcastPerangkatDaerah",
       debouncedSearch,
@@ -152,6 +159,9 @@ export default function PodcastPerangkatDaerahList() {
         <NotFoundSearch />
       ) : (
         <FlatList
+          refreshControl={
+            <RefreshControl refreshing={false} onRefresh={() => refetch()} />
+          }
           showsVerticalScrollIndicator={false}
           data={data?.data.data}
           renderItem={({ item }) => (
@@ -237,6 +247,7 @@ export default function PodcastPerangkatDaerahList() {
                         params: { id: item.watch_id },
                       })
                     }
+                    labelStyle={{ color: "black" }}
                     icon={"play"}
                     textColor="black"
                     mode="contained"

@@ -1,4 +1,4 @@
-import { View, Text, FlatList, Linking } from "react-native";
+import { View, Text, FlatList, Linking, RefreshControl } from "react-native";
 import React from "react";
 import ContainerBackground from "@/components/container/ContainerBackground";
 import SearchBar from "@/components/sections/SearchBar";
@@ -46,12 +46,12 @@ export default function Kurikulum() {
 
   const debouncedSearch = useDebounce(search, 1000);
 
-  const { data, isPending, isError } = useQuery({
+  const { data, isPending, isError, refetch } = useQuery({
     queryKey: ["file_materi", page, limit, debouncedSearch, terapkan],
 
     queryFn: async () => {
       const { data } = await axiosService.get<response>(
-        `api/kurikulum/file-materi/300?page=${page}&limit=${limit}&order=${terapkan.sortDirection}&search=${debouncedSearch}`
+        `api/kurikulum/file-materi/${id}?page=${page}&limit=${limit}&order=${terapkan.sortDirection}&search=${debouncedSearch}`
       );
 
       return data;
@@ -103,6 +103,9 @@ export default function Kurikulum() {
         <NotFoundSearch />
       ) : (
         <FlashList
+          refreshControl={
+            <RefreshControl refreshing={false} onRefresh={() => refetch()} />
+          }
           keyExtractor={(item) => item.id.toString()}
           estimatedItemSize={100}
           showsVerticalScrollIndicator={false}
@@ -210,7 +213,7 @@ export default function Kurikulum() {
               <Button
                 onPress={() =>
                   Linking.openURL(
-                    `https://simdiklat-bpsdm.jakarta.go.id/sim-diklat/mata-diklat/file-view/${item.id}`
+                    `${process.env.EXPO_PUBLIC_API_URL}/api/file/materi/${item.id}`
                   )
                 }
                 icon={"download"}

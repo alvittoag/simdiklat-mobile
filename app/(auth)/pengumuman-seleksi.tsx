@@ -6,6 +6,7 @@ import {
   Platform,
   ImageBackground,
   Image,
+  RefreshControl,
 } from "react-native";
 import React from "react";
 import ContainerBackground from "@/components/container/ContainerBackground";
@@ -57,7 +58,7 @@ export default function PengumumanSeleksi() {
   const [dataCard, setDataCard] = React.useState<IPengumuman | null>(null);
   const [loadingDownload, setLoadingDownload] = React.useState(false);
 
-  const { data, isPending, isError } = useQuery<response>({
+  const { data, isPending, isError, refetch } = useQuery<response>({
     queryKey: ["seleksiWidyaiswaras", page, limit],
     queryFn: async () => {
       const { data } = await axiosService.get(
@@ -163,6 +164,9 @@ export default function PengumumanSeleksi() {
   return (
     <ContainerBackground>
       <FlashList
+        refreshControl={
+          <RefreshControl refreshing={false} onRefresh={() => refetch()} />
+        }
         showsVerticalScrollIndicator={false}
         keyExtractor={(item) => item.id.toString()}
         estimatedItemSize={10}

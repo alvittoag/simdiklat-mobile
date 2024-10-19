@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   RefreshControl,
   Image,
+  Linking,
 } from "react-native";
 import React from "react";
 import ContainerBackground from "@/components/container/ContainerBackground";
@@ -329,7 +330,7 @@ export default function IsianKhusus() {
               <Image
                 resizeMode="cover"
                 source={{
-                  uri: `http://10.15.43.236:8080/api/file/${
+                  uri: `${process.env.EXPO_PUBLIC_API_URL!}/api/file/${
                     data.pekerjaanData.data.file.file_name ?? ""
                   }`,
                 }}
@@ -339,6 +340,7 @@ export default function IsianKhusus() {
                   borderRadius: 7,
                   borderWidth: 1,
                   borderColor: Colors.border_primary,
+                  backgroundColor: "grey",
                 }}
               />
             )}
@@ -521,6 +523,30 @@ export default function IsianKhusus() {
                     Size :{" "}
                   </Text>
                   <Text>{formatBytes(item.file.file_size)}</Text>
+                </View>
+
+                <View style={{ marginBottom: 10 }}>
+                  <Button
+                    onPress={() => {
+                      Linking.openURL(
+                        `${process.env.EXPO_PUBLIC_API_URL!}/api/file/docs/${
+                          item.file_id
+                        }`
+                      );
+                    }}
+                    icon={"file"}
+                    textColor="white"
+                    labelStyle={{ color: "white" }}
+                    mode="contained"
+                    style={{
+                      flex: 1,
+                      backgroundColor: Colors.button_primary,
+                      borderRadius: 7,
+                      paddingVertical: 6,
+                    }}
+                  >
+                    Lihat File
+                  </Button>
                 </View>
 
                 <View style={{ flexDirection: "row", gap: 10 }}>

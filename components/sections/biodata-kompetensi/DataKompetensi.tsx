@@ -1,4 +1,11 @@
-import { View, Text, ScrollView, StyleSheet, FlatList } from "react-native";
+import {
+  View,
+  Text,
+  ScrollView,
+  StyleSheet,
+  FlatList,
+  Linking,
+} from "react-native";
 import React from "react";
 import { Button, Checkbox } from "react-native-paper";
 import { moderateScale } from "react-native-size-matters";
@@ -77,6 +84,8 @@ export default function DataKompetensi() {
     variables: {
       limit: 5,
       page: pagePeserta,
+      sortBy: "a.jadwal_mulai",
+      sortDirection: "DESC",
     },
   });
 
@@ -435,6 +444,33 @@ export default function DataKompetensi() {
                     </Text>
                   </View>
 
+                  {item.ijazah_url === "" || item.ijazah_url === null ? null : (
+                    <View style={{ marginBottom: moderateScale(10) }}>
+                      <Button
+                        onPress={() => {
+                          Linking.openURL(
+                            `${process.env
+                              .EXPO_PUBLIC_API_URL!}/api/file/docs/${
+                              item.ijazah_url
+                            }`
+                          );
+                        }}
+                        icon={"file"}
+                        textColor="white"
+                        labelStyle={{ color: "white" }}
+                        mode="contained"
+                        style={{
+                          flex: 1,
+                          backgroundColor: Colors.button_primary,
+                          borderRadius: 7,
+                          paddingVertical: 6,
+                        }}
+                      >
+                        Lihat Ijazah
+                      </Button>
+                    </View>
+                  )}
+
                   <View style={styles.actionButtonsContainer}>
                     <Button
                       onPress={() => handleDeleteRiwayatPendidikan(item.id)}
@@ -640,6 +676,34 @@ export default function DataKompetensi() {
                     <Text style={{ fontSize: 15 }}>Status</Text>
                     <Text style={{ fontWeight: "bold" }}>{item.status}</Text>
                   </View>
+
+                  {item.sertifikat_url === "" ||
+                  item.sertifikat_url === null ? null : (
+                    <View style={{ marginBottom: moderateScale(10) }}>
+                      <Button
+                        onPress={() => {
+                          Linking.openURL(
+                            `${process.env
+                              .EXPO_PUBLIC_API_URL!}/api/file/docs/${
+                              item.sertifikat_url
+                            }`
+                          );
+                        }}
+                        icon={"file"}
+                        textColor="white"
+                        labelStyle={{ color: "white" }}
+                        mode="contained"
+                        style={{
+                          flex: 1,
+                          backgroundColor: Colors.button_primary,
+                          borderRadius: 7,
+                          paddingVertical: 6,
+                        }}
+                      >
+                        Lihat Ijazah
+                      </Button>
+                    </View>
+                  )}
 
                   <View style={styles.actionButtonsContainer}>
                     <Button
@@ -868,6 +932,34 @@ export default function DataKompetensi() {
                       {parseDateLong(item.expired_sertifikat)}
                     </Text>
                   </View>
+
+                  {item.sertifikat_url === "" ||
+                  item.sertifikat_url === null ? null : (
+                    <View style={{ marginBottom: moderateScale(10) }}>
+                      <Button
+                        onPress={() => {
+                          Linking.openURL(
+                            `${process.env
+                              .EXPO_PUBLIC_API_URL!}/api/file/docs/${
+                              item.sertifikat_url
+                            }`
+                          );
+                        }}
+                        icon={"file"}
+                        textColor="white"
+                        labelStyle={{ color: "white" }}
+                        mode="contained"
+                        style={{
+                          flex: 1,
+                          backgroundColor: Colors.button_primary,
+                          borderRadius: 7,
+                          paddingVertical: 6,
+                        }}
+                      >
+                        Lihat Sertifikat
+                      </Button>
+                    </View>
+                  )}
 
                   <View style={styles.actionButtonsContainer}>
                     <Button

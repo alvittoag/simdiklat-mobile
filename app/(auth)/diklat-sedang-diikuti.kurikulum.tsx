@@ -1,4 +1,4 @@
-import { View, Text, FlatList } from "react-native";
+import { View, Text, FlatList, RefreshControl } from "react-native";
 import React from "react";
 import ContainerBackground from "@/components/container/ContainerBackground";
 import SearchBar from "@/components/sections/SearchBar";
@@ -44,7 +44,7 @@ export default function Kurikulum() {
 
   const debouncedSearch = useDebounce(search, 1000);
 
-  const { data, isPending, isError } = useQuery({
+  const { data, isPending, isError, refetch } = useQuery({
     queryKey: ["kurikulum", page, limit, debouncedSearch, terapkan],
 
     queryFn: async () => {
@@ -103,6 +103,9 @@ export default function Kurikulum() {
         <NotFoundSearch />
       ) : (
         <FlashList
+          refreshControl={
+            <RefreshControl refreshing={false} onRefresh={() => refetch()} />
+          }
           keyExtractor={(item) => item.id.toString()}
           estimatedItemSize={100}
           showsVerticalScrollIndicator={false}

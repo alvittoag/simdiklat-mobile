@@ -103,7 +103,7 @@ export default function Profile() {
 
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      aspect: [4, 3],
+      aspect: [1, 1],
       quality: 1,
       allowsEditing: true,
     });
@@ -172,7 +172,7 @@ export default function Profile() {
   }
 
   const photoUri = photo?.data
-    ? `http://10.15.43.236:8080/api/file/${photo.data}`
+    ? `${process.env.EXPO_PUBLIC_API_URL!}/api/file/${photo.data}`
     : undefined;
 
   return (

@@ -3,23 +3,45 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import auth from "@/services/api/auth";
 import { ALERT_TYPE, Dialog } from "react-native-alert-notification";
 import { router } from "expo-router";
+import { ISession } from "@/type";
 
 export default function useSession() {
   const [isAuthenticated, setIsAuthenticated] = React.useState(false);
-  const [isLoading, setIsLoading] = React.useState(true);
+  const [isLoading, setLoading] = React.useState(false);
 
   React.useEffect(() => {
     const getSession = async () => {
+      setLoading(true);
       try {
         const session = await AsyncStorage.getItem("session");
 
-        const dateNow = new Date();
+        if (session) {
+          const sessionParse: ISession = JSON.parse(session);
 
-        setIsAuthenticated(session !== null);
+          const dateNow = new Date();
+          const expirationDate = new Date(sessionParse.expires);
+
+          if (dateNow > expirationDate) {
+            await AsyncStorage.removeItem("session");
+            setIsAuthenticated(false);
+            Dialog.show({
+              type: ALERT_TYPE.WARNING,
+              title: "Session Expired",
+              textBody: "Session anda telah habis, harap melakukan login ulang",
+              button: "tutup",
+            });
+            router.replace("/login");
+          } else {
+            setIsAuthenticated(true);
+          }
+        } else {
+          setIsAuthenticated(false);
+        }
       } catch (error) {
         console.error("Error checking session:", error);
+        setIsAuthenticated(false);
       } finally {
-        setIsLoading(false);
+        setLoading(false);
       }
     };
 
