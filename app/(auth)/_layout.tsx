@@ -33,7 +33,12 @@ import Loading from "@/components/elements/Loading";
 import auth from "@/services/api/auth";
 import { ALERT_TYPE, Dialog as D } from "react-native-alert-notification";
 import { axiosService } from "@/services/axiosService";
-import { useQuery as UseQ, useMutation } from "@tanstack/react-query";
+import {
+  QueryClient,
+  useQuery as UseQ,
+  useMutation,
+} from "@tanstack/react-query";
+import { client, queryClient } from "../_layout";
 
 interface RouteItem {
   name: string;
@@ -171,6 +176,11 @@ const DrawerContent: React.FC<DrawerContentComponentProps> = React.memo(
       setLoadingLogout(true);
       try {
         await auth.logout();
+
+        await client.clearStore();
+
+        queryClient.clear();
+
         hideDialog();
         await AsyncStorage.removeItem("session");
         router.replace("/login");

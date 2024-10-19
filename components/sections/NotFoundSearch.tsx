@@ -3,7 +3,11 @@ import React from "react";
 import { Colors } from "@/constants/Colors";
 import { Icon } from "react-native-paper";
 
-export default function NotFoundSearch() {
+export default function NotFoundSearch({
+  title = " Data Tidak Ditemukan",
+}: {
+  title?: string;
+}) {
   return (
     <View
       style={{
@@ -21,7 +25,7 @@ export default function NotFoundSearch() {
           fontSize: 18,
         }}
       >
-        Data Tidak Ditemukan
+        {title}
       </Text>
     </View>
   );

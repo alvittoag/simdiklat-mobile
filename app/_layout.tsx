@@ -6,12 +6,12 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import { AlertNotificationRoot } from "react-native-alert-notification";
 
-const client = new ApolloClient({
+export const client = new ApolloClient({
   uri: process.env.EXPO_PUBLIC_GRAPHQL_URL,
   cache: new InMemoryCache(),
 });
 
-const queryClient = new QueryClient();
+export const queryClient = new QueryClient();
 
 export default function RootLayout() {
   return (

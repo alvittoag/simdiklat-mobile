@@ -401,7 +401,7 @@ export default function RiwayaPekerjaanEdit() {
             setDataInput({ ...dataInput, keterangan: text })
           }
           textColor={Colors.text_primary}
-          label={"Keterangan *"}
+          label={"Keterangan"}
           mode="outlined"
           outlineColor={Colors.border_primary}
           activeOutlineColor={Colors.border_input_active}

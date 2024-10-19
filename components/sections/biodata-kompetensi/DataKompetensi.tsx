@@ -36,6 +36,7 @@ import { axiosService } from "@/services/axiosService";
 import { ALERT_TYPE, Dialog } from "react-native-alert-notification";
 import { useMutation } from "@tanstack/react-query";
 import Pagination from "../pagination";
+import NotFoundSearch from "../NotFoundSearch";
 
 export default function DataKompetensi() {
   const isRefetch = useLocalSearchParams();
@@ -626,125 +627,130 @@ export default function DataKompetensi() {
         </Button>
 
         <View style={{ flex: 1 }}>
-          <FlashList
-            showsVerticalScrollIndicator={false}
-            keyExtractor={(item) => item.id.toString()}
-            data={pelatihan?.pelatihanUser.items}
-            estimatedItemSize={200}
-            renderItem={({ item, index }) => {
-              const length = pelatihan?.pelatihanUser.items.length ?? 0;
-              return (
-                <View
-                  key={item.id}
-                  style={{
-                    borderBottomWidth: length - 1 === index ? 0 : 1,
-                    borderBottomColor: Colors.border_primary,
-                    marginBottom: length - 1 === index ? 0 : moderateScale(10),
-                  }}
-                >
-                  <View style={{ marginBottom: moderateScale(10) }}>
-                    <Text style={{ fontSize: 15 }}>
-                      Nama Pengembangan Kompetensi
-                    </Text>
-                    <Text style={{ fontWeight: "bold" }}>
-                      {item.keterangan}
-                    </Text>
-                  </View>
-
-                  <View style={{ marginBottom: moderateScale(10) }}>
-                    <Text style={{ fontSize: 15 }}>
-                      Kategori Pengembangan Kompetensi
-                    </Text>
-                    <Text style={{ fontWeight: "bold" }}>
-                      {item.jenis === " " ? "-" : item.jenis}
-                    </Text>
-                  </View>
-
-                  <View style={{ marginBottom: moderateScale(10) }}>
-                    <Text style={{ fontSize: 15 }}>Penyelenggara</Text>
-                    <Text style={{ fontWeight: "bold" }}>
-                      {item.penyelenggara}
-                    </Text>
-                  </View>
-
-                  <View style={{ marginBottom: moderateScale(10) }}>
-                    <Text style={{ fontSize: 15 }}>Tahun</Text>
-                    <Text style={{ fontWeight: "bold" }}>{item.tahun}</Text>
-                  </View>
-
-                  <View style={{ marginBottom: moderateScale(10) }}>
-                    <Text style={{ fontSize: 15 }}>Status</Text>
-                    <Text style={{ fontWeight: "bold" }}>{item.status}</Text>
-                  </View>
-
-                  {item.sertifikat_url === "" ||
-                  item.sertifikat_url === null ? null : (
+          {pelatihan?.pelatihanUser.items.length === 0 ? (
+            <NotFoundSearch title="Tidak Ada data" />
+          ) : (
+            <FlashList
+              showsVerticalScrollIndicator={false}
+              keyExtractor={(item) => item.id.toString()}
+              data={pelatihan?.pelatihanUser.items}
+              estimatedItemSize={200}
+              renderItem={({ item, index }) => {
+                const length = pelatihan?.pelatihanUser.items.length ?? 0;
+                return (
+                  <View
+                    key={item.id}
+                    style={{
+                      borderBottomWidth: length - 1 === index ? 0 : 1,
+                      borderBottomColor: Colors.border_primary,
+                      marginBottom:
+                        length - 1 === index ? 0 : moderateScale(10),
+                    }}
+                  >
                     <View style={{ marginBottom: moderateScale(10) }}>
+                      <Text style={{ fontSize: 15 }}>
+                        Nama Pengembangan Kompetensi
+                      </Text>
+                      <Text style={{ fontWeight: "bold" }}>
+                        {item.keterangan}
+                      </Text>
+                    </View>
+
+                    <View style={{ marginBottom: moderateScale(10) }}>
+                      <Text style={{ fontSize: 15 }}>
+                        Kategori Pengembangan Kompetensi
+                      </Text>
+                      <Text style={{ fontWeight: "bold" }}>
+                        {item.jenis === " " ? "-" : item.jenis}
+                      </Text>
+                    </View>
+
+                    <View style={{ marginBottom: moderateScale(10) }}>
+                      <Text style={{ fontSize: 15 }}>Penyelenggara</Text>
+                      <Text style={{ fontWeight: "bold" }}>
+                        {item.penyelenggara}
+                      </Text>
+                    </View>
+
+                    <View style={{ marginBottom: moderateScale(10) }}>
+                      <Text style={{ fontSize: 15 }}>Tahun</Text>
+                      <Text style={{ fontWeight: "bold" }}>{item.tahun}</Text>
+                    </View>
+
+                    <View style={{ marginBottom: moderateScale(10) }}>
+                      <Text style={{ fontSize: 15 }}>Status</Text>
+                      <Text style={{ fontWeight: "bold" }}>{item.status}</Text>
+                    </View>
+
+                    {item.sertifikat_url === "" ||
+                    item.sertifikat_url === null ? null : (
+                      <View style={{ marginBottom: moderateScale(10) }}>
+                        <Button
+                          onPress={() => {
+                            Linking.openURL(
+                              `${process.env
+                                .EXPO_PUBLIC_API_URL!}/api/file/docs/${
+                                item.sertifikat_url
+                              }`
+                            );
+                          }}
+                          icon={"file"}
+                          textColor="white"
+                          labelStyle={{ color: "white" }}
+                          mode="contained"
+                          style={{
+                            flex: 1,
+                            backgroundColor: Colors.button_primary,
+                            borderRadius: 7,
+                            paddingVertical: 6,
+                          }}
+                        >
+                          Lihat Sertifikat
+                        </Button>
+                      </View>
+                    )}
+
+                    <View style={styles.actionButtonsContainer}>
                       <Button
-                        onPress={() => {
-                          Linking.openURL(
-                            `${process.env
-                              .EXPO_PUBLIC_API_URL!}/api/file/docs/${
-                              item.sertifikat_url
-                            }`
-                          );
-                        }}
-                        icon={"file"}
-                        textColor="white"
-                        labelStyle={{ color: "white" }}
-                        mode="contained"
-                        style={{
-                          flex: 1,
-                          backgroundColor: Colors.button_primary,
-                          borderRadius: 7,
-                          paddingVertical: 6,
-                        }}
+                        onPress={() => handleDeleteKompetensiLainnya(item.id)}
+                        icon="delete"
+                        mode="outlined"
+                        textColor={Colors.text_primary}
+                        style={styles.deleteButton}
                       >
-                        Lihat Sertifikat
+                        Hapus
+                      </Button>
+
+                      <Button
+                        onPress={() =>
+                          router.navigate({
+                            pathname: "/kompetensi-lainnya.edit",
+                            params: { data: JSON.stringify(item) },
+                          })
+                        }
+                        icon="content-save-edit-outline"
+                        mode="outlined"
+                        textColor={Colors.text_primary}
+                        style={styles.editButton}
+                      >
+                        Edit
                       </Button>
                     </View>
-                  )}
-
-                  <View style={styles.actionButtonsContainer}>
-                    <Button
-                      onPress={() => handleDeleteKompetensiLainnya(item.id)}
-                      icon="delete"
-                      mode="outlined"
-                      textColor={Colors.text_primary}
-                      style={styles.deleteButton}
-                    >
-                      Hapus
-                    </Button>
-
-                    <Button
-                      onPress={() =>
-                        router.navigate({
-                          pathname: "/kompetensi-lainnya.edit",
-                          params: { data: JSON.stringify(item) },
-                        })
-                      }
-                      icon="content-save-edit-outline"
-                      mode="outlined"
-                      textColor={Colors.text_primary}
-                      style={styles.editButton}
-                    >
-                      Edit
-                    </Button>
                   </View>
-                </View>
-              );
-            }}
-            ListFooterComponent={() => (
-              <Pagination
-                loading={loadingPelatihan}
-                page={pagePelatihan}
-                setPage={setPagePelatihan}
-                totalPage={totalPagePelatihan}
-                horizontal={0}
-                bottom={0}
-              />
-            )}
-          />
+                );
+              }}
+              ListFooterComponent={() => (
+                <Pagination
+                  loading={loadingPelatihan}
+                  page={pagePelatihan}
+                  setPage={setPagePelatihan}
+                  totalPage={totalPagePelatihan}
+                  horizontal={0}
+                  bottom={0}
+                />
+              )}
+            />
+          )}
         </View>
       </View>
 
@@ -888,119 +894,130 @@ export default function DataKompetensi() {
         </Button>
 
         <View style={{ flex: 1 }}>
-          <FlashList
-            showsVerticalScrollIndicator={false}
-            keyExtractor={(item) => item.id.toString()}
-            data={pengajaran?.pengajaranUser.items}
-            estimatedItemSize={200}
-            renderItem={({ item, index }) => {
-              const length = pengajaran?.pengajaranUser.items.length ?? 0;
-              return (
-                <View
-                  key={item.id}
-                  style={{
-                    borderBottomWidth: length - 1 === index ? 0 : 1,
-                    borderBottomColor: Colors.border_primary,
-                    marginBottom: length - 1 === index ? 0 : moderateScale(10),
-                  }}
-                >
-                  <View style={{ marginBottom: moderateScale(10) }}>
-                    <Text style={{ fontSize: 15 }}>Nama Kegiatan</Text>
-                    <Text style={{ fontWeight: "bold" }}>{item.kegiatan}</Text>
-                  </View>
-
-                  <View style={{ marginBottom: moderateScale(10) }}>
-                    <Text style={{ fontSize: 15 }}>Materi</Text>
-                    <Text style={{ fontWeight: "bold" }}>{item.materi}</Text>
-                  </View>
-
-                  <View style={{ marginBottom: moderateScale(10) }}>
-                    <Text style={{ fontSize: 15 }}>Instansi Penyeleggara</Text>
-                    <Text style={{ fontWeight: "bold" }}>{item.instansi}</Text>
-                  </View>
-
-                  <View style={{ marginBottom: moderateScale(10) }}>
-                    <Text style={{ fontSize: 15 }}>Tahun</Text>
-                    <Text style={{ fontWeight: "bold" }}>{item.tahun}</Text>
-                  </View>
-
-                  <View style={{ marginBottom: moderateScale(10) }}>
-                    <Text style={{ fontSize: 15 }}>
-                      Masa Berlaku Sertifikat
-                    </Text>
-                    <Text style={{ fontWeight: "bold" }}>
-                      {parseDateLong(item.expired_sertifikat)}
-                    </Text>
-                  </View>
-
-                  {item.sertifikat_url === "" ||
-                  item.sertifikat_url === null ? null : (
+          {pengajaran?.pengajaranUser.items.length === 0 ? (
+            <NotFoundSearch title="Tidak Ada Data" />
+          ) : (
+            <FlashList
+              showsVerticalScrollIndicator={false}
+              keyExtractor={(item) => item.id.toString()}
+              data={pengajaran?.pengajaranUser.items}
+              estimatedItemSize={200}
+              renderItem={({ item, index }) => {
+                const length = pengajaran?.pengajaranUser.items.length ?? 0;
+                return (
+                  <View
+                    key={item.id}
+                    style={{
+                      borderBottomWidth: length - 1 === index ? 0 : 1,
+                      borderBottomColor: Colors.border_primary,
+                      marginBottom:
+                        length - 1 === index ? 0 : moderateScale(10),
+                    }}
+                  >
                     <View style={{ marginBottom: moderateScale(10) }}>
+                      <Text style={{ fontSize: 15 }}>Nama Kegiatan</Text>
+                      <Text style={{ fontWeight: "bold" }}>
+                        {item.kegiatan}
+                      </Text>
+                    </View>
+
+                    <View style={{ marginBottom: moderateScale(10) }}>
+                      <Text style={{ fontSize: 15 }}>Materi</Text>
+                      <Text style={{ fontWeight: "bold" }}>{item.materi}</Text>
+                    </View>
+
+                    <View style={{ marginBottom: moderateScale(10) }}>
+                      <Text style={{ fontSize: 15 }}>
+                        Instansi Penyeleggara
+                      </Text>
+                      <Text style={{ fontWeight: "bold" }}>
+                        {item.instansi}
+                      </Text>
+                    </View>
+
+                    <View style={{ marginBottom: moderateScale(10) }}>
+                      <Text style={{ fontSize: 15 }}>Tahun</Text>
+                      <Text style={{ fontWeight: "bold" }}>{item.tahun}</Text>
+                    </View>
+
+                    <View style={{ marginBottom: moderateScale(10) }}>
+                      <Text style={{ fontSize: 15 }}>
+                        Masa Berlaku Sertifikat
+                      </Text>
+                      <Text style={{ fontWeight: "bold" }}>
+                        {parseDateLong(item.expired_sertifikat)}
+                      </Text>
+                    </View>
+
+                    {item.sertifikat_url === "" ||
+                    item.sertifikat_url === null ? null : (
+                      <View style={{ marginBottom: moderateScale(10) }}>
+                        <Button
+                          onPress={() => {
+                            Linking.openURL(
+                              `${process.env
+                                .EXPO_PUBLIC_API_URL!}/api/file/docs/${
+                                item.sertifikat_url
+                              }`
+                            );
+                          }}
+                          icon={"file"}
+                          textColor="white"
+                          labelStyle={{ color: "white" }}
+                          mode="contained"
+                          style={{
+                            flex: 1,
+                            backgroundColor: Colors.button_primary,
+                            borderRadius: 7,
+                            paddingVertical: 6,
+                          }}
+                        >
+                          Lihat Sertifikat
+                        </Button>
+                      </View>
+                    )}
+
+                    <View style={styles.actionButtonsContainer}>
                       <Button
-                        onPress={() => {
-                          Linking.openURL(
-                            `${process.env
-                              .EXPO_PUBLIC_API_URL!}/api/file/docs/${
-                              item.sertifikat_url
-                            }`
-                          );
-                        }}
-                        icon={"file"}
-                        textColor="white"
-                        labelStyle={{ color: "white" }}
-                        mode="contained"
-                        style={{
-                          flex: 1,
-                          backgroundColor: Colors.button_primary,
-                          borderRadius: 7,
-                          paddingVertical: 6,
-                        }}
+                        onPress={() => handleDeletePelatihan(item.id)}
+                        icon="delete"
+                        mode="outlined"
+                        textColor={Colors.text_primary}
+                        style={styles.deleteButton}
                       >
-                        Lihat Sertifikat
+                        Hapus
+                      </Button>
+
+                      <Button
+                        onPress={() =>
+                          router.navigate({
+                            pathname: "/pelatihan.edit",
+                            params: { data: JSON.stringify(item) },
+                          })
+                        }
+                        icon="content-save-edit-outline"
+                        mode="outlined"
+                        textColor={Colors.text_primary}
+                        style={styles.editButton}
+                      >
+                        Edit
                       </Button>
                     </View>
-                  )}
-
-                  <View style={styles.actionButtonsContainer}>
-                    <Button
-                      onPress={() => handleDeletePelatihan(item.id)}
-                      icon="delete"
-                      mode="outlined"
-                      textColor={Colors.text_primary}
-                      style={styles.deleteButton}
-                    >
-                      Hapus
-                    </Button>
-
-                    <Button
-                      onPress={() =>
-                        router.navigate({
-                          pathname: "/pelatihan.edit",
-                          params: { data: JSON.stringify(item) },
-                        })
-                      }
-                      icon="content-save-edit-outline"
-                      mode="outlined"
-                      textColor={Colors.text_primary}
-                      style={styles.editButton}
-                    >
-                      Edit
-                    </Button>
                   </View>
-                </View>
-              );
-            }}
-            ListFooterComponent={() => (
-              <Pagination
-                loading={loadingPengajaran}
-                page={pagePengajaran}
-                setPage={setPagePengajaran}
-                totalPage={totalPagePengajaran}
-                horizontal={0}
-                bottom={0}
-              />
-            )}
-          />
+                );
+              }}
+              ListFooterComponent={() => (
+                <Pagination
+                  loading={loadingPengajaran}
+                  page={pagePengajaran}
+                  setPage={setPagePengajaran}
+                  totalPage={totalPagePengajaran}
+                  horizontal={0}
+                  bottom={0}
+                />
+              )}
+            />
+          )}
         </View>
       </View>
 
@@ -1032,82 +1049,87 @@ export default function DataKompetensi() {
         </Button>
 
         <View style={{ flex: 1 }}>
-          <FlashList
-            showsVerticalScrollIndicator={false}
-            keyExtractor={(item) => item.id.toString()}
-            data={karya?.karyaTulisUser.items}
-            estimatedItemSize={200}
-            renderItem={({ item, index }) => {
-              const length = pengajaran?.pengajaranUser.items.length ?? 0;
-              return (
-                <View
-                  key={item.id}
-                  style={{
-                    borderBottomWidth: length - 1 === index ? 0 : 1,
-                    borderBottomColor: Colors.border_primary,
-                    marginBottom: length - 1 === index ? 0 : moderateScale(10),
-                  }}
-                >
-                  <View style={{ marginBottom: moderateScale(10) }}>
-                    <Text style={{ fontSize: 15 }}>Judul Tulisan</Text>
-                    <Text style={{ fontWeight: "bold" }}>{item.judul}</Text>
-                  </View>
+          {karya?.karyaTulisUser.items.length === 0 ? (
+            <NotFoundSearch title="Tidak Ada Data" />
+          ) : (
+            <FlashList
+              showsVerticalScrollIndicator={false}
+              keyExtractor={(item) => item.id.toString()}
+              data={karya?.karyaTulisUser.items}
+              estimatedItemSize={200}
+              renderItem={({ item, index }) => {
+                const length = pengajaran?.pengajaranUser.items.length ?? 0;
+                return (
+                  <View
+                    key={item.id}
+                    style={{
+                      borderBottomWidth: length - 1 === index ? 0 : 1,
+                      borderBottomColor: Colors.border_primary,
+                      marginBottom:
+                        length - 1 === index ? 0 : moderateScale(10),
+                    }}
+                  >
+                    <View style={{ marginBottom: moderateScale(10) }}>
+                      <Text style={{ fontSize: 15 }}>Judul Tulisan</Text>
+                      <Text style={{ fontWeight: "bold" }}>{item.judul}</Text>
+                    </View>
 
-                  <View style={{ marginBottom: moderateScale(10) }}>
-                    <Text style={{ fontSize: 15 }}>
-                      Disampaikan / Dipublikasin pada Seminar / Mahalah / Koran
-                      / Website
-                    </Text>
-                    <Text style={{ fontWeight: "bold" }}>{item.tempat}</Text>
-                  </View>
+                    <View style={{ marginBottom: moderateScale(10) }}>
+                      <Text style={{ fontSize: 15 }}>
+                        Disampaikan / Dipublikasin pada Seminar / Mahalah /
+                        Koran / Website
+                      </Text>
+                      <Text style={{ fontWeight: "bold" }}>{item.tempat}</Text>
+                    </View>
 
-                  <View style={{ marginBottom: moderateScale(10) }}>
-                    <Text style={{ fontSize: 15 }}>Keterangan</Text>
-                    <Text style={{ fontWeight: "bold" }}>
-                      {item.keterangan}
-                    </Text>
-                  </View>
+                    <View style={{ marginBottom: moderateScale(10) }}>
+                      <Text style={{ fontSize: 15 }}>Keterangan</Text>
+                      <Text style={{ fontWeight: "bold" }}>
+                        {item.keterangan}
+                      </Text>
+                    </View>
 
-                  <View style={styles.actionButtonsContainer}>
-                    <Button
-                      onPress={() => handleDeleteKarya(item.id)}
-                      icon="delete"
-                      mode="outlined"
-                      textColor={Colors.text_primary}
-                      style={styles.deleteButton}
-                    >
-                      Hapus
-                    </Button>
+                    <View style={styles.actionButtonsContainer}>
+                      <Button
+                        onPress={() => handleDeleteKarya(item.id)}
+                        icon="delete"
+                        mode="outlined"
+                        textColor={Colors.text_primary}
+                        style={styles.deleteButton}
+                      >
+                        Hapus
+                      </Button>
 
-                    <Button
-                      onPress={() =>
-                        router.navigate({
-                          pathname: "/karya.edit",
-                          params: { data: JSON.stringify(item) },
-                        })
-                      }
-                      icon="content-save-edit-outline"
-                      mode="outlined"
-                      textColor={Colors.text_primary}
-                      style={styles.editButton}
-                    >
-                      Edit
-                    </Button>
+                      <Button
+                        onPress={() =>
+                          router.navigate({
+                            pathname: "/karya.edit",
+                            params: { data: JSON.stringify(item) },
+                          })
+                        }
+                        icon="content-save-edit-outline"
+                        mode="outlined"
+                        textColor={Colors.text_primary}
+                        style={styles.editButton}
+                      >
+                        Edit
+                      </Button>
+                    </View>
                   </View>
-                </View>
-              );
-            }}
-            ListFooterComponent={() => (
-              <Pagination
-                loading={loadingKarya}
-                page={pageKarya}
-                setPage={setPageKarya}
-                totalPage={totalPageKarya}
-                horizontal={0}
-                bottom={0}
-              />
-            )}
-          />
+                );
+              }}
+              ListFooterComponent={() => (
+                <Pagination
+                  loading={loadingKarya}
+                  page={pageKarya}
+                  setPage={setPageKarya}
+                  totalPage={totalPageKarya}
+                  horizontal={0}
+                  bottom={0}
+                />
+              )}
+            />
+          )}
         </View>
       </View>
 

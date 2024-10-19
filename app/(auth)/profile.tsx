@@ -35,6 +35,8 @@ export default function Profile() {
     profilPesertaDiklat: IProfilePeserta;
   }>(getProfilePeserta);
 
+  console.log(data);
+
   const {
     data: photo,
     isPending,

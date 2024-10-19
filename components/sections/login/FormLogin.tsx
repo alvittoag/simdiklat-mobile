@@ -30,8 +30,10 @@ export default function FormLogin() {
       const res = await axiosService.get("/api/auth/csrf");
       return res.data.csrfToken;
     },
-    retry: 10,
+    retry: 2,
   });
+
+  console.log(csrfToken);
 
   const { mutate, isPending: isPendingMutate } = useMutation({
     mutationFn: async (values: { nrk: string; password: string }) => {

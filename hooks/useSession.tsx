@@ -15,6 +15,8 @@ export default function useSession() {
       try {
         const session = await AsyncStorage.getItem("session");
 
+        console.log(session);
+
         if (session) {
           const sessionParse: ISession = JSON.parse(session);
 

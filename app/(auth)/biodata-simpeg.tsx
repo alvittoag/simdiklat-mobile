@@ -300,132 +300,145 @@ export default function BiodataSimpeg() {
             gap: moderateScale(20),
           }}
         >
-          {renderField("nrk", data.data.user.nrk, data.data.simpeg_data.NRK)}
-          {renderField("nip", data.data.user.nip, data.data.simpeg_data.NIP18)}
+          {renderField(
+            "nrk",
+            data?.data?.user?.nrk,
+            data?.data?.simpeg_data?.NRK
+          )}
+          {renderField(
+            "nip",
+            data?.data?.user?.nip,
+            data?.data?.simpeg_data?.NIP18
+          )}
           {renderField(
             "gelar_depan",
-            data.data.user.gelar_depan || "- (Gelar Depan)",
-            data.data.simpeg_data["GELAR DEPAN"] || "- (Gelar Depan)",
-            data.data.simpeg_data["GELAR DEPAN"] || " "
+            (data?.data?.user?.gelar_depan === "" && "-") || "-",
+            data?.data?.simpeg_data?.["GELAR DEPAN"] || "-",
+            data?.data?.simpeg_data?.["GELAR DEPAN"] || " "
           )}
           {renderField(
             "full_name",
-            data.data.user.full_name,
-            data.data.simpeg_data.NAMA
+            data?.data?.user?.full_name,
+            data?.data?.simpeg_data?.NAMA
           )}
           {renderField(
             "gelar_belakang",
-            data.data.user.gelar_belakang,
-            data.data.simpeg_data["GELAR BELAKANG"]
+            data?.data?.user?.gelar_belakang,
+            data?.data?.simpeg_data?.["GELAR BELAKANG"]
           )}
           {renderField(
             "gender",
-            data.data.user.gender,
-            data.data.simpeg_data.JENKEL === "L" ? "LAKI-LAKI" : "PEREMPUAN"
+            data?.data?.user?.gender,
+            data?.data?.simpeg_data?.JENKEL === "L" ? "LAKI-LAKI" : "PEREMPUAN"
           )}
           {renderField(
             "agama",
-            data.data.user.agama,
-            data.data.simpeg_data.AGAMA
+            data?.data?.user?.agama,
+            data?.data?.simpeg_data?.AGAMA
           )}
           {renderField(
             "status_pegawai",
-            data.data.user.status_pegawai,
-            data.data.simpeg_data["STATUS PEGAWAI"]
+            data?.data?.user?.status_pegawai,
+            data?.data?.simpeg_data?.["STATUS PEGAWAI"]
           )}
           {renderField(
             "tempat_lahir",
-            data.data.user.tempat_lahir,
-            data.data.simpeg_data["TEMPAT LAHIR"]
+            data?.data?.user?.tempat_lahir,
+            data?.data?.simpeg_data?.["TEMPAT LAHIR"]
           )}
           {renderField(
             "rumah_alamat",
-            data.data.user.rumah_alamat,
-            data.data.simpeg_data.ALAMAT
+            data?.data?.user?.rumah_alamat,
+            data?.data?.simpeg_data?.ALAMAT
           )}
           {renderField(
             "rumah_kota",
-            data.data.user.rumah_kota,
-            data.data.simpeg_data.WILAYAH
+            data?.data?.user?.rumah_kota,
+            data?.data?.simpeg_data?.WILAYAH
           )}
           {renderField(
             "rumah_telp",
-            data.data.user.rumah_telp,
-            data.data.simpeg_data.NOTELP
+            data?.data?.user?.rumah_telp,
+            data?.data?.simpeg_data?.NOTELP
           )}
-          {renderField("npwp", data.data.user.npwp, data.data.simpeg_data.NPWP)}
+          {renderField(
+            "npwp",
+            data?.data?.user?.npwp,
+            data?.data?.simpeg_data?.NPWP
+          )}
           {renderField(
             "rekening",
-            data.data.user.rekening,
-            data.data.simpeg_data["NO.REKENING"]
+            data?.data?.user?.rekening,
+            data?.data?.simpeg_data?.["NO.REKENING"]
           )}
           {renderField(
             "pendidikan",
-            `${data.data.user.pendidikan.jenis}, ${data.data.user.pendidikan.nama_sekolah}`,
-            `${data.data.simpeg_data.PENDIDIKAN}, ${data.data.simpeg_data.UNIVERSITAS}`,
+            `${data?.data?.user?.pendidikan?.jenis}, ${data?.data?.user?.pendidikan?.nama_sekolah}`,
+            `${data?.data?.simpeg_data?.PENDIDIKAN}, ${data?.data?.simpeg_data?.UNIVERSITAS}`,
             {
-              jenis: data?.data.simpeg_data.PENDIDIKAN,
-              nama_sekolah: data?.data.simpeg_data.UNIVERSITAS,
-              jurusan: data?.data.simpeg_data["NAMA JURUSAN"],
-              tempat: data?.data.simpeg_data["LOKASI UNIVERSITAS"],
-              tahun_lulus: data?.data.simpeg_data["TGL.IJAZAH"].split("-")[2],
+              jenis: data?.data?.simpeg_data?.PENDIDIKAN,
+              nama_sekolah: data?.data?.simpeg_data?.UNIVERSITAS,
+              jurusan: data?.data?.simpeg_data?.["NAMA JURUSAN"],
+              tempat: data?.data?.simpeg_data?.["LOKASI UNIVERSITAS"],
+              tahun_lulus:
+                data?.data?.simpeg_data?.["TGL.IJAZAH"]?.split("-")[2],
               ijazah: 0,
-              nomor_ijazah: data?.data.simpeg_data["NO.IJAZAH"],
-              tgl_ijazah: data?.data.simpeg_data["TGL.IJAZAH"],
+              nomor_ijazah: data?.data?.simpeg_data?.["NO.IJAZAH"],
+              tgl_ijazah: data?.data?.simpeg_data?.["TGL.IJAZAH"],
             }
           )}
           {renderField(
             "tmt_cpns",
-            parseDate(data.data.user.tmt_cpns),
-            data.data.simpeg_data["TMT CPNS"]
+            parseDate(data?.data?.user?.tmt_cpns),
+            data?.data?.simpeg_data?.["TMT CPNS"]
           )}
           {renderField(
             "tmt_pns",
-            parseDate(data.data.user.tmt_pns),
-            data.data.simpeg_data["TMT PNS"]
+            parseDate(data?.data?.user?.tmt_pns),
+            data?.data?.simpeg_data?.["TMT PNS"]
           )}
           {renderField(
             "uke",
-            data.data.user.uke?.full_name,
-            data.data.simpeg_data["NAMA UKPD"],
-            data.data.simpeg_data["KODE UKPD"]
+            data?.data?.user?.uke?.full_name,
+            data?.data?.simpeg_data?.["NAMA UKPD"],
+            data?.data?.simpeg_data?.["KODE UKPD"]
           )}
           {renderField(
             "pangkat",
-            data.data.user.pangkat.full_name,
-            data.data.simpeg_data.PANGKAT,
-            data.data.simpeg_data.KOPANG
+            data?.data?.user?.pangkat?.full_name,
+            data?.data?.simpeg_data?.PANGKAT,
+            data?.data?.simpeg_data?.KOPANG
           )}
           {renderField(
             "golongan",
-            data.data.user.pangkat.name,
-            data.data.simpeg_data.GOL,
-            data.data.simpeg_data.PANGKAT
+            data?.data?.user?.pangkat?.name,
+            data?.data?.simpeg_data?.GOL,
+            data?.data?.simpeg_data?.PANGKAT
           )}
           {renderField(
             "tmt_pangkat",
-            parseDate(data.data.user.tmt_pangkat),
-            data.data.simpeg_data["TMT PANGKAT"]
+            parseDate(data?.data?.user?.tmt_pangkat),
+            data?.data?.simpeg_data?.["TMT PANGKAT"]
           )}
           {renderField(
             "eselon",
-            data.data.user.eselon.name,
-            data.data.simpeg_data["NAMA ESELON"],
-            data.data.simpeg_data.ESELON
+            data?.data?.user?.eselon?.name,
+            data?.data?.simpeg_data?.["NAMA ESELON"],
+            data?.data?.simpeg_data?.ESELON
           )}
           {renderField(
             "tmt_eselon",
-            parseDate(data.data.user.tmt_eselon),
-            data.data.simpeg_data["TMT ESELON"]
+            parseDate(data?.data?.user?.tmt_eselon),
+            data?.data?.simpeg_data?.["TMT ESELON"]
           )}
           {renderField(
             "jabatan",
-            data.data.user.jabatan?.full_name,
-            data.data.simpeg_data.JABATAN,
+            data?.data?.user?.jabatan?.full_name,
+            data?.data?.simpeg_data?.JABATAN,
             {
-              code: data?.data.simpeg_data.KOJAB,
-              name: data?.data.simpeg_data.JABATAN,
-              jenis: data?.data.simpeg_data.KD,
+              code: data?.data?.simpeg_data?.KOJAB,
+              name: data?.data?.simpeg_data?.JABATAN,
+              jenis: data?.data?.simpeg_data?.KD,
             }
           )}
 

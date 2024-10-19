@@ -200,13 +200,22 @@ export default function IsianKhusus() {
     });
   };
 
+  function parseHTMLToText(htmlString: string) {
+    // Menghapus semua tag HTML menggunakan regex
+    let text = htmlString.replace(/<\/?[^>]+(>|$)/g, "");
+    // Menghapus semua titik koma
+    return text.replace(/;/g, "");
+  }
+
   React.useEffect(() => {
     if (data?.pekerjaanData) {
       setDataInput({
-        tanggung_jawab: data?.pekerjaanData?.data.tanggung_jawab,
-        motivasi: data?.pekerjaanData?.data.motivasi,
-        kunci_sukses: data?.pekerjaanData?.data.kunci_sukses,
-        kompetensi: data?.pekerjaanData?.data.kompetensi,
+        tanggung_jawab: parseHTMLToText(
+          data?.pekerjaanData?.data.tanggung_jawab
+        ),
+        motivasi: parseHTMLToText(data?.pekerjaanData?.data.motivasi),
+        kunci_sukses: parseHTMLToText(data?.pekerjaanData?.data.kunci_sukses),
+        kompetensi: parseHTMLToText(data?.pekerjaanData?.data.kompetensi),
       });
     }
   }, [data?.pekerjaanData]);
@@ -387,7 +396,7 @@ export default function IsianKhusus() {
             title="Apa saja tanggungjawab Saudara pada pekerjaan/ jabatan Saudara saat ini?"
           >
             <TextInput
-              value={dataInput.tanggung_jawab}
+              value={parseHTMLToText(dataInput.tanggung_jawab)}
               onChangeText={(text) =>
                 setDataInput({ ...dataInput, tanggung_jawab: text })
               }
@@ -407,7 +416,7 @@ export default function IsianKhusus() {
             title="Apa yang mendorong Saudara mengikuti seleksi ?"
           >
             <TextInput
-              value={dataInput.motivasi}
+              value={parseHTMLToText(dataInput.motivasi)}
               onChangeText={(text) =>
                 setDataInput({ ...dataInput, motivasi: text })
               }
@@ -429,7 +438,7 @@ export default function IsianKhusus() {
             nanti ?"
           >
             <TextInput
-              value={dataInput.kunci_sukses}
+              value={parseHTMLToText(dataInput.kunci_sukses)}
               onChangeText={(text) =>
                 setDataInput({ ...dataInput, kunci_sukses: text })
               }
@@ -449,7 +458,7 @@ export default function IsianKhusus() {
             title="Menurut pendapat Saudara, kompetensi apa saja yang perlu dimiliki"
           >
             <TextInput
-              value={dataInput.kompetensi}
+              value={parseHTMLToText(dataInput.kunci_sukses)}
               onChangeText={(text) =>
                 setDataInput({ ...dataInput, kompetensi: text })
               }
