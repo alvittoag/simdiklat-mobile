@@ -367,7 +367,7 @@ export default function KotakMasukCreate() {
                           fontWeight: "500",
                         }}
                       >
-                        {item.nip}
+                        {item.nip} / {item.nrk}
                       </Text>
 
                       {/* Should SKPD */}
