@@ -134,6 +134,12 @@ const BiodataDiri = ({ navigation }: { navigation: any }) => {
           value = parseDateLong(date);
         }
       }
+
+      if (input.id === "jabatan.jenis") {
+        value =
+          value === "S" ? "Struktural" : value === "F" ? "Fungsional" : value;
+      }
+
       acc[input.id] = value || "";
       return acc;
     }, {} as Record<string, string>);

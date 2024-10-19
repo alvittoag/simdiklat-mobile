@@ -700,7 +700,7 @@ export default function DataKompetensi() {
                           paddingVertical: 6,
                         }}
                       >
-                        Lihat Ijazah
+                        Lihat Sertifikat
                       </Button>
                     </View>
                   )}
