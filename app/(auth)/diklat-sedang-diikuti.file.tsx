@@ -34,7 +34,14 @@ type response = {
 export default function Kurikulum() {
   const { id, mata_diklat } = useLocalSearchParams();
 
-  const mataDiklat: IMataDiklat = JSON.parse(mata_diklat as string);
+  const mataDiklat: IMataDiklat = React.useMemo(() => {
+    try {
+      return JSON.parse(mata_diklat as string);
+    } catch (error) {
+      console.error("Error parsing params data:", error);
+      return {} as IMataDiklat;
+    }
+  }, [id, mata_diklat]);
 
   const [search, setSearch] = React.useState("");
   const [page, setPage] = React.useState(1);
@@ -47,7 +54,7 @@ export default function Kurikulum() {
   const debouncedSearch = useDebounce(search, 1000);
 
   const { data, isPending, isError, refetch } = useQuery({
-    queryKey: ["file_materi", page, limit, debouncedSearch, terapkan],
+    queryKey: ["file_materi", page, limit, debouncedSearch, terapkan, id],
 
     queryFn: async () => {
       const { data } = await axiosService.get<response>(
@@ -74,6 +81,13 @@ export default function Kurikulum() {
     setPage(1);
     setVisible(false);
   };
+
+  function parseHTMLToText(htmlString: string) {
+    // Menghapus semua tag HTML menggunakan regex
+    let text = htmlString?.replace(/<\/?[^>]+(>|$)/g, "");
+    // Menghapus semua titik koma
+    return text?.replace(/;/g, "");
+  }
 
   const ListFooter = React.useMemo(
     () => (
@@ -102,12 +116,11 @@ export default function Kurikulum() {
       ) : data?.data?.file_materi_diklat?.file_materi?.length === 0 ? (
         <NotFoundSearch />
       ) : (
-        <FlashList
+        <FlatList
           refreshControl={
             <RefreshControl refreshing={false} onRefresh={() => refetch()} />
           }
           keyExtractor={(item) => item.id.toString()}
-          estimatedItemSize={100}
           showsVerticalScrollIndicator={false}
           data={data?.data?.file_materi_diklat?.file_materi}
           ListHeaderComponent={() => (
@@ -135,35 +148,35 @@ export default function Kurikulum() {
               <View style={{ gap: 3 }}>
                 <Text>Deskripsi</Text>
                 <Text style={{ fontSize: 15, fontWeight: "bold" }}>
-                  {mataDiklat.deskripsi ?? "-"}
+                  {parseHTMLToText(mataDiklat.deskripsi) ?? "-"}
                 </Text>
               </View>
 
               <View style={{ gap: 3 }}>
                 <Text>Kompetensi Dasar</Text>
                 <Text style={{ fontSize: 15, fontWeight: "bold" }}>
-                  {mataDiklat.kompetensi_dasar ?? "-"}
+                  {parseHTMLToText(mataDiklat.kompetensi_dasar) ?? "-"}
                 </Text>
               </View>
 
               <View style={{ gap: 3 }}>
                 <Text>Indikator Keberhasilan </Text>
                 <Text style={{ fontSize: 15, fontWeight: "bold" }}>
-                  {mataDiklat.indikator_keberhasilan ?? "-"}
+                  {parseHTMLToText(mataDiklat.indikator_keberhasilan) ?? "-"}
                 </Text>
               </View>
 
               <View style={{ gap: 3 }}>
                 <Text>Petunjuk Pengajar</Text>
                 <Text style={{ fontSize: 15, fontWeight: "bold" }}>
-                  {mataDiklat.petunjuk_pengajar ?? "-"}
+                  {parseHTMLToText(mataDiklat.petunjuk_pengajar) ?? "-"}
                 </Text>
               </View>
 
               <View style={{ gap: 3 }}>
                 <Text>Keterangan Modul </Text>
                 <Text style={{ fontSize: 15, fontWeight: "bold" }}>
-                  {mataDiklat.keterangan_modul ?? "-"}
+                  {parseHTMLToText(mataDiklat.keterangan_modul) ?? "-"}
                 </Text>
               </View>
             </View>
@@ -172,7 +185,7 @@ export default function Kurikulum() {
             <View
               style={{
                 marginHorizontal: 15,
-                marginBottom: 5,
+                marginBottom: 25,
                 paddingHorizontal: 15,
                 paddingVertical: 20,
                 backgroundColor: "white",

@@ -32,7 +32,14 @@ type response = {
 export default function Kurikulum() {
   const { id, diklat } = useLocalSearchParams();
 
-  const diklatParse: IDiklat = JSON.parse(diklat as string);
+  const diklatParse: IDiklat = React.useMemo(() => {
+    try {
+      return JSON.parse(diklat as string);
+    } catch (error) {
+      console.error("Error parsing params data:", error);
+      return {} as IDiklat;
+    }
+  }, [id, diklat]);
 
   const [search, setSearch] = React.useState("");
   const [page, setPage] = React.useState(1);
@@ -45,7 +52,7 @@ export default function Kurikulum() {
   const debouncedSearch = useDebounce(search, 1000);
 
   const { data, isPending, isError, refetch } = useQuery({
-    queryKey: ["kurikulum", page, limit, debouncedSearch, terapkan],
+    queryKey: ["kurikulum", page, limit, debouncedSearch, terapkan, id],
 
     queryFn: async () => {
       const { data } = await axiosService.get<response>(
@@ -102,12 +109,11 @@ export default function Kurikulum() {
       ) : data?.data.data.length === 0 ? (
         <NotFoundSearch />
       ) : (
-        <FlashList
+        <FlatList
           refreshControl={
             <RefreshControl refreshing={false} onRefresh={() => refetch()} />
           }
-          keyExtractor={(item) => item.id.toString()}
-          estimatedItemSize={100}
+          keyExtractor={(item, index) => item.id.toString()}
           showsVerticalScrollIndicator={false}
           data={data?.data.data}
           ListHeaderComponent={() => (
@@ -144,7 +150,7 @@ export default function Kurikulum() {
             <View
               style={{
                 marginHorizontal: 15,
-                marginBottom: 5,
+                marginBottom: 25,
                 paddingHorizontal: 15,
                 paddingVertical: 20,
                 backgroundColor: "white",
@@ -164,7 +170,9 @@ export default function Kurikulum() {
               <View style={{ gap: 3 }}>
                 <Text>Alokasi Waktu</Text>
                 <Text style={{ fontSize: 15, fontWeight: "bold" }}>
-                  {item.mata_diklat.kbm.alokasi_waktu}.00
+                  {item.mata_diklat?.kbm?.alokasi_waktu
+                    ? `${item.mata_diklat.kbm.alokasi_waktu}.00`
+                    : "-"}
                 </Text>
               </View>
 

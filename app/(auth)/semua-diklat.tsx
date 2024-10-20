@@ -15,7 +15,7 @@ import { Ionicons } from "@expo/vector-icons";
 import ContainerCard from "@/components/container/ContainerCard";
 import { getDiklat } from "@/services/query/get-diklat";
 import { ISedangDiikuti } from "@/type";
-import { useQuery } from "@apollo/client";
+import { useQuery, } from "@apollo/client";
 import Pagination from "@/components/sections/pagination";
 import Error from "@/components/elements/Error";
 import useDebounce from "@/hooks/useDebounce";
